@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hell Climb</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-left">
+      <div class="title-row">
+        <div class="title">HELL CLIMB</div>
+        <div class="badge" id="modeBadge">CLASSIC</div>
+        <div class="badge subtle" id="dailyDate" hidden></div>
+      </div>
+      <div class="hint">← → to move (or click/touch left/right)</div>
+    </div>
+
+    <div class="hud-right">
+      <div class="stat">HEIGHT: <span id="height">0</span></div>
+      <div class="stat">BEST: <span id="best">0</span></div>
+      <button id="modeBtn" type="button" title="Switch between Classic and Daily">Mode</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <canvas id="game" width="600" height="650" aria-label="Hell Climb canvas"></canvas>
+  </main>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel">
+      <div class="panel-title">GAME OVER</div>
+      <div class="panel-body">Final height: <span id="final">0</span></div>
+      <button id="playAgain" type="button">Play Again</button>
+    </div>
+  </div>
+
+  <script src="game.js" defer></script>
+</body>
+</html>

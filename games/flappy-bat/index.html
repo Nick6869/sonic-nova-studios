@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flappy Bat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header id="hud" class="hud hidden">
+    <div id="score">Score: 0</div>
+    <div id="best">Best: 0</div>
+    <button id="restart" type="button">Restart</button>
+  </header>
+
+  <main class="wrap">
+    <canvas id="game" width="600" height="650"></canvas>
+    <p class="hint">Space / Up Arrow / Click or Tap to flap. Press M for menu.</p>
+  </main>
+
+  <!-- MAIN MENU -->
+  <div id="menu" class="overlay">
+    <div class="card">
+      <div class="title">Flappy Bat</div>
+      <div class="sub">
+        Best Score: <span id="menu-best">0</span>
+      </div>
+
+      <div class="menu-actions">
+        <button id="btn-play" type="button">Play</button>
+        <button id="btn-achievements" type="button">Achievements</button>
+        <button id="btn-sound" type="button">Sound: On</button>
+      </div>
+
+      <div class="tiny">
+        Tip: Space to flap. Press M anytime for menu.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div id="achievements" class="overlay hidden">
+    <div class="card">
+      <div class="title">Achievements</div>
+      <div class="sub">Milestones: 25 → 500 (every 25)</div>
+
+      <div id="ach-list" class="ach-list"></div>
+
+      <div class="menu-actions">
+        <button id="btn-ach-back" type="button">Back</button>
+        <button id="btn-ach-reset" type="button" class="danger">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="overlay" class="overlay hidden">
+    <div class="card">
+      <div id="over-title" class="title">Game Over</div>
+      <div class="final">Final Score: <span id="final-score">0</span></div>
+
+      <div class="menu-actions">
+        <button id="play-again" type="button">Retry</button>
+        <button id="btn-menu" type="button">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievement toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="game.js" defer></script>
+</body>
+</html>
