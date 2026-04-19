@@ -1,4 +1,4 @@
-// Flappy Bat - Menu + Achievements + Sound Toggle + Power-ups + Moving Pipes + Patterned Variety
+// Flappy Bat - Bone Pillars + Custom Achievements + Sound Toggle + Music Toggle + Power-ups + Moving Pipes + Patterned Variety
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -13,8 +13,10 @@ const menuBestEl = document.getElementById("menu-best");
 const btnPlay = document.getElementById("btn-play");
 const btnAchievements = document.getElementById("btn-achievements");
 const btnSound = document.getElementById("btn-sound");
+const btnMusic = document.getElementById("btn-music");
 
 const achievementsEl = document.getElementById("achievements");
+const achSubEl = document.getElementById("ach-sub");
 const achListEl = document.getElementById("ach-list");
 const btnAchBack = document.getElementById("btn-ach-back");
 const btnAchReset = document.getElementById("btn-ach-reset");
@@ -29,18 +31,70 @@ const toastEl = document.getElementById("toast");
 
 // -------------------- Persistent keys --------------------
 const HS_KEY = "flappybat_highscore";
-const ACH_KEY = "flappybat_achievements_v1";
+const ACH_KEY = "flappybat_achievements_v2";
 const SOUND_KEY = "flappybat_sound_enabled_v1";
+const MUSIC_KEY = "flappybat_music_enabled_v1";
 
-// Achievements: 25, 50, 75... 500
-const ACH_STEPS = [];
-for (let s = 25; s <= 500; s += 25) ACH_STEPS.push(s);
+// -------------------- Achievements --------------------
+const ACHIEVEMENTS = [
+  {
+    id: "fresh_meat",
+    name: "Fresh Meat",
+    desc: "Crash for the first time."
+  },
+  {
+    id: "night_flight",
+    name: "Night Flight",
+    desc: "Reach 10 points in one run."
+  },
+  {
+    id: "crypt_runner",
+    name: "Crypt Runner",
+    desc: "Reach 20 points in one run."
+  },
+  {
+    id: "bone_ward",
+    name: "Bone Ward",
+    desc: "Collect a shield relic."
+  },
+  {
+    id: "time_rot",
+    name: "Time Rot",
+    desc: "Collect a slow-time relic."
+  },
+  {
+    id: "grave_dodger",
+    name: "Grave Dodger",
+    desc: "Pass 3 moving bone pillars in one run."
+  },
+  {
+    id: "second_chance",
+    name: "Second Chance",
+    desc: "Let a shield save you from a crash."
+  },
+  {
+    id: "hexproof",
+    name: "Hexproof",
+    desc: "Collect both relic types in one run."
+  },
+  {
+    id: "pure_skill",
+    name: "Pure Skill",
+    desc: "Reach 12 points without collecting relics."
+  }
+];
+
+const ACH_BY_ID = {};
+for (const ach of ACHIEVEMENTS) {
+  ACH_BY_ID[ach.id] = ach;
+}
 
 let highScore = Number(localStorage.getItem(HS_KEY) || 0);
 let unlocked = loadAchievements();
 
-// Sound enabled
+// Sound / music enabled
 let soundEnabled = loadSoundSetting();
+let musicEnabled = loadMusicSetting();
 
 // -------------------- Game mode --------------------
 let mode = "menu"; // menu | playing | gameover | achievements
@@ -50,13 +104,33 @@ let score = 0;
 let isGameOver = false;
 let animationId = null;
 
+// Fixed-step simulation so gameplay stays consistent across refresh rates
+const SIM_FPS = 60;
+const FIXED_STEP_MS = 1000 / SIM_FPS;
+const MAX_FRAME_MS = 100;
+let lastTime = 0;
+let accumulator = 0;
+
+// -------------------- Run stats for achievements --------------------
+let runMovingPassed = 0;
+let runShieldCollected = false;
+let runSlowCollected = false;
+let runShieldSaved = false;
+let runCollectedPowerup = false;
+
 // -------------------- Audio --------------------
 let audioCtx = null;
 let masterGain = null;
 
+const bgMusic = new Audio("assets/audio/flappybatsong.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.35;
+bgMusic.preload = "auto";
+
 function initAudio() {
   if (!soundEnabled) return;
   if (audioCtx) return;
+
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   audioCtx = new AudioContext();
   masterGain = audioCtx.createGain();
@@ -69,26 +143,28 @@ function tone(freq, duration = 0.08) {
   initAudio();
   if (!audioCtx) return;
 
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.frequency.value = freq;
-  o.type = "square";
-  g.gain.value = 0.0001;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-  o.connect(g);
-  g.connect(masterGain);
+  osc.frequency.value = freq;
+  osc.type = "square";
+  gain.gain.value = 0.0001;
+
+  osc.connect(gain);
+  gain.connect(masterGain);
 
   const t = audioCtx.currentTime;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
 
-  o.start(t);
-  o.stop(t + duration + 0.02);
+  osc.start(t);
+  osc.stop(t + duration + 0.02);
 }
 
 function playSound(name) {
   if (!soundEnabled) return;
+
   if (name === "flap") tone(520, 0.06);
   if (name === "death") tone(120, 0.18);
   if (name === "power") tone(780, 0.07);
@@ -96,25 +172,91 @@ function playSound(name) {
   if (name === "ach") tone(900, 0.09);
 }
 
+function loadMusicSetting() {
+  const raw = localStorage.getItem(MUSIC_KEY);
+  if (raw === null) return true;
+  return raw === "1";
+}
+
+function saveMusicSetting() {
+  localStorage.setItem(MUSIC_KEY, musicEnabled ? "1" : "0");
+}
+
+function playMusic() {
+  if (!musicEnabled) return;
+
+  const playPromise = bgMusic.play();
+  if (playPromise && typeof playPromise.catch === "function") {
+    playPromise.catch(() => {});
+  }
+}
+
+function stopMusic() {
+  bgMusic.pause();
+}
+
+function updateMusicButton() {
+  if (!btnMusic) return;
+  btnMusic.textContent = `Music: ${musicEnabled ? "On" : "Off"}`;
+}
+
 // -------------------- Helpers --------------------
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
+
 function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
+
 function choice(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+
 function circleHit(ax, ay, ar, bx, by, br) {
   const dx = ax - bx;
   const dy = ay - by;
   const rr = ar + br;
   return dx * dx + dy * dy <= rr * rr;
 }
+
+function circleRectHit(cx, cy, cr, rx, ry, rw, rh) {
+  const closestX = clamp(cx, rx, rx + rw);
+  const closestY = clamp(cy, ry, ry + rh);
+  const dx = cx - closestX;
+  const dy = cy - closestY;
+  return dx * dx + dy * dy <= cr * cr;
+}
+
+function pipeHitsBird(pipe) {
+  const lipInset = 6;
+  const hitRadius = fb_bird.radius - 2;
+
+  const topRectX = pipe.x;
+  const topRectY = 0;
+  const topRectW = FB_PIPE_W;
+  const topRectH = Math.max(0, pipe.gapY - lipInset);
+
+  const bottomRectX = pipe.x;
+  const bottomRectY = pipe.gapY + pipe.gapH + lipInset;
+  const bottomRectW = FB_PIPE_W;
+  const bottomRectH = Math.max(0, canvas.height - bottomRectY);
+
+  return (
+    circleRectHit(fb_bird.x, fb_bird.y, hitRadius, topRectX, topRectY, topRectW, topRectH) ||
+    circleRectHit(fb_bird.x, fb_bird.y, hitRadius, bottomRectX, bottomRectY, bottomRectW, bottomRectH)
+  );
+}
+
 function screenShake() {
   canvas.style.transform = `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`;
-  setTimeout(() => (canvas.style.transform = "none"), 180);
+  setTimeout(() => {
+    canvas.style.transform = "none";
+  }, 180);
+}
+
+function resetLoopTiming() {
+  accumulator = 0;
 }
 
 // -------------------- Achievements persistence --------------------
@@ -133,15 +275,20 @@ function saveAchievements() {
   localStorage.setItem(ACH_KEY, JSON.stringify(unlocked));
 }
 
-function isUnlocked(step) {
-  return !!unlocked[String(step)];
+function isUnlocked(id) {
+  return !!unlocked[String(id)];
 }
 
-function unlock(step) {
-  unlocked[String(step)] = true;
+function unlockAchievement(id) {
+  if (isUnlocked(id)) return;
+
+  const ach = ACH_BY_ID[id];
+  if (!ach) return;
+
+  unlocked[String(id)] = true;
   saveAchievements();
   renderAchievementsList();
-  showToast(`Achievement Unlocked: ${step} points!`);
+  showToast(`Achievement Unlocked: ${ach.name}`);
   playSound("ach");
 }
 
@@ -151,20 +298,25 @@ function loadSoundSetting() {
   if (raw === null) return true;
   return raw === "1";
 }
+
 function saveSoundSetting() {
   localStorage.setItem(SOUND_KEY, soundEnabled ? "1" : "0");
 }
+
 function updateSoundButton() {
   btnSound.textContent = `Sound: ${soundEnabled ? "On" : "Off"}`;
 }
 
 // -------------------- Toast --------------------
 let toastTimer = null;
+
 function showToast(text) {
   toastEl.textContent = text;
   toastEl.classList.remove("hidden");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.add("hidden"), 1600);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.add("hidden");
+  }, 1600);
 }
 
 // -------------------- UI mode switching --------------------
@@ -179,31 +331,46 @@ function setMode(next) {
   achievementsEl.classList.toggle("hidden", !showAch);
   overlay.classList.toggle("hidden", !showOver);
 
-  // HUD visible only while playing
   hudEl.classList.toggle("hidden", mode !== "playing");
+
+  if (mode !== "playing") resetLoopTiming();
 }
 
 function renderAchievementsList() {
   achListEl.innerHTML = "";
-  for (const step of ACH_STEPS) {
+
+  for (const ach of ACHIEVEMENTS) {
     const row = document.createElement("div");
     row.className = "ach-item";
 
     const left = document.createElement("div");
     left.className = "badge";
+    left.style.alignItems = "flex-start";
 
     const dot = document.createElement("span");
-    dot.className = "dot" + (isUnlocked(step) ? " on" : "");
+    dot.className = "dot" + (isUnlocked(ach.id) ? " on" : "");
 
-    const label = document.createElement("span");
-    label.textContent = `${step} points`;
+    const textWrap = document.createElement("div");
+
+    const label = document.createElement("div");
+    label.textContent = ach.name;
+
+    const desc = document.createElement("div");
+    desc.textContent = ach.desc;
+    desc.style.fontSize = "0.72em";
+    desc.style.opacity = "0.72";
+    desc.style.lineHeight = "1.1";
+    desc.style.marginTop = "2px";
+
+    textWrap.appendChild(label);
+    textWrap.appendChild(desc);
 
     left.appendChild(dot);
-    left.appendChild(label);
+    left.appendChild(textWrap);
 
     const right = document.createElement("div");
-    right.style.opacity = isUnlocked(step) ? "1" : "0.6";
-    right.textContent = isUnlocked(step) ? "Unlocked" : "Locked";
+    right.style.opacity = isUnlocked(ach.id) ? "1" : "0.6";
+    right.textContent = isUnlocked(ach.id) ? "Unlocked" : "Locked";
 
     row.appendChild(left);
     row.appendChild(right);
@@ -216,6 +383,11 @@ function updateUI() {
   bestEl.textContent = `Best: ${highScore}`;
   menuBestEl.textContent = String(highScore);
   updateSoundButton();
+  updateMusicButton();
+
+  if (achSubEl) {
+    achSubEl.textContent = "Score goals, survival feats, and cursed tricks.";
+  }
 }
 
 // -------------------- Game logic --------------------
@@ -262,13 +434,13 @@ let invulnFrames = 0;
 
 // Patterns
 const PATTERNS = [
-  { name: "standard",     lenRange: [5, 8],  steps: [0, 0, 0, 0, 0, 0, 0, 0], gapMul: 1.0 },
-  { name: "stairUp",      lenRange: [6, 9],  steps: [0, -25, -50, -75, -90, -105, -120, -135, -150], gapMul: 1.0 },
-  { name: "stairDown",    lenRange: [6, 9],  steps: [0, 25, 50, 75, 90, 105, 120, 135, 150], gapMul: 1.0 },
-  { name: "zigzag",       lenRange: [6, 10], steps: [0, 55, -55, 55, -55, 55, -55, 55, -55, 55], gapMul: 1.0 },
-  { name: "gentleWave",   lenRange: [7, 11], steps: [0, 25, 45, 60, 45, 25, 0, -25, -45, -60, -45, -25], gapMul: 1.0 },
-  { name: "tightSection", lenRange: [5, 8],  steps: [0, 10, -10, 15, -15, 10, -10, 0], gapMul: 0.86 },
-  { name: "breather",     lenRange: [4, 6],  steps: [0, 0, 0, 0, 0, 0], gapMul: 1.12 }
+  { name: "standard", lenRange: [5, 8], steps: [0, 0, 0, 0, 0, 0, 0, 0], gapMul: 1.0 },
+  { name: "stairUp", lenRange: [6, 9], steps: [0, -25, -50, -75, -90, -105, -120, -135, -150], gapMul: 1.0 },
+  { name: "stairDown", lenRange: [6, 9], steps: [0, 25, 50, 75, 90, 105, 120, 135, 150], gapMul: 1.0 },
+  { name: "zigzag", lenRange: [6, 10], steps: [0, 55, -55, 55, -55, 55, -55, 55, -55, 55], gapMul: 1.0 },
+  { name: "gentleWave", lenRange: [7, 11], steps: [0, 25, 45, 60, 45, 25, 0, -25, -45, -60, -45, -25], gapMul: 1.0 },
+  { name: "tightSection", lenRange: [5, 8], steps: [0, 10, -10, 15, -15, 10, -10, 0], gapMul: 0.86 },
+  { name: "breather", lenRange: [4, 6], steps: [0, 0, 0, 0, 0, 0], gapMul: 1.12 }
 ];
 
 let pattern = null;
@@ -280,11 +452,14 @@ let lastPatternName = null;
 
 function pickPattern() {
   const pool = [];
+
   PATTERNS.forEach((p) => {
     let w = 1;
     if (p.name === "standard") w = 2;
     if (p.name === "tightSection") w = 2;
-    for (let i = 0; i < w; i++) pool.push(p);
+    for (let i = 0; i < w; i++) {
+      pool.push(p);
+    }
   });
 
   let picked = choice(pool);
@@ -423,19 +598,32 @@ function initRun() {
   slowTimeFrames = 0;
   invulnFrames = 0;
 
+  runMovingPassed = 0;
+  runShieldCollected = false;
+  runSlowCollected = false;
+  runShieldSaved = false;
+  runCollectedPowerup = false;
+
+  resetLoopTiming();
   updateUI();
 }
 
 function checkAchievements() {
-  for (const step of ACH_STEPS) {
-    if (score >= step && !isUnlocked(step)) unlock(step);
-  }
+  if (score >= 10) unlockAchievement("night_flight");
+  if (score >= 20) unlockAchievement("crypt_runner");
+  if (runShieldCollected) unlockAchievement("bone_ward");
+  if (runSlowCollected) unlockAchievement("time_rot");
+  if (runMovingPassed >= 3) unlockAchievement("grave_dodger");
+  if (runShieldSaved) unlockAchievement("second_chance");
+  if (runShieldCollected && runSlowCollected) unlockAchievement("hexproof");
+  if (score >= 12 && !runCollectedPowerup) unlockAchievement("pure_skill");
 }
 
 function handleDeath() {
   isGameOver = true;
   playSound("death");
   screenShake();
+  unlockAchievement("fresh_meat");
 
   if (score > highScore) {
     highScore = score;
@@ -447,14 +635,13 @@ function handleDeath() {
 
   finalScoreEl.textContent = String(score);
   updateUI();
-
-  // IMPORTANT: keep rendering the frozen gameplay scene behind the overlay
   setMode("gameover");
 }
 
 function flap() {
   if (mode !== "playing") return;
   if (isGameOver) return;
+
   playSound("flap");
   fb_bird.velocity = FB_JUMP;
 }
@@ -480,15 +667,28 @@ function updateGame() {
     const pu = powerups[i];
     pu.x -= scroll;
 
-    if (circleHit(fb_bird.x, fb_bird.y, 12, pu.x, pu.y, pu.r)) {
+    if (circleHit(fb_bird.x, fb_bird.y, fb_bird.radius - 3, pu.x, pu.y, pu.r)) {
       playSound("power");
-      if (pu.type === "shield") shieldActive = true;
-      if (pu.type === "slow") slowTimeFrames = SLOW_TIME_FRAMES;
+      runCollectedPowerup = true;
+
+      if (pu.type === "shield") {
+        shieldActive = true;
+        runShieldCollected = true;
+      }
+
+      if (pu.type === "slow") {
+        slowTimeFrames = SLOW_TIME_FRAMES;
+        runSlowCollected = true;
+      }
+
       powerups.splice(i, 1);
+      checkAchievements();
       continue;
     }
 
-    if (pu.x < -50) powerups.splice(i, 1);
+    if (pu.x < -50) {
+      powerups.splice(i, 1);
+    }
   }
 
   for (let i = 0; i < fb_pipes.length; i++) {
@@ -501,55 +701,65 @@ function updateGame() {
 
       const minGapY = TOP_MARGIN;
       const maxGapY = canvas.height - BOTTOM_MARGIN - p.gapH;
-
       const newGapY = p.oscBase + Math.sin(p.oscT) * p.oscAmp;
+
       p.gapY = clamp(newGapY, minGapY, maxGapY);
     }
 
     if (!p.passed && p.x + FB_PIPE_W < fb_bird.x) {
       score++;
       p.passed = true;
+
+      if (p.isMoving) {
+        runMovingPassed++;
+      }
+
       updateUI();
       checkAchievements();
     }
 
-    const birdPadX = 10;
-    const birdPadY = 10;
+    if (pipeHitsBird(p)) {
+      if (invulnFrames > 0) continue;
 
-    if (fb_bird.x + birdPadX > p.x && fb_bird.x - birdPadX < p.x + FB_PIPE_W) {
-      const hit = (fb_bird.y - birdPadY < p.gapY) || (fb_bird.y + birdPadY > p.gapY + p.gapH);
+      if (shieldActive) {
+        shieldActive = false;
+        runShieldSaved = true;
+        invulnFrames = INVULN_FRAMES;
+        playSound("shieldpop");
 
-      if (hit) {
-        if (invulnFrames > 0) continue;
+        const safeY = p.gapY + p.gapH / 2;
+        fb_bird.y = clamp(safeY, fb_bird.radius, canvas.height - fb_bird.radius);
+        fb_bird.velocity = 0;
 
-        if (shieldActive) {
-          shieldActive = false;
-          invulnFrames = INVULN_FRAMES;
-          playSound("shieldpop");
-
-          const safeY = p.gapY + p.gapH / 2;
-          fb_bird.y = clamp(safeY, fb_bird.radius, canvas.height - fb_bird.radius);
-          fb_bird.velocity = 0;
-
-          screenShake();
-          continue;
-        }
-
-        handleDeath();
-        return;
+        checkAchievements();
+        screenShake();
+        continue;
       }
+
+      handleDeath();
+      return;
     }
   }
 
-  if (fb_pipes.length > 0 && fb_pipes[0].x < -120) fb_pipes.shift();
+  if (fb_pipes.length > 0 && fb_pipes[0].x < -120) {
+    fb_pipes.shift();
+  }
 
   if (fb_bird.y + fb_bird.radius > canvas.height || fb_bird.y - fb_bird.radius < 0) {
     if (invulnFrames === 0 && shieldActive) {
       shieldActive = false;
+      runShieldSaved = true;
       invulnFrames = INVULN_FRAMES;
       playSound("shieldpop");
-      fb_bird.y = clamp(fb_bird.y, fb_bird.radius + 5, canvas.height - fb_bird.radius - 5);
+
+      fb_bird.y = clamp(
+        fb_bird.y,
+        fb_bird.radius + 5,
+        canvas.height - fb_bird.radius - 5
+      );
       fb_bird.velocity = 0;
+
+      checkAchievements();
       screenShake();
     } else if (invulnFrames === 0) {
       handleDeath();
@@ -594,40 +804,160 @@ function drawBackground() {
   }
 }
 
+function getBonePalette(isMoving) {
+  if (isMoving) {
+    return {
+      fill: "#d9cbf3",
+      shade: "#af97dd",
+      line: "#624492",
+      accent: "rgba(182, 129, 255, 0.16)",
+      eye: "#6d2bba"
+    };
+  }
+
+  return {
+    fill: "#d7cfbb",
+    shade: "#b8ad94",
+    line: "#6c6253",
+    accent: "rgba(255,255,255,0.08)",
+    eye: "#4b4133"
+  };
+}
+
+function drawBoneKnob(cx, cy, r, colors) {
+  ctx.fillStyle = colors.fill;
+  ctx.strokeStyle = colors.line;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = colors.shade;
+  ctx.beginPath();
+  ctx.arc(cx - r * 0.2, cy + r * 0.15, r * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawSkull(cx, cy, size, colors, upsideDown) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  if (upsideDown) {
+    ctx.rotate(Math.PI);
+  }
+
+  ctx.fillStyle = colors.fill;
+  ctx.strokeStyle = colors.line;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.ellipse(0, -1, size * 0.52, size * 0.42, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillRect(-size * 0.26, size * 0.12, size * 0.52, size * 0.24);
+  ctx.strokeRect(-size * 0.26, size * 0.12, size * 0.52, size * 0.24);
+
+  ctx.fillStyle = colors.eye;
+  ctx.beginPath();
+  ctx.arc(-size * 0.18, -size * 0.02, size * 0.1, 0, Math.PI * 2);
+  ctx.arc(size * 0.18, -size * 0.02, size * 0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(0, size * 0.02);
+  ctx.lineTo(-size * 0.06, size * 0.14);
+  ctx.lineTo(size * 0.06, size * 0.14);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = colors.line;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * size * 0.11, size * 0.12);
+    ctx.lineTo(i * size * 0.11, size * 0.34);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawBonePillar(x, y, w, h, isMoving, isTop) {
+  if (h <= 0) return;
+
+  const colors = getBonePalette(isMoving);
+  const shaftInset = 12;
+  const shaftX = x + shaftInset;
+  const shaftW = w - shaftInset * 2;
+  const centerX = x + w / 2;
+
+  ctx.save();
+
+  if (isMoving) {
+    ctx.shadowColor = "rgba(177, 0, 255, 0.18)";
+    ctx.shadowBlur = 8;
+  }
+
+  ctx.fillStyle = colors.fill;
+  ctx.strokeStyle = colors.line;
+  ctx.lineWidth = 2;
+  ctx.fillRect(shaftX, y, shaftW, h);
+  ctx.strokeRect(shaftX, y, shaftW, h);
+
+  ctx.fillStyle = colors.accent;
+  ctx.fillRect(shaftX + 2, y + 2, Math.max(2, shaftW * 0.28), h - 4);
+
+  ctx.strokeStyle = "rgba(0,0,0,0.12)";
+  ctx.beginPath();
+  ctx.moveTo(centerX, y + 4);
+  ctx.lineTo(centerX, y + h - 4);
+  ctx.stroke();
+
+  for (let segY = y + 18; segY <= y + h - 18; segY += 30) {
+    ctx.fillStyle = colors.fill;
+    ctx.strokeStyle = colors.line;
+
+    ctx.beginPath();
+    ctx.ellipse(centerX, segY, shaftW * 0.9, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = colors.shade;
+    ctx.beginPath();
+    ctx.ellipse(centerX, segY + 2, shaftW * 0.42, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const jointR = Math.max(8, w * 0.18);
+
+  if (isTop) {
+    drawBoneKnob(x + 11, y + h - 12, jointR, colors);
+    drawBoneKnob(x + w - 11, y + h - 12, jointR, colors);
+
+    if (h > 48) {
+      drawSkull(centerX, y + h - 18, 24, colors, false);
+    }
+  } else {
+    drawBoneKnob(x + 11, y + 12, jointR, colors);
+    drawBoneKnob(x + w - 11, y + 12, jointR, colors);
+
+    if (h > 48) {
+      drawSkull(centerX, y + 18, 24, colors, true);
+    }
+  }
+
+  ctx.restore();
+}
+
 function drawPipes() {
   fb_pipes.forEach((p) => {
-    const isMoving = p.isMoving;
+    const bottomY = p.gapY + p.gapH;
+    const bottomH = canvas.height - bottomY;
 
-    ctx.fillStyle = isMoving ? "#2b0033" : "#4a0000";
-    ctx.strokeStyle = isMoving ? "#b100ff" : "#880000";
-    ctx.lineWidth = 2;
-
-    ctx.fillRect(p.x, 0, FB_PIPE_W, p.gapY);
-    ctx.strokeRect(p.x, 0, FB_PIPE_W, p.gapY);
-
-    ctx.fillStyle = isMoving ? "#41004f" : "#6a0000";
-    ctx.fillRect(p.x - 5, p.gapY - 20, FB_PIPE_W + 10, 20);
-
-    ctx.fillStyle = isMoving ? "#2b0033" : "#4a0000";
-    const botY = p.gapY + p.gapH;
-    const botH = canvas.height - botY;
-
-    ctx.fillRect(p.x, botY, FB_PIPE_W, botH);
-    ctx.strokeRect(p.x, botY, FB_PIPE_W, botH);
-
-    ctx.fillStyle = isMoving ? "#41004f" : "#6a0000";
-    ctx.fillRect(p.x - 5, botY, FB_PIPE_W + 10, 20);
-
-    ctx.strokeStyle = "rgba(0,0,0,0.3)";
-    ctx.beginPath();
-    ctx.moveTo(p.x + 10, 0); ctx.lineTo(p.x + 10, p.gapY);
-    ctx.moveTo(p.x + 30, 0); ctx.lineTo(p.x + 30, p.gapY);
-    ctx.moveTo(p.x + 50, 0); ctx.lineTo(p.x + 50, p.gapY);
-
-    ctx.moveTo(p.x + 10, botY); ctx.lineTo(p.x + 10, canvas.height);
-    ctx.moveTo(p.x + 30, botY); ctx.lineTo(p.x + 30, canvas.height);
-    ctx.moveTo(p.x + 50, botY); ctx.lineTo(p.x + 50, canvas.height);
-    ctx.stroke();
+    drawBonePillar(p.x, 0, FB_PIPE_W, p.gapY, p.isMoving, true);
+    drawBonePillar(p.x, bottomY, FB_PIPE_W, bottomH, p.isMoving, false);
   });
 }
 
@@ -673,7 +1003,7 @@ function drawBat() {
   ctx.translate(fb_bird.x, fb_bird.y);
   ctx.rotate(fb_bird.rotation);
 
-  const flicker = invulnFrames > 0 && (Math.floor(invulnFrames / 4) % 2 === 0);
+  const flicker = invulnFrames > 0 && Math.floor(invulnFrames / 4) % 2 === 0;
   ctx.globalAlpha = flicker ? 0.45 : 1;
 
   ctx.fillStyle = "#666666";
@@ -685,11 +1015,21 @@ function drawBat() {
   ctx.beginPath();
 
   if (fb_bird.velocity < 0) {
-    ctx.moveTo(-10, 0); ctx.lineTo(-35, -15); ctx.lineTo(-10, 5);
-    ctx.moveTo(10, 0);  ctx.lineTo(35, -15);  ctx.lineTo(10, 5);
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-35, -15);
+    ctx.lineTo(-10, 5);
+
+    ctx.moveTo(10, 0);
+    ctx.lineTo(35, -15);
+    ctx.lineTo(10, 5);
   } else {
-    ctx.moveTo(-10, 0); ctx.lineTo(-35, 10); ctx.lineTo(-10, -5);
-    ctx.moveTo(10, 0);  ctx.lineTo(35, 10);  ctx.lineTo(10, -5);
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-35, 10);
+    ctx.lineTo(-10, -5);
+
+    ctx.moveTo(10, 0);
+    ctx.lineTo(35, 10);
+    ctx.lineTo(10, -5);
   }
 
   ctx.fill();
@@ -717,12 +1057,14 @@ function drawStatusHUD() {
     ctx.fillText("SHIELD", x, y);
     y += 18;
   }
+
   if (slowTimeFrames > 0) {
     ctx.fillStyle = "rgba(255, 209, 102, 0.9)";
     const sec = Math.ceil(slowTimeFrames / 60);
     ctx.fillText(`SLOW (${sec}s)`, x, y);
     y += 18;
   }
+
   if (invulnFrames > 0) {
     ctx.fillStyle = "rgba(255,255,255,0.5)";
     ctx.fillText("INVULN", x, y);
@@ -745,18 +1087,19 @@ function drawHintIfNeeded() {
 function draw() {
   drawBackground();
 
-  // IMPORTANT FIX:
-  // Render the frozen gameplay scene even on gameover (no updates, just draw).
   if (mode === "playing" || mode === "gameover") {
     drawPipes();
     drawPowerups();
     drawBat();
     drawStatusHUD();
-    if (mode === "playing") drawHintIfNeeded();
+
+    if (mode === "playing") {
+      drawHintIfNeeded();
+    }
+
     return;
   }
 
-  // menu / achievements idle animation
   fb_frame++;
   const bob = Math.sin(fb_frame * 0.05) * 6;
   fb_bird.x = 120;
@@ -768,11 +1111,30 @@ function draw() {
 }
 
 // -------------------- Loop --------------------
-function gameLoop() {
+function gameLoop(timestamp = 0) {
+  if (!lastTime) lastTime = timestamp;
+
+  const frameMs = Math.min(timestamp - lastTime, MAX_FRAME_MS);
+  lastTime = timestamp;
+
+  if (mode === "playing" && !isGameOver) {
+    accumulator += frameMs;
+
+    while (accumulator >= FIXED_STEP_MS) {
+      updateGame();
+      accumulator -= FIXED_STEP_MS;
+
+      if (isGameOver || mode !== "playing") {
+        accumulator = 0;
+        break;
+      }
+    }
+  } else {
+    accumulator = 0;
+  }
+
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (mode === "playing" && !isGameOver) updateGame();
   draw();
 
   animationId = requestAnimationFrame(gameLoop);
@@ -782,6 +1144,7 @@ function gameLoop() {
 function startGame() {
   initRun();
   setMode("playing");
+  playMusic();
 }
 
 function openMenu() {
@@ -799,7 +1162,9 @@ function restartRun() {
 }
 
 window.addEventListener("keydown", (e) => {
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    e.preventDefault();
+  }
 
   if (e.key.toLowerCase() === "m") {
     openMenu();
@@ -821,23 +1186,29 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-canvas.addEventListener("pointerdown", (e) => {
-  e.preventDefault();
+canvas.addEventListener(
+  "pointerdown",
+  (e) => {
+    e.preventDefault();
 
-  if (mode === "menu") {
-    startGame();
-    return;
-  }
+    if (mode === "menu") {
+      startGame();
+      return;
+    }
 
-  if (mode === "achievements") return;
+    if (mode === "achievements") return;
 
-  if (mode === "gameover") {
-    restartRun();
-    return;
-  }
+    if (mode === "gameover") {
+      restartRun();
+      return;
+    }
 
-  if (mode === "playing") flap();
-}, { passive: false });
+    if (mode === "playing") {
+      flap();
+    }
+  },
+  { passive: false }
+);
 
 // Buttons
 btnPlay.addEventListener("click", startGame);
@@ -848,9 +1219,27 @@ btnSound.addEventListener("click", () => {
   saveSoundSetting();
   updateSoundButton();
   showToast(`Sound ${soundEnabled ? "On" : "Off"}`);
-  // tiny confirmation beep only when turning on
-  if (soundEnabled) playSound("power");
+
+  if (soundEnabled) {
+    playSound("power");
+  }
 });
+
+if (btnMusic) {
+  btnMusic.addEventListener("click", () => {
+    musicEnabled = !musicEnabled;
+    saveMusicSetting();
+    updateMusicButton();
+
+    if (musicEnabled) {
+      playMusic();
+      showToast("Music On");
+    } else {
+      stopMusic();
+      showToast("Music Off");
+    }
+  });
+}
 
 btnAchBack.addEventListener("click", openMenu);
 
@@ -862,7 +1251,9 @@ btnAchReset.addEventListener("click", () => {
 });
 
 restartBtn.addEventListener("click", () => {
-  if (mode === "playing") startGame();
+  if (mode === "playing") {
+    startGame();
+  }
 });
 
 playAgainBtn.addEventListener("click", restartRun);

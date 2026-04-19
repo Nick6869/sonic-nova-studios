@@ -1,27 +1,44 @@
 * { box-sizing: border-box; }
 
+:root {
+  --game-width: 600px;
+  --game-height: 650px;
+  --page-pad: 16px;
+}
+
+html, body {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
+  padding: 12px var(--page-pad) 20px;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background: #0b0b0f;
   color: #eaeaea;
   min-height: 100vh;
   display: grid;
   place-items: center;
+  overflow-x: hidden;
 }
 
 .hud {
-  width: 600px;
+  width: min(var(--game-width), calc(100vw - (var(--page-pad) * 2)));
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   margin: 18px 0 10px;
+  flex-wrap: wrap;
 }
 
-.hud.hidden { visibility: hidden; }
+.hud.hidden {
+  visibility: hidden;
+}
 
-.hud div { font-weight: 800; }
+.hud div {
+  font-weight: 800;
+}
 
 .hud button {
   border: 0;
@@ -32,17 +49,30 @@ body {
   cursor: pointer;
 }
 
-.hud button:hover { background: #2b2b2b; }
+.hud button:hover {
+  background: #2b2b2b;
+}
 
 .wrap {
-  width: 600px;
+  width: min(var(--game-width), calc(100vw - (var(--page-pad) * 2)));
   display: grid;
   place-items: center;
   gap: 10px;
   position: relative;
 }
 
+.game-shell {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
 canvas {
+  display: block;
+  width: 100%;
+  max-width: var(--game-width);
+  height: auto;
+  aspect-ratio: 600 / 650;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.12);
   background: #050505;
@@ -54,6 +84,8 @@ canvas {
   margin: 0 0 18px;
   opacity: 0.7;
   font-size: 14px;
+  text-align: center;
+  max-width: 100%;
 }
 
 .overlay {
@@ -62,9 +94,12 @@ canvas {
   display: grid;
   place-items: center;
   background: rgba(0,0,0,0.65);
+  padding: 16px;
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 
 .card {
   width: min(460px, 92vw);
@@ -112,13 +147,17 @@ canvas {
   min-width: 140px;
 }
 
-.card button:hover { filter: brightness(1.05); }
+.card button:hover {
+  filter: brightness(1.05);
+}
 
 .card button.danger {
   background: #333;
 }
 
-.card button.danger:hover { background: #444; }
+.card button.danger:hover {
+  background: #444;
+}
 
 .tiny {
   margin-top: 12px;
@@ -139,20 +178,56 @@ canvas {
 
 .ach-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 8px 8px;
+  gap: 12px;
+  padding: 10px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   font-family: "VT323", monospace;
   font-size: 20px;
 }
 
-.ach-item:last-child { border-bottom: none; }
+.ach-item:last-child {
+  border-bottom: none;
+}
 
 .badge {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.badge > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.badge > div > div:first-child {
+  line-height: 1;
+  word-break: break-word;
+}
+
+.badge > div > div:last-child {
+  font-size: 14px;
+  line-height: 1.15;
+  opacity: 0.72;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.ach-item > div:last-child {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
 }
 
 .dot {
@@ -160,9 +235,14 @@ canvas {
   height: 10px;
   border-radius: 999px;
   background: rgba(255,255,255,0.25);
+  flex: 0 0 auto;
+  margin-top: 6px;
 }
 
-.dot.on { background: #39d98a; }
+.dot.on {
+  background: #39d98a;
+  box-shadow: 0 0 10px rgba(57, 217, 138, 0.45);
+}
 
 .toast {
   position: fixed;
@@ -177,4 +257,94 @@ canvas {
   font-size: 22px;
   letter-spacing: 0.5px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  max-width: calc(100vw - 24px);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  body {
+    padding-top: 10px;
+  }
+
+  .hud {
+    justify-content: center;
+  }
+
+  .hud div,
+  .hud button {
+    flex: 0 1 auto;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .sub,
+  .final {
+    font-size: 15px;
+  }
+
+  .card button {
+    min-width: 120px;
+  }
+
+  .ach-item {
+    font-size: 18px;
+  }
+
+  .badge > div > div:last-child {
+    font-size: 13px;
+  }
+
+  .ach-item > div:last-child {
+    font-size: 13px;
+    padding: 4px 7px;
+  }
+
+  .toast {
+    bottom: 16px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --page-pad: 10px;
+  }
+
+  .hint {
+    font-size: 13px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .menu-actions {
+    gap: 8px;
+  }
+
+  .card button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ach-item {
+    font-size: 17px;
+    padding: 9px 4px;
+    gap: 8px;
+  }
+
+  .badge {
+    gap: 8px;
+  }
+
+  .badge > div > div:last-child {
+    font-size: 12px;
+  }
+
+  .ach-item > div:last-child {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
 }
