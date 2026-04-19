@@ -199,13 +199,53 @@ body {
     align-items: stretch;
   }
 
-  /* key: make all merch cards flex columns so preview can fill and button sits at bottom */
   .rb-card,
   .book-card {
     display: flex;
     flex-direction: column;
     height: 100%;
   }
+}
+
+/* Screamlings feature spacing */
+.screamlings-feature {
+  margin-bottom: 1.5rem;
+}
+
+.screamlings-covers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.screamlings-cover-link {
+  display: block;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  transition: transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+  width: 38%;
+  margin: 0 auto;
+}
+
+.screamlings-cover-link:hover {
+  border-color: rgba(138, 91, 255, 0.45);
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.screamlings-cover {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.2);
+  display: block;
 }
 
 /* --- REDBUBBLE GRID FIX --- */
@@ -219,7 +259,6 @@ body {
   border: 1px solid var(--border-subtle);
   background: rgba(0, 0, 0, 0.12);
 
-  /* THIS is the important change */
   flex: 1;
   min-height: var(--rb-grid-min);
 }
@@ -240,13 +279,9 @@ body {
   object-position: center;
   background: rgba(0, 0, 0, 0.25);
   display: block;
-
-  /* slightly smaller padding so all 6 fit comfortably */
   padding: 10px;
-
   border-right: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-
   transition: transform 0.12s ease, filter 0.12s ease;
 }
 
@@ -337,14 +372,12 @@ body {
 }
 
 /* Socials */
-/* Pulling the column up to align "Socials" text with "Sonic..." and "Oh..." text */
 .about-socials {
   margin-top: -0.4rem;
 }
 
 .mini-title { margin: 0 0 6px; font-size: 1.25rem; }
 
-/* Pushing the grid back down to maintain original spacing */
 .mini-sub {
   margin: 0 0 1.4rem;
   opacity: 0.85;
@@ -361,7 +394,6 @@ body {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  /* Enforce left align inside social cards, even if parent column is centered */
   text-align: left;
   transition: transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
 }
@@ -472,6 +504,14 @@ body {
 @media (max-width: 640px) {
   .site-header { padding: 1rem 5vw; }
   .section { padding: 2rem 5vw; }
+
+  .screamlings-covers {
+    grid-template-columns: 1fr;
+  }
+
+  .screamlings-cover-link {
+    width: 55%;
+  }
 
   :root {
     --rb-grid-min: 480px;
