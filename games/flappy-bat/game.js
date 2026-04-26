@@ -103,6 +103,14 @@ let mode = "menu"; // menu | playing | gameover | achievements
 let score = 0;
 let isGameOver = false;
 let animationId = null;
+let flapFrames = 0;
+
+// -------------------- Haunted milestone events --------------------
+let hauntedEvent = null;
+let hauntedEventFrames = 0;
+let hauntedEventTitle = "";
+let hauntedTriggered = {};
+let hauntedBats = [];
 
 // Fixed-step simulation so gameplay stays consistent across refresh rates
 const SIM_FPS = 60;
@@ -211,6 +219,66 @@ function rand(min, max) {
 
 function choice(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function makeHauntedBats(count = 18) {
+  hauntedBats = [];
+
+  for (let i = 0; i < count; i++) {
+    hauntedBats.push({
+      x: canvas.width + rand(0, canvas.width * 0.9),
+      y: rand(60, canvas.height - 80),
+      speed: rand(2.2, 5.2),
+      size: rand(0.55, 1.25),
+      flapOffset: rand(0, Math.PI * 2)
+    });
+  }
+}
+
+function triggerHauntedEvent(type, title, durationFrames = 300) {
+  hauntedEvent = type;
+  hauntedEventTitle = title;
+  hauntedEventFrames = durationFrames;
+
+  if (type === "swarm" || type === "hunger") {
+    makeHauntedBats(type === "hunger" ? 32 : 20);
+  }
+
+  if (soundEnabled) {
+    playSound("ach");
+  }
+}
+
+function triggerHauntedEventForScore(currentScore) {
+  const milestones = {
+    10: { type: "eyes", title: "THE CAVE WAKES", frames: 300 },
+    25: { type: "swarm", title: "THE SWARM STIRS", frames: 360 },
+    50: { type: "rattle", title: "THE BONES RATTLE", frames: 360 },
+    100: { type: "blackout", title: "THE LIGHT DIES", frames: 300 },
+    150: { type: "whispers", title: "THE FOG WHISPERS", frames: 360 },
+    200: { type: "hunger", title: "THE CAVE HUNGERS", frames: 480 }
+  };
+
+  let event = milestones[currentScore];
+
+  if (!event && currentScore > 200 && currentScore % 50 === 0) {
+    const loopEvents = [
+      { type: "eyes", title: "THE CAVE WATCHES", frames: 300 },
+      { type: "swarm", title: "WINGS IN THE DARK", frames: 360 },
+      { type: "rattle", title: "BONE SONG", frames: 360 },
+      { type: "blackout", title: "NO LIGHT LEFT", frames: 300 },
+      { type: "whispers", title: "DO NOT LOOK BACK", frames: 360 },
+      { type: "hunger", title: "THE CAVE HUNGERS", frames: 480 }
+    ];
+
+    event = loopEvents[Math.floor((currentScore / 50) % loopEvents.length)];
+  }
+
+  if (!event) return;
+  if (hauntedTriggered[String(currentScore)]) return;
+
+  hauntedTriggered[String(currentScore)] = true;
+  triggerHauntedEvent(event.type, event.title, event.frames);
 }
 
 function circleHit(ax, ay, ar, bx, by, br) {
@@ -583,6 +651,12 @@ function initRun() {
   fb_pipes = [];
   fb_frame = 0;
   fb_speed = 3;
+  flapFrames = 0;
+  hauntedEvent = null;
+  hauntedEventFrames = 0;
+  hauntedEventTitle = "";
+  hauntedTriggered = {};
+  hauntedBats = [];
 
   pattern = null;
   patternIndex = 0;
@@ -644,6 +718,7 @@ function flap() {
 
   playSound("flap");
   fb_bird.velocity = FB_JUMP;
+  flapFrames = 10;
 }
 
 function updateGame() {
@@ -651,6 +726,16 @@ function updateGame() {
 
   if (slowTimeFrames > 0) slowTimeFrames--;
   if (invulnFrames > 0) invulnFrames--;
+  if (flapFrames > 0) flapFrames--;
+
+  if (hauntedEventFrames > 0) {
+    hauntedEventFrames--;
+    if (hauntedEventFrames <= 0) {
+      hauntedEvent = null;
+      hauntedEventTitle = "";
+      hauntedBats = [];
+    }
+  }
 
   fb_bird.velocity += FB_GRAVITY;
   fb_bird.y += fb_bird.velocity;
@@ -716,6 +801,7 @@ function updateGame() {
 
       updateUI();
       checkAchievements();
+      triggerHauntedEventForScore(score);
     }
 
     if (pipeHitsBird(p)) {
@@ -768,14 +854,108 @@ function updateGame() {
 }
 
 // -------------------- Drawing --------------------
+function drawFarCaveLayer(t) {
+  ctx.fillStyle = "#0d0204";
+
+  for (let i = 0; i < 12; i++) {
+    const x = i * 75 - ((t * 0.22) % 75);
+    const peak = 110 + Math.sin(i * 1.35 + t * 0.005) * 22;
+
+    ctx.beginPath();
+    ctx.moveTo(x, canvas.height);
+    ctx.lineTo(x + 20, canvas.height - peak * 0.35);
+    ctx.lineTo(x + 42, canvas.height - peak);
+    ctx.lineTo(x + 75, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#120305";
+
+  for (let i = 0; i < 10; i++) {
+    const x = i * 90 - ((t * 0.16) % 90);
+    const drop = 80 + Math.cos(i * 1.1 + t * 0.004) * 18;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 24, drop);
+    ctx.lineTo(x + 52, 0);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawFogLayer(t) {
+  ctx.save();
+
+  const fogBands = [
+    { y: 150, h: 70, speed: 0.18, alpha: 0.06, size: 180, offset: 0 },
+    { y: 285, h: 95, speed: 0.12, alpha: 0.05, size: 220, offset: 130 },
+    { y: 470, h: 80, speed: 0.2, alpha: 0.055, size: 200, offset: 260 }
+  ];
+
+  for (const band of fogBands) {
+    for (let i = -1; i < 5; i++) {
+      const cx = i * band.size + ((t * band.speed + band.offset) % band.size) - band.size * 0.5;
+      const cy = band.y + Math.sin((t * 0.0025) + i * 0.9 + band.offset * 0.01) * 12;
+
+      const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, band.size * 0.75);
+      grad.addColorStop(0, `rgba(210, 215, 225, ${band.alpha})`);
+      grad.addColorStop(0.55, `rgba(170, 175, 190, ${band.alpha * 0.55})`);
+      grad.addColorStop(1, "rgba(120, 120, 140, 0)");
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, band.size * 0.8, band.h, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawVignette() {
+  const radial = ctx.createRadialGradient(
+    canvas.width / 2,
+    canvas.height / 2,
+    canvas.width * 0.14,
+    canvas.width / 2,
+    canvas.height / 2,
+    canvas.width * 0.68
+  );
+  radial.addColorStop(0, "rgba(0, 0, 0, 0)");
+  radial.addColorStop(0.6, "rgba(0, 0, 0, 0.12)");
+  radial.addColorStop(0.82, "rgba(0, 0, 0, 0.28)");
+  radial.addColorStop(1, "rgba(0, 0, 0, 0.5)");
+
+  ctx.fillStyle = radial;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const topFade = ctx.createLinearGradient(0, 0, 0, 110);
+  topFade.addColorStop(0, "rgba(0, 0, 0, 0.28)");
+  topFade.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = topFade;
+  ctx.fillRect(0, 0, canvas.width, 110);
+
+  const bottomFade = ctx.createLinearGradient(0, canvas.height - 130, 0, canvas.height);
+  bottomFade.addColorStop(0, "rgba(0, 0, 0, 0)");
+  bottomFade.addColorStop(1, "rgba(0, 0, 0, 0.34)");
+  ctx.fillStyle = bottomFade;
+  ctx.fillRect(0, canvas.height - 130, canvas.width, 130);
+}
+
 function drawBackground() {
   const caveGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  caveGrad.addColorStop(0, "#1a0505");
-  caveGrad.addColorStop(1, "#050000");
+  caveGrad.addColorStop(0, "#190507");
+  caveGrad.addColorStop(0.55, "#0c0305");
+  caveGrad.addColorStop(1, "#030001");
   ctx.fillStyle = caveGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const t = fb_frame;
+
+  drawFarCaveLayer(t);
+  drawFogLayer(t * 0.9);
 
   ctx.fillStyle = "#150505";
   for (let i = 0; i < 15; i++) {
@@ -797,6 +977,8 @@ function drawBackground() {
     ctx.lineTo(x + 60, 0);
     ctx.fill();
   }
+
+  drawVignette();
 
   if (slowTimeFrames > 0) {
     ctx.fillStyle = "rgba(255, 209, 102, 0.05)";
@@ -952,12 +1134,16 @@ function drawBonePillar(x, y, w, h, isMoving, isTop) {
 }
 
 function drawPipes() {
-  fb_pipes.forEach((p) => {
+  const rattleActive = hauntedEvent === "rattle" || hauntedEvent === "hunger";
+
+  fb_pipes.forEach((p, index) => {
     const bottomY = p.gapY + p.gapH;
     const bottomH = canvas.height - bottomY;
+    const shake = rattleActive ? Math.sin(fb_frame * 0.7 + index * 1.9) * 2.5 : 0;
 
-    drawBonePillar(p.x, 0, FB_PIPE_W, p.gapY, p.isMoving, true);
-    drawBonePillar(p.x, bottomY, FB_PIPE_W, bottomH, p.isMoving, false);
+    // Visual shake only. Collision still uses the real pipe position, so it stays fair.
+    drawBonePillar(p.x + shake, 0, FB_PIPE_W, p.gapY, p.isMoving, true);
+    drawBonePillar(p.x - shake, bottomY, FB_PIPE_W, bottomH, p.isMoving, false);
   });
 }
 
@@ -998,6 +1184,44 @@ function drawPowerups() {
   });
 }
 
+function drawBatWingSide(openAmount, colors, isBackWing = false) {
+  ctx.save();
+
+  ctx.fillStyle = isBackWing ? colors.backWing : colors.wing;
+  ctx.strokeStyle = colors.outline;
+  ctx.lineWidth = isBackWing ? 1.5 : 2;
+  ctx.globalAlpha = isBackWing ? 0.55 : 1;
+
+  const topY = -8 - openAmount;
+  const midY = 2;
+  const lowY = 15 + openAmount * 0.45;
+
+  ctx.beginPath();
+  ctx.moveTo(-4, -2);
+  ctx.quadraticCurveTo(-20, topY, -34, topY - 4);
+  ctx.quadraticCurveTo(-28, midY, -39, lowY);
+  ctx.quadraticCurveTo(-20, 12, -2, 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = colors.wingBone;
+  ctx.lineWidth = 1.25;
+
+  ctx.beginPath();
+  ctx.moveTo(-3, -1);
+  ctx.lineTo(-33, topY - 3);
+
+  ctx.moveTo(-2, 1);
+  ctx.lineTo(-28, midY + 2);
+
+  ctx.moveTo(-1, 4);
+  ctx.lineTo(-36, lowY - 1);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 function drawBat() {
   ctx.save();
   ctx.translate(fb_bird.x, fb_bird.y);
@@ -1006,38 +1230,314 @@ function drawBat() {
   const flicker = invulnFrames > 0 && Math.floor(invulnFrames / 4) % 2 === 0;
   ctx.globalAlpha = flicker ? 0.45 : 1;
 
-  ctx.fillStyle = "#666666";
-  ctx.beginPath();
-  ctx.arc(0, 0, 15, 0, Math.PI * 2);
-  ctx.fill();
+  const colors = {
+    body: "#2a2a30",
+    belly: "#4b4b55",
+    wing: "#202027",
+    backWing: "#2f2f38",
+    wingBone: "#666674",
+    outline: "#0e0e12",
+    earInner: "#7d4450",
+    eye: "#ff3344",
+    fang: "#f2efe8"
+  };
 
-  ctx.fillStyle = "#444444";
-  ctx.beginPath();
+  const jumpFlap = flapFrames > 0 ? flapFrames / 10 : 0;
+  const velocityFlap = clamp(-fb_bird.velocity * 1.4, -2, 6);
+  const idleFlap = Math.sin(fb_frame * 0.25) * 1.5;
+  const wingOpen = clamp(8 + jumpFlap * 14 + velocityFlap + idleFlap, 3, 22);
 
-  if (fb_bird.velocity < 0) {
-    ctx.moveTo(-10, 0);
-    ctx.lineTo(-35, -15);
-    ctx.lineTo(-10, 5);
-
-    ctx.moveTo(10, 0);
-    ctx.lineTo(35, -15);
-    ctx.lineTo(10, 5);
+  if (shieldActive || invulnFrames > 0) {
+    ctx.shadowColor = shieldActive
+      ? "rgba(102, 204, 255, 0.45)"
+      : "rgba(255,255,255,0.25)";
+    ctx.shadowBlur = 12;
   } else {
-    ctx.moveTo(-10, 0);
-    ctx.lineTo(-35, 10);
-    ctx.lineTo(-10, -5);
-
-    ctx.moveTo(10, 0);
-    ctx.lineTo(35, 10);
-    ctx.lineTo(10, -5);
+    ctx.shadowColor = "rgba(255, 0, 50, 0.14)";
+    ctx.shadowBlur = 5;
   }
 
+  // Shadow under the bat
+  ctx.fillStyle = "rgba(0,0,0,0.22)";
+  ctx.beginPath();
+  ctx.ellipse(-2, 20, 18, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "red";
-  ctx.fillRect(-5, -2, 2, 2);
-  ctx.fillRect(3, -2, 2, 2);
+  // Back wing
+  ctx.save();
+  ctx.translate(4, -2);
+  ctx.scale(0.9, 0.9);
+  drawBatWingSide(wingOpen * 0.7, colors, true);
+  ctx.restore();
 
+  // Body
+  ctx.fillStyle = colors.body;
+  ctx.strokeStyle = colors.outline;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.ellipse(2, 4, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Belly
+  ctx.fillStyle = colors.belly;
+  ctx.beginPath();
+  ctx.ellipse(0, 7, 8, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head, side view
+  ctx.fillStyle = colors.body;
+  ctx.beginPath();
+  ctx.ellipse(13, -7, 11, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Snout
+  ctx.beginPath();
+  ctx.ellipse(20, -5, 6, 4.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Ears
+  ctx.beginPath();
+  ctx.moveTo(9, -14);
+  ctx.lineTo(7, -27);
+  ctx.lineTo(15, -17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(17, -14);
+  ctx.lineTo(18, -28);
+  ctx.lineTo(22, -16);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Inner ears
+  ctx.fillStyle = colors.earInner;
+
+  ctx.beginPath();
+  ctx.moveTo(10, -16);
+  ctx.lineTo(9, -23);
+  ctx.lineTo(13, -17);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(17, -16);
+  ctx.lineTo(18, -23);
+  ctx.lineTo(20, -17);
+  ctx.closePath();
+  ctx.fill();
+
+  // Eye
+  ctx.save();
+  ctx.shadowColor = "rgba(255, 51, 68, 0.95)";
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = colors.eye;
+  ctx.beginPath();
+  ctx.arc(16, -9, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Mouth
+  ctx.strokeStyle = colors.outline;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(18, -2);
+  ctx.quadraticCurveTo(21, 0, 24, -2);
+  ctx.stroke();
+
+  // Fangs
+  ctx.fillStyle = colors.fang;
+
+  ctx.beginPath();
+  ctx.moveTo(20, -1.5);
+  ctx.lineTo(19, 2.2);
+  ctx.lineTo(18.2, -1.2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(23, -1.2);
+  ctx.lineTo(22.1, 2.0);
+  ctx.lineTo(21.5, -1.0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Front wing
+  drawBatWingSide(wingOpen, colors, false);
+
+  // Feet
+  ctx.strokeStyle = colors.outline;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(-3, 15);
+  ctx.lineTo(-5, 20);
+  ctx.moveTo(2, 15);
+  ctx.lineTo(1, 20);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawHauntedEyes() {
+  if (hauntedEvent !== "eyes" && hauntedEvent !== "hunger") return;
+
+  ctx.save();
+  const pulse = 0.45 + Math.sin(fb_frame * 0.08) * 0.25;
+  const eyeSets = [
+    { x: 85, y: 118, s: 1.0 },
+    { x: 230, y: 78, s: 0.75 },
+    { x: 410, y: 142, s: 1.15 },
+    { x: 530, y: 245, s: 0.8 },
+    { x: 140, y: 420, s: 0.9 },
+    { x: 365, y: 510, s: 1.05 }
+  ];
+
+  for (const e of eyeSets) {
+    ctx.save();
+    ctx.translate(e.x, e.y);
+    ctx.scale(e.s, e.s);
+    ctx.shadowColor = `rgba(255, 35, 55, ${0.65 * pulse})`;
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = `rgba(255, 35, 55, ${0.35 + pulse * 0.35})`;
+
+    ctx.beginPath();
+    ctx.ellipse(-7, 0, 4.5, 2.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(7, 0, 4.5, 2.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = `rgba(0,0,0,${0.65})`;
+    ctx.beginPath();
+    ctx.arc(-7, 0, 1.1, 0, Math.PI * 2);
+    ctx.arc(7, 0, 1.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawHauntedSwarm() {
+  if (hauntedEvent !== "swarm" && hauntedEvent !== "hunger") return;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.strokeStyle = "rgba(80,80,90,0.55)";
+  ctx.lineWidth = 1;
+
+  for (const b of hauntedBats) {
+    b.x -= b.speed;
+    b.y += Math.sin(fb_frame * 0.05 + b.flapOffset) * 0.35;
+
+    if (b.x < -60) {
+      b.x = canvas.width + rand(20, 220);
+      b.y = rand(60, canvas.height - 80);
+    }
+
+    const wing = Math.sin(fb_frame * 0.25 + b.flapOffset) * 5;
+
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.scale(b.size, b.size);
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-12, -5 - wing);
+    ctx.lineTo(-20, 2);
+    ctx.lineTo(-8, 4);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(12, -5 - wing);
+    ctx.lineTo(20, 2);
+    ctx.lineTo(8, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawWhispers() {
+  if (hauntedEvent !== "whispers" && hauntedEvent !== "hunger") return;
+
+  ctx.save();
+  const phrases = [
+    "do not look back",
+    "the bones remember",
+    "wake the cave",
+    "little wings, little grave",
+    "still hungry"
+  ];
+
+  ctx.font = "18px VT323";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  for (let i = 0; i < phrases.length; i++) {
+    const x = 90 + i * 115 + Math.sin(fb_frame * 0.01 + i) * 18;
+    const y = 115 + ((i * 83) % 390) + Math.cos(fb_frame * 0.018 + i) * 12;
+    const alpha = 0.12 + Math.sin(fb_frame * 0.045 + i * 1.7) * 0.08;
+
+    ctx.fillStyle = `rgba(230, 230, 235, ${Math.max(0.04, alpha)})`;
+    ctx.fillText(phrases[i], x, y);
+  }
+
+  ctx.restore();
+}
+
+function drawBlackout() {
+  if (hauntedEvent !== "blackout" && hauntedEvent !== "hunger") return;
+
+  ctx.save();
+
+  const radius = hauntedEvent === "hunger" ? 120 : 145;
+  const glow = ctx.createRadialGradient(
+    fb_bird.x,
+    fb_bird.y,
+    28,
+    fb_bird.x,
+    fb_bird.y,
+    radius
+  );
+
+  glow.addColorStop(0, "rgba(0,0,0,0)");
+  glow.addColorStop(0.46, "rgba(0,0,0,0.05)");
+  glow.addColorStop(0.78, "rgba(0,0,0,0.72)");
+  glow.addColorStop(1, "rgba(0,0,0,0.88)");
+
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.restore();
+}
+
+function drawHauntedTitle() {
+  if (!hauntedEvent || hauntedEventFrames <= 0 || !hauntedEventTitle) return;
+
+  const fadeIn = clamp((hauntedEventFrames < 45 ? hauntedEventFrames : 45) / 45, 0, 1);
+  const alpha = hauntedEventFrames > 90 ? fadeIn : clamp(hauntedEventFrames / 90, 0, 1);
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "34px VT323";
+  ctx.shadowColor = "rgba(255, 0, 45, 0.7)";
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = "rgba(255, 230, 230, 0.92)";
+  ctx.fillText(hauntedEventTitle, canvas.width / 2, 92);
+
+  ctx.font = "18px VT323";
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = "rgba(255, 80, 90, 0.75)";
+  ctx.fillText("the cave changes", canvas.width / 2, 122);
   ctx.restore();
 }
 
@@ -1087,10 +1587,16 @@ function drawHintIfNeeded() {
 function draw() {
   drawBackground();
 
+  drawHauntedEyes();
+  drawWhispers();
+  drawHauntedSwarm();
+
   if (mode === "playing" || mode === "gameover") {
     drawPipes();
     drawPowerups();
     drawBat();
+    drawBlackout();
+    drawHauntedTitle();
     drawStatusHUD();
 
     if (mode === "playing") {
