@@ -854,55 +854,326 @@ function updateGame() {
 }
 
 // -------------------- Drawing --------------------
-function drawFarCaveLayer(t) {
-  ctx.fillStyle = "#0d0204";
+const CAVE_DUST = Array.from({ length: 76 }, (_, i) => ({
+  x: ((i * 89) % 680) - 40,
+  y: 38 + ((i * 137) % 570),
+  r: 0.45 + ((i * 23) % 14) * 0.08,
+  drift: 0.08 + ((i * 31) % 22) * 0.01,
+  alpha: 0.06 + ((i * 17) % 12) * 0.01,
+  phase: i * 0.71
+}));
 
-  for (let i = 0; i < 12; i++) {
-    const x = i * 75 - ((t * 0.22) % 75);
-    const peak = 110 + Math.sin(i * 1.35 + t * 0.005) * 22;
+const CRYSTAL_CLUSTERS = [
+  { x: 34, y: 618, speed: 0.18, scale: 1.05, main: "#52f0cf", glow: "rgba(82, 240, 207, 0.38)" },
+  { x: 172, y: 636, speed: 0.12, scale: 0.75, main: "#8f7cff", glow: "rgba(143, 124, 255, 0.26)" },
+  { x: 405, y: 627, speed: 0.16, scale: 0.88, main: "#ffd166", glow: "rgba(255, 209, 102, 0.22)" },
+  { x: 558, y: 608, speed: 0.2, scale: 1.12, main: "#ff5277", glow: "rgba(255, 82, 119, 0.28)" }
+];
+
+function drawBackdropBase(t) {
+  const caveGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  caveGrad.addColorStop(0, "#1a0711");
+  caveGrad.addColorStop(0.25, "#0c1420");
+  caveGrad.addColorStop(0.62, "#071015");
+  caveGrad.addColorStop(1, "#040103");
+  ctx.fillStyle = caveGrad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const moonGlow = ctx.createRadialGradient(442, 116, 16, 442, 116, 300);
+  moonGlow.addColorStop(0, "rgba(164, 224, 229, 0.18)");
+  moonGlow.addColorStop(0.36, "rgba(80, 146, 160, 0.09)");
+  moonGlow.addColorStop(1, "rgba(10, 8, 18, 0)");
+  ctx.fillStyle = moonGlow;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const emberGlow = ctx.createRadialGradient(95, 660, 30, 95, 660, 330);
+  emberGlow.addColorStop(0, "rgba(195, 23, 44, 0.17)");
+  emberGlow.addColorStop(0.45, "rgba(89, 22, 29, 0.08)");
+  emberGlow.addColorStop(1, "rgba(5, 0, 2, 0)");
+  ctx.fillStyle = emberGlow;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const shimmer = 0.04 + Math.sin(t * 0.012) * 0.02;
+  ctx.fillStyle = `rgba(77, 236, 190, ${shimmer})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawMoonCleft(t) {
+  ctx.save();
+
+  const pulse = 0.5 + Math.sin(t * 0.025) * 0.5;
+  const beam = ctx.createLinearGradient(410, 130, 520, 510);
+  beam.addColorStop(0, `rgba(178, 224, 230, ${0.16 + pulse * 0.04})`);
+  beam.addColorStop(0.42, "rgba(97, 174, 184, 0.055)");
+  beam.addColorStop(1, "rgba(30, 80, 82, 0)");
+  ctx.fillStyle = beam;
+  ctx.beginPath();
+  ctx.moveTo(398, 132);
+  ctx.lineTo(494, 132);
+  ctx.lineTo(578, 500);
+  ctx.lineTo(300, 520);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.translate(446, 106);
+  ctx.rotate(-0.15);
+
+  const opening = ctx.createRadialGradient(-6, -4, 4, -6, -4, 78);
+  opening.addColorStop(0, "rgba(231, 248, 236, 0.88)");
+  opening.addColorStop(0.35, "rgba(146, 211, 217, 0.44)");
+  opening.addColorStop(1, "rgba(52, 102, 117, 0.08)");
+  ctx.fillStyle = opening;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 78, 52, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(236, 246, 229, 0.82)";
+  ctx.beginPath();
+  ctx.arc(-15, -9, 22, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(12, 13, 18, 0.55)";
+  ctx.beginPath();
+  ctx.arc(-2, -12, 22, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.lineWidth = 18;
+  ctx.strokeStyle = "rgba(4, 3, 6, 0.88)";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 84, 57, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(112, 57, 73, 0.34)";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 72, 47, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawStoneTexture(t) {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  for (let i = 0; i < 8; i++) {
+    const y = 78 + i * 68 + Math.sin(i * 1.8 + t * 0.004) * 8;
+    ctx.strokeStyle = i % 2 === 0 ? "rgba(100, 50, 62, 0.12)" : "rgba(54, 127, 123, 0.08)";
+    ctx.lineWidth = i % 3 === 0 ? 2 : 1;
+    ctx.beginPath();
+
+    for (let x = -20; x <= canvas.width + 30; x += 35) {
+      const yy = y + Math.sin(x * 0.026 + i * 1.4) * 9;
+      if (x === -20) {
+        ctx.moveTo(x, yy);
+      } else {
+        ctx.lineTo(x, yy);
+      }
+    }
+
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < 20; i++) {
+    const x = ((i * 97 - t * 0.035) % 660) - 30;
+    const y = 70 + ((i * 173) % 500);
+    const len = 18 + (i % 5) * 7;
+
+    ctx.strokeStyle = "rgba(3, 2, 4, 0.32)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + len * 0.36, y + 9);
+    ctx.lineTo(x + len * 0.58, y + 4);
+    ctx.lineTo(x + len, y + 18 + (i % 3) * 5);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawDistantCrypt(t) {
+  const repeat = 156;
+  const offset = (t * 0.12) % repeat;
+  const baseY = canvas.height - 78;
+
+  ctx.save();
+
+  const ground = ctx.createLinearGradient(0, baseY - 160, 0, canvas.height);
+  ground.addColorStop(0, "rgba(11, 9, 18, 0.25)");
+  ground.addColorStop(1, "rgba(3, 1, 3, 0.78)");
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, baseY - 160, canvas.width, 238);
+
+  for (let i = -1; i < 6; i++) {
+    const x = i * repeat - offset;
+    const w = 112 + (i % 2) * 18;
+    const h = 118 + ((i + 3) % 3) * 18;
+
+    ctx.fillStyle = "rgba(8, 7, 13, 0.72)";
+    ctx.fillRect(x + 9, baseY - h + 42, w, h - 42);
 
     ctx.beginPath();
-    ctx.moveTo(x, canvas.height);
+    ctx.moveTo(x + 9, baseY - h + 47);
+    ctx.quadraticCurveTo(x + w * 0.5 + 9, baseY - h - 28, x + w + 9, baseY - h + 47);
+    ctx.lineTo(x + w + 9, baseY);
+    ctx.lineTo(x + 9, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(24, 67, 70, 0.16)";
+    ctx.beginPath();
+    ctx.moveTo(x + 37, baseY - 24);
+    ctx.lineTo(x + 37, baseY - h + 54);
+    ctx.quadraticCurveTo(x + w * 0.5 + 9, baseY - h + 18, x + w - 19, baseY - h + 54);
+    ctx.lineTo(x + w - 19, baseY - 24);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(132, 80, 64, 0.12)";
+    ctx.fillRect(x + 9, baseY - 11, w, 8);
+
+    ctx.fillStyle = "rgba(2, 1, 3, 0.54)";
+    ctx.fillRect(x + 2, baseY - h + 50, 13, h - 50);
+    ctx.fillRect(x + w + 2, baseY - h + 50, 13, h - 50);
+  }
+
+  ctx.restore();
+}
+
+function drawFarCaveLayer(t) {
+  ctx.save();
+
+  const backFloor = ctx.createLinearGradient(0, canvas.height - 210, 0, canvas.height);
+  backFloor.addColorStop(0, "#102126");
+  backFloor.addColorStop(0.55, "#0a0a12");
+  backFloor.addColorStop(1, "#030102");
+  ctx.fillStyle = backFloor;
+
+  ctx.beginPath();
+  ctx.moveTo(-20, canvas.height);
+  for (let i = 0; i < 12; i++) {
+    const x = i * 75 - ((t * 0.22) % 75);
+    const peak = 120 + Math.sin(i * 1.35 + t * 0.005) * 25;
+
+    ctx.lineTo(x, canvas.height);
     ctx.lineTo(x + 20, canvas.height - peak * 0.35);
     ctx.lineTo(x + 42, canvas.height - peak);
     ctx.lineTo(x + 75, canvas.height);
-    ctx.closePath();
-    ctx.fill();
   }
+  ctx.lineTo(canvas.width + 20, canvas.height);
+  ctx.closePath();
+  ctx.fill();
 
-  ctx.fillStyle = "#120305";
+  const backCeiling = ctx.createLinearGradient(0, 0, 0, 155);
+  backCeiling.addColorStop(0, "#18060c");
+  backCeiling.addColorStop(1, "#07070d");
+  ctx.fillStyle = backCeiling;
 
+  ctx.beginPath();
+  ctx.moveTo(-20, 0);
   for (let i = 0; i < 10; i++) {
     const x = i * 90 - ((t * 0.16) % 90);
     const drop = 80 + Math.cos(i * 1.1 + t * 0.004) * 18;
 
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 0);
     ctx.lineTo(x + 24, drop);
     ctx.lineTo(x + 52, 0);
-    ctx.closePath();
+  }
+  ctx.lineTo(canvas.width + 20, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCrystalShard(x, y, w, h, color) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w * 0.5, y - h);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w * 0.62, y + h * 0.12);
+  ctx.lineTo(x + w * 0.2, y + h * 0.08);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.48, y - h * 0.82);
+  ctx.lineTo(x + w * 0.58, y - h * 0.08);
+  ctx.lineTo(x + w * 0.36, y - h * 0.2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = color;
+}
+
+function drawCrystalClusters(t) {
+  ctx.save();
+
+  for (const cluster of CRYSTAL_CLUSTERS) {
+    const drift = (t * cluster.speed) % (canvas.width + 140);
+    let x = cluster.x - drift;
+    if (x < -100) x += canvas.width + 140;
+
+    const pulse = 0.65 + Math.sin(t * 0.04 + cluster.x) * 0.35;
+    ctx.save();
+    ctx.translate(x, cluster.y);
+    ctx.scale(cluster.scale, cluster.scale);
+    ctx.shadowColor = cluster.glow;
+    ctx.shadowBlur = 12 + pulse * 10;
+    ctx.strokeStyle = "rgba(255,255,255,0.22)";
+    ctx.lineWidth = 1;
+    ctx.fillStyle = cluster.main;
+
+    drawCrystalShard(-18, 0, 18, 46, cluster.main);
+    drawCrystalShard(-3, 0, 24, 66, cluster.main);
+    drawCrystalShard(17, 0, 16, 38, cluster.main);
+
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawDustMotes(t) {
+  ctx.save();
+
+  for (const mote of CAVE_DUST) {
+    const x = ((mote.x - t * mote.drift + canvas.width + 50) % (canvas.width + 100)) - 50;
+    const y = mote.y + Math.sin(t * 0.018 + mote.phase) * 8;
+    const blink = 0.55 + Math.sin(t * 0.03 + mote.phase * 2) * 0.45;
+
+    ctx.fillStyle = `rgba(216, 238, 208, ${mote.alpha * blink})`;
+    ctx.beginPath();
+    ctx.arc(x, y, mote.r, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  ctx.restore();
 }
 
 function drawFogLayer(t) {
   ctx.save();
 
   const fogBands = [
-    { y: 150, h: 70, speed: 0.18, alpha: 0.06, size: 180, offset: 0 },
-    { y: 285, h: 95, speed: 0.12, alpha: 0.05, size: 220, offset: 130 },
-    { y: 470, h: 80, speed: 0.2, alpha: 0.055, size: 200, offset: 260 }
+    { y: 145, h: 72, speed: 0.18, alpha: 0.07, size: 190, offset: 0, tint: [192, 224, 218] },
+    { y: 285, h: 105, speed: 0.12, alpha: 0.06, size: 235, offset: 130, tint: [164, 176, 204] },
+    { y: 475, h: 84, speed: 0.2, alpha: 0.065, size: 210, offset: 260, tint: [214, 170, 145] },
+    { y: 555, h: 72, speed: 0.09, alpha: 0.05, size: 260, offset: 90, tint: [103, 226, 197] }
   ];
 
   for (const band of fogBands) {
     for (let i = -1; i < 5; i++) {
       const cx = i * band.size + ((t * band.speed + band.offset) % band.size) - band.size * 0.5;
       const cy = band.y + Math.sin((t * 0.0025) + i * 0.9 + band.offset * 0.01) * 12;
+      const [r, g, b] = band.tint;
 
       const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, band.size * 0.75);
-      grad.addColorStop(0, `rgba(210, 215, 225, ${band.alpha})`);
-      grad.addColorStop(0.55, `rgba(170, 175, 190, ${band.alpha * 0.55})`);
-      grad.addColorStop(1, "rgba(120, 120, 140, 0)");
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${band.alpha})`);
+      grad.addColorStop(0.55, `rgba(${r * 0.78}, ${g * 0.78}, ${b * 0.8}, ${band.alpha * 0.55})`);
+      grad.addColorStop(1, `rgba(${r * 0.5}, ${g * 0.5}, ${b * 0.55}, 0)`);
 
       ctx.fillStyle = grad;
       ctx.beginPath();
@@ -910,6 +1181,86 @@ function drawFogLayer(t) {
       ctx.fill();
     }
   }
+
+  ctx.restore();
+}
+
+function drawNearCaveFrame(t) {
+  ctx.save();
+
+  const floorGrad = ctx.createLinearGradient(0, canvas.height - 165, 0, canvas.height);
+  floorGrad.addColorStop(0, "#251016");
+  floorGrad.addColorStop(0.5, "#100509");
+  floorGrad.addColorStop(1, "#030101");
+  ctx.fillStyle = floorGrad;
+  ctx.beginPath();
+  ctx.moveTo(-30, canvas.height);
+
+  for (let i = -1; i < 16; i++) {
+    const x = i * 48 - ((t * 0.58) % 48);
+    const h = 76 + Math.sin(i * 1.6 + t * 0.006) * 34 + (i % 4) * 11;
+    ctx.lineTo(x, canvas.height);
+    ctx.lineTo(x + 17, canvas.height - h * 0.42);
+    ctx.lineTo(x + 29, canvas.height - h);
+    ctx.lineTo(x + 48, canvas.height);
+  }
+
+  ctx.lineTo(canvas.width + 30, canvas.height);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255, 111, 92, 0.13)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = -1; i < 16; i++) {
+    const x = i * 48 - ((t * 0.58) % 48);
+    const h = 76 + Math.sin(i * 1.6 + t * 0.006) * 34 + (i % 4) * 11;
+    const px = x + 29;
+    const py = canvas.height - h;
+    if (i === -1) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+  ctx.stroke();
+
+  const ceilingGrad = ctx.createLinearGradient(0, 0, 0, 142);
+  ceilingGrad.addColorStop(0, "#050103");
+  ceilingGrad.addColorStop(0.5, "#17070d");
+  ceilingGrad.addColorStop(1, "#220e14");
+  ctx.fillStyle = ceilingGrad;
+  ctx.beginPath();
+  ctx.moveTo(-30, 0);
+
+  for (let i = -1; i < 14; i++) {
+    const x = i * 58 - ((t * 0.82) % 58);
+    const drop = 56 + (i % 5) * 13 + Math.cos(i * 1.2 + t * 0.008) * 13;
+    ctx.lineTo(x, 0);
+    ctx.lineTo(x + 18, drop * 0.36);
+    ctx.lineTo(x + 33, drop);
+    ctx.lineTo(x + 58, 0);
+  }
+
+  ctx.lineTo(canvas.width + 30, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(92, 236, 208, 0.1)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = -1; i < 14; i++) {
+    const x = i * 58 - ((t * 0.82) % 58);
+    const drop = 56 + (i % 5) * 13 + Math.cos(i * 1.2 + t * 0.008) * 13;
+    const px = x + 33;
+    const py = drop;
+    if (i === -1) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+  ctx.stroke();
 
   ctx.restore();
 }
@@ -924,58 +1275,43 @@ function drawVignette() {
     canvas.width * 0.68
   );
   radial.addColorStop(0, "rgba(0, 0, 0, 0)");
-  radial.addColorStop(0.6, "rgba(0, 0, 0, 0.12)");
-  radial.addColorStop(0.82, "rgba(0, 0, 0, 0.28)");
-  radial.addColorStop(1, "rgba(0, 0, 0, 0.5)");
+  radial.addColorStop(0.55, "rgba(0, 0, 0, 0.1)");
+  radial.addColorStop(0.8, "rgba(0, 0, 0, 0.3)");
+  radial.addColorStop(1, "rgba(0, 0, 0, 0.56)");
 
   ctx.fillStyle = radial;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const topFade = ctx.createLinearGradient(0, 0, 0, 110);
-  topFade.addColorStop(0, "rgba(0, 0, 0, 0.28)");
+  topFade.addColorStop(0, "rgba(0, 0, 0, 0.36)");
   topFade.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = topFade;
   ctx.fillRect(0, 0, canvas.width, 110);
 
   const bottomFade = ctx.createLinearGradient(0, canvas.height - 130, 0, canvas.height);
   bottomFade.addColorStop(0, "rgba(0, 0, 0, 0)");
-  bottomFade.addColorStop(1, "rgba(0, 0, 0, 0.34)");
+  bottomFade.addColorStop(1, "rgba(0, 0, 0, 0.42)");
   ctx.fillStyle = bottomFade;
   ctx.fillRect(0, canvas.height - 130, canvas.width, 130);
 }
 
 function drawBackground() {
-  const caveGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  caveGrad.addColorStop(0, "#190507");
-  caveGrad.addColorStop(0.55, "#0c0305");
-  caveGrad.addColorStop(1, "#030001");
-  ctx.fillStyle = caveGrad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   const t = fb_frame;
 
+  drawBackdropBase(t);
+  drawMoonCleft(t);
+  drawStoneTexture(t);
+  drawDistantCrypt(t);
   drawFarCaveLayer(t);
+  drawCrystalClusters(t);
+  drawDustMotes(t);
   drawFogLayer(t * 0.9);
+  drawNearCaveFrame(t);
 
-  ctx.fillStyle = "#150505";
-  for (let i = 0; i < 15; i++) {
-    const h = 100 + Math.sin(i) * 50;
-    const x = i * 50 - ((t * 0.5) % 50);
-    ctx.beginPath();
-    ctx.moveTo(x, canvas.height);
-    ctx.lineTo(x + 25, canvas.height - h);
-    ctx.lineTo(x + 50, canvas.height);
-    ctx.fill();
-  }
-
-  ctx.fillStyle = "#2a0a0a";
-  for (let i = 0; i < 12; i++) {
-    const x = i * 60 - ((t * 1) % 60);
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x + 30, 60 + (i % 3) * 20);
-    ctx.lineTo(x + 60, 0);
-    ctx.fill();
+  if (hauntedEvent === "rattle" || hauntedEvent === "hunger") {
+    const pulse = 0.07 + Math.sin(t * 0.12) * 0.025;
+    ctx.fillStyle = `rgba(170, 0, 36, ${pulse})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   drawVignette();

@@ -14,7 +14,11 @@ body {
   margin: 0;
   padding: 12px var(--page-pad) 20px;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #0b0b0f;
+  background:
+    radial-gradient(circle at 50% -12%, rgba(151, 21, 53, 0.32), transparent 34rem),
+    radial-gradient(circle at 84% 22%, rgba(58, 179, 164, 0.14), transparent 22rem),
+    radial-gradient(circle at 12% 84%, rgba(255, 156, 72, 0.1), transparent 24rem),
+    linear-gradient(180deg, #070910 0%, #050205 58%, #090305 100%);
   color: #eaeaea;
   min-height: 100vh;
   display: grid;
@@ -74,9 +78,12 @@ canvas {
   height: auto;
   aspect-ratio: 600 / 650;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(192, 245, 230, 0.16);
   background: #050505;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  box-shadow:
+    0 0 0 1px rgba(107, 25, 42, 0.28),
+    0 18px 52px rgba(0, 0, 0, 0.58),
+    0 0 38px rgba(74, 214, 190, 0.08);
   touch-action: none;
 }
 
