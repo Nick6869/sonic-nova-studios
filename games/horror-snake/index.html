@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serpent of the Grave</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="game-header">
+      <div>
+        <p class="eyebrow">Old School Horror Snake</p>
+        <h1>Serpent of the Grave</h1>
+      </div>
+
+      <button id="muteBtn" class="small-btn" type="button">Sound: On</button>
+    </header>
+
+    <section class="hud">
+      <div class="hud-card">
+        <span>Souls Eaten</span>
+        <strong id="score">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Best Curse</span>
+        <strong id="highScore">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Horror Zone</span>
+        <strong id="stageName">Graveyard</strong>
+      </div>
+    </section>
+
+    <section class="game-area">
+      <canvas id="gameCanvas" width="600" height="600" aria-label="Horror Snake game board"></canvas>
+
+      <div id="overlay" class="overlay">
+        <div class="overlay-card">
+          <h2 id="overlayTitle">Serpent of the Grave</h2>
+          <p id="overlayText">
+            Devour the glowing hearts. Grow longer. Avoid the walls and your own cursed body.
+          </p>
+          <button id="startBtn" class="main-btn" type="button">Start Game</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <p>
+        Move with <strong>Arrow Keys</strong> or <strong>WASD</strong>.
+        Press <strong>Space</strong> to pause.
+        Press <strong>Enter</strong> to restart after death.
+      </p>
+
+      <div class="mobile-controls" aria-label="Mobile controls">
+        <button class="dir-btn up" data-dir="up" type="button">▲</button>
+        <button class="dir-btn left" data-dir="left" type="button">◀</button>
+        <button class="dir-btn down" data-dir="down" type="button">▼</button>
+        <button class="dir-btn right" data-dir="right" type="button">▶</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

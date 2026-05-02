@@ -31,6 +31,12 @@ const GRAVITY = 0.25;
 const PLATFORM_W = 60;
 const PLATFORM_H = 20;
 
+// Route safety: keep required jumps comfortably reachable.
+// The canvas wraps, but the generator does NOT rely on edge-wrap jumps for fairness.
+const MAX_ROUTE_DX = 185;
+const MOVING_PLATFORM_RANGE = 52;
+const MIN_BRIDGE_GAP = 34;
+
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
 // Jump height estimate (for safe gap caps)
@@ -51,10 +57,12 @@ function timeToReachOnDescent(deltaUpPx) {
 }
 
 function dxCapForGap(deltaUpPx) {
-  // Conservative cap; keep some margin for human reaction + collision window.
+  // Conservative cap; keep a real margin for human reaction, platform width,
+  // and moving-platform drift. The old cap was too generous and could create
+  // jumps that were technically possible only with perfect timing or edge-wrap.
   const t = timeToReachOnDescent(deltaUpPx);
-  const raw = MOVE_SPEED * t * 0.85;
-  return clamp(raw, 90, 260);
+  const raw = MOVE_SPEED * t * 0.62;
+  return clamp(raw, 78, MAX_ROUTE_DX);
 }
 
 // -------------------- Modes / Bests --------------------
@@ -245,6 +253,31 @@ function chooseTypeWithGuarantees(virtualHeight, index, breakStreak, rngRoll, di
   return "normal";
 }
 
+function makePlatform({ x, y, type = "normal", vx = 0, id = null, moveRange = MOVING_PLATFORM_RANGE }) {
+  const p = {
+    x,
+    y,
+    w: PLATFORM_W,
+    h: PLATFORM_H,
+    type,
+    vx,
+    broken: false,
+  };
+
+  if (id !== null) p.id = id;
+
+  if (type === "moving") {
+    const range = clamp(moveRange, 24, MOVING_PLATFORM_RANGE);
+    p.homeX = x;
+    p.minX = clamp(x - range, 0, canvas.width - PLATFORM_W);
+    p.maxX = clamp(x + range, 0, canvas.width - PLATFORM_W);
+
+    if (p.minX === p.maxX) p.vx = 0;
+  }
+
+  return p;
+}
+
 // ---- Daily generator (deterministic layout) ----
 let dailyRng = null;
 let dailyGen = null;
@@ -292,7 +325,8 @@ function nextDailyPlatform() {
   dailyGen.lastY = y;
   dailyGen.lastX = x;
 
-  return { x, y, w: PLATFORM_W, h: PLATFORM_H, type, vx, broken: false, id: nextIndex };
+  const moveRange = Math.min(MOVING_PLATFORM_RANGE, Math.max(26, dxCap * 0.24));
+  return makePlatform({ x, y, type, vx, id: nextIndex, moveRange });
 }
 
 // ---- Classic generator (non-deterministic, but still guaranteed variety + horizontal reach) ----
@@ -326,37 +360,82 @@ function generateClassicPlatform(y, prevX, gapUp) {
   if (type === "break") classicBreakStreak++;
   else classicBreakStreak = 0;
 
-  return { x, y, w: PLATFORM_W, h: PLATFORM_H, type, vx, broken: false };
+  const moveRange = Math.min(MOVING_PLATFORM_RANGE, Math.max(26, dxCap * 0.24));
+  return makePlatform({ x, y, type, vx, moveRange });
 }
 
-// Classic-only: patch gaps if breaks create weird holes.
-// Now also inserts platforms close enough horizontally for the gap size.
-function enforceReachableGapsClassic() {
-  const usable = t_platforms
-    .filter(isUsablePlatform)
-    .filter((p) => p.y > -300 && p.y < canvas.height + 200)
-    .sort((a, b) => a.y - b.y);
+function platformCenterX(p) {
+  return p.x + p.w / 2;
+}
 
-  if (usable.length < 2) return;
+function directPlatformDx(a, b) {
+  // Do not use wrap distance here. Wrapping is allowed as a bonus skill move,
+  // but the required route should be readable and reachable straight across.
+  return Math.abs(platformCenterX(a) - platformCenterX(b));
+}
 
-  for (let i = 0; i < usable.length - 1; i++) {
-    const top = usable[i];
-    const bottom = usable[i + 1];
-    const gap = bottom.y - top.y;
+function pairIsUnsafe(bottom, top) {
+  const gap = bottom.y - top.y;
+  if (gap <= 0) return false;
 
-    if (gap > SAFE_GAP) {
-      const insertGapUp = SAFE_GAP * 0.78;
-      const newY = top.y + insertGapUp;
+  const allowedDx = Math.min(MAX_ROUTE_DX, dxCapForGap(gap));
+  const dx = directPlatformDx(bottom, top);
 
-      const dxCap = dxCapForGap(insertGapUp);
-      const targetX = (Math.random() < 0.7) ? top.x : bottom.x;
+  return gap > SAFE_GAP * 0.94 || dx > allowedDx;
+}
 
-      const x = clamp(targetX + (Math.random() * 2 - 1) * Math.min(140, dxCap), 0, canvas.width - PLATFORM_W);
+function makeBridgePlatform(bottom, top) {
+  const gap = bottom.y - top.y;
+  const bottomCx = platformCenterX(bottom);
+  const topCx = platformCenterX(top);
+  const dx = topCx - bottomCx;
+  const dir = dx === 0 ? 0 : Math.sign(dx);
 
-      t_platforms.push({ x, y: newY, w: PLATFORM_W, h: PLATFORM_H, type: "normal", vx: 0, broken: false });
-      return;
-    }
+  let stepUp = clamp(gap * 0.5, MIN_BRIDGE_GAP, SAFE_GAP * 0.72);
+  if (gap < MIN_BRIDGE_GAP * 1.6) stepUp = gap * 0.5;
+
+  let newY = bottom.y - stepUp;
+  if (newY <= top.y + 18 || newY >= bottom.y - 18) {
+    newY = (bottom.y + top.y) / 2;
   }
+
+  const localGap = Math.max(MIN_BRIDGE_GAP, bottom.y - newY);
+  const maxStep = Math.min(MAX_ROUTE_DX * 0.82, dxCapForGap(localGap) * 0.9);
+  const newCx = bottomCx + dir * Math.min(Math.abs(dx) * 0.55, maxStep);
+  const x = clamp(newCx - PLATFORM_W / 2, 0, canvas.width - PLATFORM_W);
+
+  return makePlatform({ x, y: newY, type: "normal", vx: 0 });
+}
+
+function enforceReachablePath(maxInsertions = 1) {
+  let insertedAny = false;
+
+  for (let attempt = 0; attempt < maxInsertions; attempt++) {
+    const usable = t_platforms
+      .filter(isUsablePlatform)
+      .filter((p) => p.y > -320 && p.y < canvas.height + 240)
+      .sort((a, b) => a.y - b.y);
+
+    if (usable.length < 2) return insertedAny;
+
+    let insertedThisPass = false;
+
+    for (let i = 0; i < usable.length - 1; i++) {
+      const top = usable[i];
+      const bottom = usable[i + 1];
+
+      if (pairIsUnsafe(bottom, top)) {
+        t_platforms.push(makeBridgePlatform(bottom, top));
+        insertedAny = true;
+        insertedThisPass = true;
+        break;
+      }
+    }
+
+    if (!insertedThisPass) return insertedAny;
+  }
+
+  return insertedAny;
 }
 
 function initTower() {
@@ -371,7 +450,7 @@ function initTower() {
   restartBtn.classList.remove("show");
   overlay.hidden = true;
 
-  const base = { x: 270, y: 600, w: PLATFORM_W, h: PLATFORM_H, type: "normal", vx: 0, broken: false };
+  const base = makePlatform({ x: 270, y: 600, type: "normal", vx: 0 });
   t_platforms.push(base);
 
   if (mode === "daily") {
@@ -404,6 +483,12 @@ function initTower() {
       t_platforms.push(p);
     }
   }
+
+  // Final audit: if RNG, breakable platforms, or patrol ranges create a bad pair,
+  // add plain stone bridge platforms until the visible route is safe.
+  for (let i = 0; i < 50; i++) {
+    if (!enforceReachablePath(1)) break;
+  }
 }
 
 function updateTower() {
@@ -433,8 +518,18 @@ function updateTower() {
 
   for (const p of t_platforms) {
     if (p.type === "moving") {
+      const minX = typeof p.minX === "number" ? p.minX : 0;
+      const maxX = typeof p.maxX === "number" ? p.maxX : canvas.width - p.w;
+
       p.x += p.vx;
-      if (p.x < 0 || p.x + p.w > canvas.width) p.vx *= -1;
+
+      if (p.x <= minX) {
+        p.x = minX;
+        p.vx = Math.abs(p.vx);
+      } else if (p.x >= maxX) {
+        p.x = maxX;
+        p.vx = -Math.abs(p.vx);
+      }
     }
   }
 
@@ -451,7 +546,12 @@ function updateTower() {
       ) {
         if (p.type === "break") {
           p.broken = true;
+          t_player.vy = -JUMP_FORCE;
           playSound("dig");
+
+          // Crumbling platforms now give one last bounce before breaking.
+          // Otherwise the generator could accidentally make a non-bouncing
+          // break platform part of the only valid route.
 
           // Classic: remove broken + spawn replacement so RNG can't brick the run
           if (mode === "classic") {
@@ -503,7 +603,7 @@ function updateTower() {
     }
   }
 
-  if (mode === "classic") enforceReachableGapsClassic();
+  enforceReachablePath(2);
 
   if (t_player.y > canvas.height) {
     playSound("death");
@@ -512,36 +612,565 @@ function updateTower() {
   }
 }
 
-function drawTower() {
-  const level = Math.floor(score / 200);
-  const schemes = [
-    ["#1a0000", "#330000"],
-    ["#0f0500", "#2b1100"],
-    ["#000f00", "#001f00"],
-    ["#00001a", "#000033"],
-    ["#1a001a", "#2b002b"],
-    ["#000000", "#111111"],
-  ];
+// ==========================================================
+// BACKGROUND ART
+// ==========================================================
 
-  const currentScheme = schemes[Math.min(level, schemes.length - 1)];
+const HELL_BIOMES = [
+  {
+    name: "THE PIT",
+    top: "#090000",
+    mid: "#190000",
+    bottom: "#3a0500",
+    accent: "#ff3b12",
+    glow: "#8f1300",
+    motif: "pit",
+  },
+  {
+    name: "BONE SHAFT",
+    top: "#100b08",
+    mid: "#21160f",
+    bottom: "#3a2415",
+    accent: "#e9d8b8",
+    glow: "#7a5634",
+    motif: "bones",
+  },
+  {
+    name: "BLOOD FURNACE",
+    top: "#1c0200",
+    mid: "#4b0900",
+    bottom: "#8b1a00",
+    accent: "#ff8a18",
+    glow: "#d92b00",
+    motif: "furnace",
+  },
+  {
+    name: "HAUNTED CATHEDRAL",
+    top: "#040511",
+    mid: "#10102b",
+    bottom: "#24122d",
+    accent: "#8de7ff",
+    glow: "#442b7a",
+    motif: "cathedral",
+  },
+  {
+    name: "THE VOID",
+    top: "#02000b",
+    mid: "#11001f",
+    bottom: "#250038",
+    accent: "#c25cff",
+    glow: "#5b1c85",
+    motif: "void",
+  },
+  {
+    name: "FINAL ABYSS",
+    top: "#000000",
+    mid: "#050006",
+    bottom: "#140000",
+    accent: "#ff1e4f",
+    glow: "#5f0016",
+    motif: "abyss",
+  },
+];
+
+const BIOME_HEIGHT = 500;
+
+function pseudoRand(seed) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+function smoothstep(edge0, edge1, x) {
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace("#", "");
+  return {
+    r: parseInt(clean.slice(0, 2), 16),
+    g: parseInt(clean.slice(2, 4), 16),
+    b: parseInt(clean.slice(4, 6), 16),
+  };
+}
+
+function mixRgb(a, b, t) {
+  return {
+    r: Math.round(a.r + (b.r - a.r) * t),
+    g: Math.round(a.g + (b.g - a.g) * t),
+    b: Math.round(a.b + (b.b - a.b) * t),
+  };
+}
+
+function rgb(c) {
+  return `rgb(${c.r}, ${c.g}, ${c.b})`;
+}
+
+function rgba(c, a) {
+  return `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`;
+}
+
+function getBiomeState(h) {
+  const rawIndex = Math.floor(h / BIOME_HEIGHT);
+  const index = clamp(rawIndex, 0, HELL_BIOMES.length - 1);
+  const nextIndex = clamp(index + 1, 0, HELL_BIOMES.length - 1);
+  const local = (h % BIOME_HEIGHT) / BIOME_HEIGHT;
+  const blend = nextIndex === index ? 0 : smoothstep(0.72, 1, local);
+
+  return {
+    current: HELL_BIOMES[index],
+    next: HELL_BIOMES[nextIndex],
+    blend,
+    index,
+    local,
+  };
+}
+
+function drawHellBackground(h, time) {
+  const state = getBiomeState(h);
+
+  const top = mixRgb(hexToRgb(state.current.top), hexToRgb(state.next.top), state.blend);
+  const mid = mixRgb(hexToRgb(state.current.mid), hexToRgb(state.next.mid), state.blend);
+  const bottom = mixRgb(hexToRgb(state.current.bottom), hexToRgb(state.next.bottom), state.blend);
+  const accent = mixRgb(hexToRgb(state.current.accent), hexToRgb(state.next.accent), state.blend);
+  const glow = mixRgb(hexToRgb(state.current.glow), hexToRgb(state.next.glow), state.blend);
+
+  const climbPx = h * 10;
+
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grad.addColorStop(0, currentScheme[0]);
-  grad.addColorStop(1, currentScheme[1]);
+  grad.addColorStop(0, rgb(top));
+  grad.addColorStop(0.55, rgb(mid));
+  grad.addColorStop(1, rgb(bottom));
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(255, 100, 0, 0.2)";
-  for (let i = 0; i < 10; i++) {
-    const px = (gameTime * (i + 1)) % canvas.width;
-    const py = canvas.height - ((gameTime * (i + 1)) % canvas.height);
-    ctx.fillRect(px, py, 2, 2);
+  drawDistantGlow(glow, accent, time);
+  drawParallaxCavern(accent, climbPx, time);
+  drawBiomeMotifs(state.current.motif, accent, glow, climbPx, time, h);
+  drawHellChains(accent, climbPx, time);
+  drawFloatingAsh(accent, climbPx, time, h);
+  drawForegroundSmoke(glow, time, h);
+  drawVignette();
+  drawBiomeLabel(state.current.name, accent, h);
+}
+
+function drawDistantGlow(glow, accent, time) {
+  const pulse = 0.08 + Math.sin(time * 0.025) * 0.025;
+
+  let g = ctx.createRadialGradient(
+    canvas.width * 0.5,
+    canvas.height * 0.82,
+    20,
+    canvas.width * 0.5,
+    canvas.height * 0.82,
+    canvas.width * 0.72
+  );
+  g.addColorStop(0, rgba(accent, pulse));
+  g.addColorStop(0.35, rgba(glow, 0.07));
+  g.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  g = ctx.createRadialGradient(
+    canvas.width * 0.2,
+    canvas.height * 0.15,
+    10,
+    canvas.width * 0.2,
+    canvas.height * 0.15,
+    canvas.width * 0.5
+  );
+  g.addColorStop(0, rgba(accent, 0.035));
+  g.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawParallaxCavern(accent, climbPx, time) {
+  drawJaggedWall("left", 0.11, 30, 42, "rgba(0, 0, 0, 0.28)", climbPx);
+  drawJaggedWall("right", 0.11, 30, 42, "rgba(0, 0, 0, 0.28)", climbPx + 555);
+  drawJaggedWall("left", 0.24, 16, 26, "rgba(0, 0, 0, 0.34)", climbPx + 222);
+  drawJaggedWall("right", 0.24, 16, 26, "rgba(0, 0, 0, 0.34)", climbPx + 777);
+
+  ctx.save();
+  ctx.strokeStyle = rgba(accent, 0.08);
+  ctx.lineWidth = 1;
+
+  const drift = (climbPx * 0.035 + time * 0.15) % 120;
+  for (let y = -120; y < canvas.height + 140; y += 120) {
+    const yy = y + drift;
+    ctx.beginPath();
+    ctx.moveTo(60, yy);
+    ctx.bezierCurveTo(170, yy + 30, 290, yy - 35, 540, yy + 20);
+    ctx.stroke();
   }
+  ctx.restore();
+}
+
+function drawJaggedWall(side, speed, baseWidth, variance, fillStyle, climbPx) {
+  const segment = 72;
+  const offset = (climbPx * speed) % segment;
+  const leftSide = side === "left";
+
+  ctx.fillStyle = fillStyle;
+  ctx.beginPath();
+
+  if (leftSide) {
+    ctx.moveTo(0, -segment);
+    for (let y = -segment; y <= canvas.height + segment; y += segment) {
+      const n = Math.floor((y + climbPx * speed) / segment);
+      const x = baseWidth + pseudoRand(n + 12.3) * variance;
+      ctx.lineTo(x, y + offset);
+    }
+    ctx.lineTo(0, canvas.height + segment);
+  } else {
+    ctx.moveTo(canvas.width, -segment);
+    for (let y = -segment; y <= canvas.height + segment; y += segment) {
+      const n = Math.floor((y + climbPx * speed) / segment);
+      const x = canvas.width - baseWidth - pseudoRand(n + 98.7) * variance;
+      ctx.lineTo(x, y + offset);
+    }
+    ctx.lineTo(canvas.width, canvas.height + segment);
+  }
+
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawBiomeMotifs(motif, accent, glow, climbPx, time, h) {
+  if (motif === "pit") drawPitCracks(accent, climbPx, time);
+  else if (motif === "bones") drawBoneShaft(accent, climbPx, time);
+  else if (motif === "furnace") drawBloodFurnace(accent, glow, climbPx, time);
+  else if (motif === "cathedral") drawCathedral(accent, climbPx, time);
+  else if (motif === "void") drawVoidLayer(accent, climbPx, time);
+  else if (motif === "abyss") drawFinalAbyss(accent, glow, climbPx, time, h);
+}
+
+function drawPitCracks(accent, climbPx, time) {
+  ctx.save();
+  ctx.strokeStyle = rgba(accent, 0.22 + Math.sin(time * 0.04) * 0.04);
+  ctx.lineWidth = 2;
+  ctx.shadowColor = rgba(accent, 0.5);
+  ctx.shadowBlur = 8;
+
+  const offset = (climbPx * 0.2) % 220;
+  for (let i = 0; i < 7; i++) {
+    const x = 95 + pseudoRand(i + 2) * 410;
+    const y = ((i * 170 + offset) % (canvas.height + 260)) - 130;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 12, y + 28);
+    ctx.lineTo(x - 7, y + 58);
+    ctx.lineTo(x + 18, y + 98);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawBoneShaft(accent, climbPx, time) {
+  ctx.save();
+  ctx.strokeStyle = rgba(accent, 0.18);
+  ctx.fillStyle = rgba(accent, 0.08);
+  ctx.lineWidth = 4;
+
+  const offset = (climbPx * 0.16) % 150;
+  for (let y = -150; y < canvas.height + 170; y += 150) {
+    const yy = y + offset;
+
+    ctx.beginPath();
+    ctx.arc(62, yy, 46, -Math.PI * 0.45, Math.PI * 0.45);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width - 62, yy + 45, 46, Math.PI * 0.55, Math.PI * 1.45);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < 4; i++) {
+    const x = 130 + pseudoRand(i + 31) * 340;
+    const y = ((i * 210 + climbPx * 0.1) % (canvas.height + 220)) - 100;
+    drawTinySkull(x, y, accent, 0.09 + Math.sin(time * 0.02 + i) * 0.02);
+  }
+  ctx.restore();
+}
+
+function drawTinySkull(x, y, accent, alpha) {
+  ctx.save();
+  ctx.fillStyle = rgba(accent, alpha);
+  ctx.strokeStyle = rgba(accent, alpha + 0.05);
+  ctx.lineWidth = 1;
+
+  ctx.beginPath();
+  ctx.ellipse(x, y, 16, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+  ctx.beginPath();
+  ctx.arc(x - 6, y - 3, 3, 0, Math.PI * 2);
+  ctx.arc(x + 6, y - 3, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(x - 5, y + 8, 10, 2);
+
+  ctx.restore();
+}
+
+function drawBloodFurnace(accent, glow, climbPx, time) {
+  ctx.save();
+
+  const offset = (climbPx * 0.32 + time * 0.8) % canvas.height;
+  for (let i = 0; i < 5; i++) {
+    const x = 80 + i * 110 + Math.sin(time * 0.02 + i) * 12;
+    const y = ((i * 120 + offset) % (canvas.height + 220)) - 160;
+    const w = 16 + pseudoRand(i + 44) * 24;
+    const h = 150 + pseudoRand(i + 51) * 150;
+
+    const g = ctx.createLinearGradient(x, y, x, y + h);
+    g.addColorStop(0, rgba(accent, 0));
+    g.addColorStop(0.25, rgba(accent, 0.13));
+    g.addColorStop(1, rgba(glow, 0.04));
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, w, h);
+  }
+
+  ctx.strokeStyle = rgba(accent, 0.12 + Math.sin(time * 0.035) * 0.03);
+  ctx.lineWidth = 2;
+  for (let y = 70; y < canvas.height; y += 95) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + Math.sin(time * 0.03 + y) * 4);
+    ctx.lineTo(canvas.width, y + Math.cos(time * 0.025 + y) * 4);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawCathedral(accent, climbPx, time) {
+  ctx.save();
+
+  const offset = (climbPx * 0.12) % 230;
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.42)";
+  ctx.lineWidth = 12;
+
+  for (let x = 35; x < canvas.width; x += 105) {
+    const y = ((x + offset) % 230) - 110;
+    drawGothicArch(x, y, 72, 190, "rgba(0, 0, 0, 0.38)", rgba(accent, 0.12));
+  }
+
+  ctx.strokeStyle = rgba(accent, 0.09 + Math.sin(time * 0.025) * 0.02);
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const x = 85 + i * 105;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + Math.sin(time * 0.025 + i) * 7, canvas.height);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawGothicArch(x, y, w, h, fillStyle, strokeStyle) {
+  ctx.fillStyle = fillStyle;
+  ctx.strokeStyle = strokeStyle;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y + h);
+  ctx.lineTo(x, y + h * 0.45);
+  ctx.quadraticCurveTo(x + w * 0.5, y - h * 0.1, x + w, y + h * 0.45);
+  ctx.lineTo(x + w, y + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.5, y + h * 0.1);
+  ctx.lineTo(x + w * 0.5, y + h);
+  ctx.stroke();
+}
+
+function drawVoidLayer(accent, climbPx, time) {
+  ctx.save();
+
+  for (let i = 0; i < 55; i++) {
+    const x = pseudoRand(i + 201) * canvas.width;
+    const y = (pseudoRand(i + 301) * canvas.height + climbPx * 0.05) % canvas.height;
+    const size = 1 + pseudoRand(i + 401) * 2;
+    const alpha = 0.12 + pseudoRand(i + 501) * 0.25 + Math.sin(time * 0.03 + i) * 0.04;
+
+    ctx.fillStyle = rgba(accent, alpha);
+    ctx.fillRect(x, y, size, size);
+  }
+
+  for (let i = 0; i < 5; i++) {
+    const x = 80 + pseudoRand(i + 601) * 440;
+    const y = ((pseudoRand(i + 701) * canvas.height + climbPx * 0.11 + time * 0.18) % (canvas.height + 120)) - 60;
+    drawWatchingEye(x, y, 24 + pseudoRand(i + 801) * 18, accent, 0.12);
+  }
+
+  ctx.restore();
+}
+
+function drawFinalAbyss(accent, glow, climbPx, time, h) {
+  ctx.save();
+
+  const eyeX = canvas.width * 0.5 + Math.sin(time * 0.012) * 28;
+  const eyeY = 105 + Math.cos(time * 0.01) * 14;
+  const eyeSize = 92 + Math.sin(time * 0.025) * 4;
+
+  const g = ctx.createRadialGradient(eyeX, eyeY, 10, eyeX, eyeY, eyeSize * 1.6);
+  g.addColorStop(0, rgba(accent, 0.22));
+  g.addColorStop(0.32, rgba(glow, 0.12));
+  g.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawWatchingEye(eyeX, eyeY, eyeSize, accent, 0.34);
+
+  ctx.strokeStyle = rgba(accent, 0.08);
+  ctx.lineWidth = 1;
+  const offset = (climbPx * 0.08 + time * 0.2) % 110;
+  for (let y = -110; y < canvas.height + 120; y += 110) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + offset);
+    ctx.bezierCurveTo(160, y + 35 + offset, 290, y - 35 + offset, canvas.width, y + offset);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = rgba(accent, 0.05 + Math.min(0.12, (h - 1250) / 6000));
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.restore();
+}
+
+function drawWatchingEye(x, y, size, accent, alpha) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  ctx.fillStyle = rgba(accent, alpha);
+  ctx.strokeStyle = rgba(accent, alpha + 0.08);
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, size, size * 0.42, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(0.8, alpha + 0.35)})`;
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.17, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawHellChains(accent, climbPx, time) {
+  ctx.save();
+  ctx.strokeStyle = rgba(accent, 0.08);
+  ctx.lineWidth = 3;
+
+  for (let c = 0; c < 4; c++) {
+    const x = 70 + c * 150 + Math.sin(time * 0.015 + c) * 5;
+    const offset = (climbPx * (0.16 + c * 0.015) + c * 90) % 56;
+
+    for (let y = -60; y < canvas.height + 70; y += 28) {
+      const yy = y + offset;
+      ctx.beginPath();
+      ctx.ellipse(x, yy, 7, 13, c % 2 === 0 ? 0.15 : -0.15, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawFloatingAsh(accent, climbPx, time, h) {
+  const amount = h > 800 ? 55 : 38;
+
+  ctx.save();
+  for (let i = 0; i < amount; i++) {
+    const baseX = pseudoRand(i + 1000) * canvas.width;
+    const drift = Math.sin(time * 0.018 + i) * (8 + pseudoRand(i + 1100) * 18);
+    const x = baseX + drift;
+    const speed = 0.35 + pseudoRand(i + 1200) * 1.4;
+    const y = canvas.height + 20 - ((time * speed + climbPx * 0.05 + pseudoRand(i + 1300) * canvas.height) % (canvas.height + 60));
+    const size = 1 + pseudoRand(i + 1400) * 2.4;
+    const alpha = 0.08 + pseudoRand(i + 1500) * 0.28;
+
+    ctx.fillStyle = rgba(accent, alpha);
+    if (i % 4 === 0) {
+      ctx.beginPath();
+      ctx.arc(x, y, size + 1, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillRect(x, y, size, size);
+    }
+  }
+  ctx.restore();
+}
+
+function drawForegroundSmoke(glow, time, h) {
+  ctx.save();
+  const strength = 0.035 + Math.min(0.08, h / 5000);
+
+  for (let i = 0; i < 7; i++) {
+    const x = ((pseudoRand(i + 2000) * canvas.width) + Math.sin(time * 0.01 + i) * 35) % canvas.width;
+    const y = canvas.height - 45 - i * 82 + Math.cos(time * 0.012 + i) * 18;
+    const r = 85 + pseudoRand(i + 2100) * 75;
+
+    const g = ctx.createRadialGradient(x, y, 10, x, y, r);
+    g.addColorStop(0, rgba(glow, strength));
+    g.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  ctx.restore();
+}
+
+function drawVignette() {
+  const g = ctx.createRadialGradient(
+    canvas.width * 0.5,
+    canvas.height * 0.46,
+    canvas.width * 0.25,
+    canvas.width * 0.5,
+    canvas.height * 0.46,
+    canvas.width * 0.78
+  );
+  g.addColorStop(0, "rgba(0, 0, 0, 0)");
+  g.addColorStop(0.65, "rgba(0, 0, 0, 0.08)");
+  g.addColorStop(1, "rgba(0, 0, 0, 0.58)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawBiomeLabel(label, accent, h) {
+  const state = getBiomeState(h);
+  const fadeIn = smoothstep(0, 0.18, state.local);
+  const fadeOut = 1 - smoothstep(0.55, 0.9, state.local);
+  const alpha = Math.max(0, Math.min(0.12, fadeIn * fadeOut * 0.12));
+
+  if (alpha <= 0.005) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = rgba(accent, 1);
+  ctx.font = "46px VT323";
+  ctx.textAlign = "center";
+  ctx.fillText(label, canvas.width / 2, canvas.height * 0.58);
+  ctx.restore();
+}
+
+function drawTower() {
+  drawHellBackground(score, gameTime);
 
   for (const p of t_platforms) drawHellPlatform(p);
   drawHellGhost(t_player.x, t_player.y, t_player.w, t_player.h, t_player.vx);
 
   ctx.fillStyle = "white";
   ctx.font = "20px VT323";
+  ctx.textAlign = "left";
   ctx.fillText("HEIGHT: " + score, 70, 30);
 }
 

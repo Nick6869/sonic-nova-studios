@@ -163,6 +163,22 @@ body {
 .card h3 { margin-top: 0; margin-bottom: 0.4rem; }
 .card p { margin: 0 0 0.8rem; color: var(--muted); }
 
+/* Games */
+#games .grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+#games .card {
+  display: flex;
+  flex-direction: column;
+}
+
+#games .btn.small {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
 /* Card images */
 .card-image {
   width: 100%;
@@ -175,8 +191,9 @@ body {
 /* Game tile artwork links */
 .game-tile {
   display: block;
-  margin: 0.75rem auto;
+  margin: 0.75rem auto 1rem;
   width: min(320px, 100%);
+  aspect-ratio: 3 / 4;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -184,7 +201,13 @@ body {
   transition: transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
 }
 
-.game-tile img { display: block; width: 100%; height: auto; }
+.game-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 
 .game-tile:hover {
   transform: translateY(-2px);
@@ -248,9 +271,7 @@ body {
   display: block;
 }
 
-/* --- REDBUBBLE GRID FIX --- */
-
-/* the preview area must be allowed to be tall enough for 3 rows */
+/* REDBUBBLE GRID FIX */
 .rb-grid-link {
   display: block;
   text-decoration: none;
@@ -263,7 +284,6 @@ body {
   min-height: var(--rb-grid-min);
 }
 
-/* 2 columns x 3 rows always */
 .rb-grid {
   height: 100%;
   display: grid;
@@ -291,7 +311,7 @@ body {
 .rb-grid-link:hover .rb-grid img { filter: brightness(1.05); }
 .rb-grid img:hover { transform: translateY(-1px); }
 
-/* --- BOOK COVER PREVIEW --- */
+/* BOOK COVER PREVIEW */
 .book-link {
   display: block;
   border-radius: 14px;
@@ -344,19 +364,16 @@ body {
 /* About */
 .about-row { grid-template-columns: 1fr; }
 
-/* 3 columns: Profile / Dogs / Socials */
 .about-split {
   grid-template-columns: 1fr 1fr 1.5fr;
   align-items: start;
   gap: clamp(20px, 3vw, 40px);
 }
 
-/* Utility to center specific columns in the About section */
 .center-col {
   text-align: center;
 }
 
-/* When an image wrap is inside a centered column, center the flexbox too */
 .center-col .about-pic-wrap {
   justify-content: center;
 }
@@ -488,12 +505,41 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1100px) {
+  #games .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .hero { grid-template-columns: minmax(0, 1fr); }
   .hero-side { justify-content: flex-start; }
   .flex-row { grid-template-columns: minmax(0, 1fr); }
   .about-split { grid-template-columns: 1fr; }
   .socials-grid { grid-template-columns: 1fr; }
+
+  #games .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  #games .card {
+    padding: 1rem;
+  }
+
+  #games .card h3 {
+    font-size: 1rem;
+  }
+
+  #games .card p {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .game-tile {
+    width: 100%;
+    margin: 0.5rem auto 0.75rem;
+  }
 
   :root {
     --rb-grid-min: 520px;
@@ -504,6 +550,38 @@ body {
 @media (max-width: 640px) {
   .site-header { padding: 1rem 5vw; }
   .section { padding: 2rem 5vw; }
+
+  #games .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  #games .card {
+    padding: 0.85rem;
+  }
+
+  #games .card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+
+  #games .card p {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .game-tile {
+    width: 100%;
+    margin: 0.45rem auto 0.65rem;
+    border-radius: 12px;
+  }
+
+  #games .btn.small {
+    width: 100%;
+    justify-content: center;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+  }
 
   .screamlings-covers {
     grid-template-columns: 1fr;
