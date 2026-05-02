@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Void Invaders</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="hud">
+    <div id="score">Score: 0</div>
+    <div id="lives">Lives: ❤❤❤</div>
+    <button id="restart" type="button">Restart</button>
+  </header>
+
+  <main class="wrap">
+    <canvas id="game" width="600" height="650"></canvas>
+    <p class="hint">Move: ← → &nbsp;&nbsp; Shoot: Space &nbsp;&nbsp; Restart: R</p>
+  </main>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel">
+      <div class="title" id="over-title">GAME OVER</div>
+      <div class="final">Final Score: <span id="final-score">0</span></div>
+      <button id="play-again" type="button">Play again</button>
+    </div>
+  </div>
+
+  <script src="game.js" defer></script>
+</body>
+</html>

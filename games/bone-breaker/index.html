@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bone Breaker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hud">
+    <div id="score">Score: 0</div>
+    <div id="lives">Lives: 3</div>
+    <div id="power">Power: None</div>
+    <button id="restart" type="button" title="Restart">Restart</button>
+  </header>
+
+  <main class="wrap">
+    <section class="game-title" aria-label="Bone Breaker intro">
+      <h1>Bone Breaker</h1>
+      <p>Shatter cursed bones, crack skull bricks, and survive the graveyard waves.</p>
+    </section>
+
+    <div class="frame">
+      <canvas id="game" width="600" height="650"></canvas>
+
+      <div id="overlay" class="overlay hidden" aria-hidden="true">
+        <div class="panel">
+          <div id="over-title" class="title">GAME OVER</div>
+          <div class="subtitle">Final Score: <span id="final-score">0</span></div>
+          <p class="overlay-copy">The crypt seals shut... unless you break it open again.</p>
+          <button id="play-again" type="button">Play Again</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Move: ← → or Mouse/Touch. Launch: Space or Click/Tap.</p>
+
+    <section class="legend" aria-label="Brick types">
+      <div class="legend-card">
+        <span class="legend-icon bone">🦴</span>
+        <span><strong>Bone</strong> Basic brick</span>
+      </div>
+      <div class="legend-card">
+        <span class="legend-icon cracked">☠</span>
+        <span><strong>Cracked Bone</strong> Takes 2 hits</span>
+      </div>
+      <div class="legend-card">
+        <span class="legend-icon skull">💀</span>
+        <span><strong>Skull</strong> Bonus points</span>
+      </div>
+      <div class="legend-card">
+        <span class="legend-icon cursed">✦</span>
+        <span><strong>Cursed</strong> May drop a bad powerup</span>
+      </div>
+      <div class="legend-card">
+        <span class="legend-icon coffin">⚰</span>
+        <span><strong>Coffin</strong> Takes 3 hits</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js" defer></script>
+</body>
+</html>
