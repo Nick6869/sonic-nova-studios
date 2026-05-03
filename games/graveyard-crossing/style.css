@@ -11,17 +11,26 @@ body {
     linear-gradient(180deg, #080509 0%, #120716 45%, #050405 100%);
   color: #f7eaff;
   font-family: Georgia, "Times New Roman", serif;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+button {
+  font: inherit;
 }
 
 .page {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: clamp(10px, 3vw, 24px);
 }
 
 .game-shell {
-  width: min(100%, 820px);
+  width: min(100%, 860px);
   text-align: center;
 }
 
@@ -31,7 +40,7 @@ body {
 
 h1 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(1.8rem, 5vw, 4rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #ffeef8;
@@ -44,12 +53,19 @@ h1 {
 .title-wrap p {
   margin: 8px 0 0;
   color: #c9b4ca;
-  font-size: 1rem;
+  font-size: clamp(0.88rem, 2.5vw, 1rem);
+}
+
+.canvas-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 #gameCanvas {
   width: min(100%, 720px);
   height: auto;
+  max-height: 74dvh;
   display: block;
   margin: 0 auto;
   border: 4px solid #3a1026;
@@ -59,6 +75,8 @@ h1 {
     0 0 20px rgba(255, 0, 90, 0.35),
     0 20px 60px rgba(0, 0, 0, 0.8);
   image-rendering: crisp-edges;
+  touch-action: none;
+  user-select: none;
 }
 
 .controls {
@@ -66,10 +84,10 @@ h1 {
   margin: 14px auto 0;
   display: flex;
   justify-content: center;
-  gap: 18px;
+  gap: 10px;
   flex-wrap: wrap;
   color: #d8c4d8;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .controls p {
@@ -84,18 +102,160 @@ strong {
   color: #ff9bc8;
 }
 
-@media (max-width: 560px) {
-  .page {
-    padding: 12px;
+.touch-controls {
+  width: min(100%, 720px);
+  margin: 14px auto 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.mobile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.action-btn,
+.control-btn {
+  border: 1px solid rgba(255, 155, 200, 0.45);
+  background:
+    radial-gradient(circle at top, rgba(255, 79, 154, 0.32), transparent 55%),
+    linear-gradient(180deg, #241029, #110812);
+  color: #ffe8f4;
+  box-shadow:
+    0 0 12px rgba(255, 27, 107, 0.25),
+    inset 0 0 12px rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-btn {
+  min-width: 92px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 68px);
+  grid-template-rows: repeat(3, 58px);
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.control-btn {
+  width: 68px;
+  height: 58px;
+  border-radius: 18px;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.center-pad {
+  color: #ff9bc8;
+}
+
+.action-btn:active,
+.control-btn:active {
+  transform: translateY(2px) scale(0.98);
+  background:
+    radial-gradient(circle at top, rgba(255, 155, 200, 0.44), transparent 55%),
+    linear-gradient(180deg, #3a1231, #160816);
+}
+
+@media (pointer: coarse), (max-width: 760px) {
+  .touch-controls {
+    display: flex;
   }
 
   .controls {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     gap: 8px;
   }
 
   .controls p {
     width: 100%;
     border-radius: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 8px;
+    place-items: start center;
+  }
+
+  .title-wrap {
+    margin-bottom: 8px;
+  }
+
+  #gameCanvas {
+    border-width: 3px;
+    border-radius: 12px;
+    max-height: 58dvh;
+  }
+
+  .touch-controls {
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  .mobile-actions {
+    gap: 7px;
+  }
+
+  .action-btn {
+    min-width: 78px;
+    min-height: 42px;
+    padding: 9px 10px;
+    font-size: 0.9rem;
+  }
+
+  .dpad {
+    grid-template-columns: repeat(3, 62px);
+    grid-template-rows: repeat(3, 52px);
+    gap: 7px;
+  }
+
+  .control-btn {
+    width: 62px;
+    height: 52px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-height: 720px) and (pointer: coarse) {
+  .title-wrap p {
+    display: none;
+  }
+
+  h1 {
+    font-size: clamp(1.35rem, 7vw, 2rem);
+  }
+
+  #gameCanvas {
+    max-height: 52dvh;
+  }
+
+  .controls {
+    display: none;
+  }
+
+  .dpad {
+    grid-template-columns: repeat(3, 58px);
+    grid-template-rows: repeat(3, 48px);
+  }
+
+  .control-btn {
+    width: 58px;
+    height: 48px;
   }
 }

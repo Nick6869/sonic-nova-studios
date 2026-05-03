@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>Graveyard Crossing</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,11 +14,36 @@
         <p>Get the survivor to all five graves before the nightmare catches up.</p>
       </div>
 
-      <canvas id="gameCanvas" width="720" height="768"></canvas>
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="720" height="768"></canvas>
+      </div>
+
+      <div class="touch-controls" aria-label="Mobile game controls">
+        <div class="mobile-actions">
+          <button type="button" class="action-btn" data-action="start">Start</button>
+          <button type="button" class="action-btn" data-action="pause">Pause</button>
+          <button type="button" class="action-btn" data-action="restart">Restart</button>
+        </div>
+
+        <div class="dpad" aria-label="Movement controls">
+          <span></span>
+          <button type="button" class="control-btn" data-action="up" aria-label="Move up">▲</button>
+          <span></span>
+
+          <button type="button" class="control-btn" data-action="left" aria-label="Move left">◀</button>
+          <button type="button" class="control-btn center-pad" data-action="start" aria-label="Start game">●</button>
+          <button type="button" class="control-btn" data-action="right" aria-label="Move right">▶</button>
+
+          <span></span>
+          <button type="button" class="control-btn" data-action="down" aria-label="Move down">▼</button>
+          <span></span>
+        </div>
+      </div>
 
       <div class="controls">
-        <p><strong>Move:</strong> Arrow Keys or WASD</p>
-        <p><strong>Start:</strong> Enter or Space | <strong>Pause:</strong> P | <strong>Restart:</strong> R</p>
+        <p><strong>Keyboard:</strong> Arrow Keys or WASD</p>
+        <p><strong>Phone:</strong> Use the D-pad or swipe on the game</p>
+        <p><strong>Start:</strong> Enter, Space, or Start | <strong>Pause:</strong> P or Pause | <strong>Restart:</strong> R or Restart</p>
       </div>
     </section>
   </main>

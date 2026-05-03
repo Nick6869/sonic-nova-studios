@@ -32,6 +32,11 @@ let lastTime = 0;
 let audioReady = false;
 let audioContext = null;
 
+let pointerStartX = 0;
+let pointerStartY = 0;
+let pointerStartTime = 0;
+let pointerIsDown = false;
+
 const player = {
   x: START_COL * TILE + TILE / 2,
   y: HUD_HEIGHT + START_ROW * TILE + TILE / 2,
@@ -347,19 +352,19 @@ function draw() {
     drawOverlay(
       "GRAVEYARD CROSSING",
       "Cross the cursed road, ride the coffins, and claim all five graves.",
-      "Press Enter or Space to begin"
+      "Tap Start or press Enter / Space"
     );
   }
 
   if (gameState === "paused") {
-    drawOverlay("PAUSED", "The dead are still moving.", "Press P to continue");
+    drawOverlay("PAUSED", "The dead are still moving.", "Tap Pause or press P to continue");
   }
 
   if (gameState === "gameover") {
     drawOverlay(
       "GAME OVER",
       `Final Score: ${score}`,
-      "Press R or Enter to restart"
+      "Tap Restart or press R / Enter"
     );
   }
 }
@@ -910,7 +915,7 @@ function drawOverlay(title, subtitle, prompt) {
 
   ctx.fillStyle = "#a887a8";
   ctx.font = "16px Georgia";
-  ctx.fillText("Arrow Keys / WASD to move     P to pause     R to restart", WIDTH / 2, 462);
+  ctx.fillText("Swipe, tap the D-pad, or use Arrow Keys / WASD", WIDTH / 2, 462);
 
   ctx.restore();
 }
@@ -940,6 +945,16 @@ function initAudio() {
 
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
   audioReady = true;
+}
+
+function unlockAudio() {
+  if (!audioReady) {
+    initAudio();
+  }
+
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext.resume();
+  }
 }
 
 function playSound(type) {
@@ -1000,6 +1015,118 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+function handleGameAction(action) {
+  unlockAudio();
+
+  if (action === "start") {
+    if (gameState === "title") {
+      startGame();
+      return;
+    }
+
+    if (gameState === "gameover") {
+      resetGame();
+      return;
+    }
+
+    if (gameState === "paused") {
+      gameState = "playing";
+      return;
+    }
+
+    return;
+  }
+
+  if (action === "pause") {
+    if (gameState === "playing") {
+      gameState = "paused";
+      return;
+    }
+
+    if (gameState === "paused") {
+      gameState = "playing";
+      return;
+    }
+
+    return;
+  }
+
+  if (action === "restart") {
+    resetGame();
+    return;
+  }
+
+  if (gameState !== "playing") return;
+
+  if (action === "up") movePlayer(0, -1);
+  if (action === "down") movePlayer(0, 1);
+  if (action === "left") movePlayer(-1, 0);
+  if (action === "right") movePlayer(1, 0);
+}
+
+function bindTouchButtons() {
+  const buttons = document.querySelectorAll("[data-action]");
+
+  buttons.forEach((button) => {
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      button.blur();
+      handleGameAction(button.dataset.action);
+    });
+  });
+}
+
+function bindCanvasTouchInput() {
+  canvas.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    unlockAudio();
+
+    pointerIsDown = true;
+    pointerStartX = event.clientX;
+    pointerStartY = event.clientY;
+    pointerStartTime = performance.now();
+
+    if (canvas.setPointerCapture) {
+      canvas.setPointerCapture(event.pointerId);
+    }
+
+    if (gameState === "title") {
+      startGame();
+    } else if (gameState === "gameover") {
+      resetGame();
+    }
+  });
+
+  canvas.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+
+    if (!pointerIsDown) return;
+
+    const dx = event.clientX - pointerStartX;
+    const dy = event.clientY - pointerStartY;
+    const elapsed = performance.now() - pointerStartTime;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    const swipeDistance = 28;
+
+    pointerIsDown = false;
+
+    if (gameState !== "playing") return;
+    if (elapsed > 800) return;
+    if (Math.max(absX, absY) < swipeDistance) return;
+
+    if (absX > absY) {
+      movePlayer(dx > 0 ? 1 : -1, 0);
+    } else {
+      movePlayer(0, dy > 0 ? 1 : -1);
+    }
+  });
+
+  canvas.addEventListener("pointercancel", () => {
+    pointerIsDown = false;
+  });
+}
+
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
 
@@ -1011,6 +1138,10 @@ window.addEventListener("keydown", (event) => {
 
   if (!audioReady) {
     initAudio();
+  }
+
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext.resume();
   }
 
   if (gameState === "title") {
@@ -1045,6 +1176,8 @@ window.addEventListener("keydown", (event) => {
   if (key === "arrowright" || key === "d") movePlayer(1, 0);
 });
 
+bindTouchButtons();
+bindCanvasTouchInput();
 buildLanes();
 draw();
 requestAnimationFrame(gameLoop);
