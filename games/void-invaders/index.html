@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+  />
+
   <title>Void Invaders</title>
+
   <link rel="stylesheet" href="style.css" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <header class="hud">
     <div id="score">Score: 0</div>
@@ -18,6 +26,13 @@
 
   <main class="wrap">
     <canvas id="game" width="600" height="650"></canvas>
+
+    <div id="mobile-controls" class="mobile-controls" aria-label="Mobile controls">
+      <button id="touch-left" class="touch-btn" type="button" aria-label="Move left">◀</button>
+      <button id="touch-fire" class="touch-btn fire-btn" type="button" aria-label="Fire">FIRE</button>
+      <button id="touch-right" class="touch-btn" type="button" aria-label="Move right">▶</button>
+    </div>
+
     <p class="hint">Move: ← → &nbsp;&nbsp; Shoot: Space &nbsp;&nbsp; Restart: R</p>
   </main>
 
