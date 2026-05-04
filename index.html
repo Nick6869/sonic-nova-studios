@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sonic Nova Studios</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
   <header class="site-header">
@@ -18,10 +18,12 @@
         <p>Horror arcade, cursed cartoons, and loud ideas.</p>
       </div>
     </div>
+
     <nav class="main-nav">
       <a href="#games">Games</a>
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
+      <a href="#screamlings-library">Screamlings</a>
       <a href="https://www.youtube.com/@SonicNovaStudios" target="_blank" rel="noopener">YouTube</a>
       <a href="#merch">Merch & Books</a>
       <a href="#about">About</a>
@@ -41,11 +43,13 @@
           stream music, and grab various types of merch and books,
           all in one place.
         </p>
+
         <div class="hero-buttons">
           <a href="#games" class="btn primary">See the games</a>
           <a href="#merch" class="btn ghost">See merch & books</a>
         </div>
       </div>
+
       <div class="hero-side">
         <div class="hero-card">
           <h3>Featured right now</h3>
@@ -217,54 +221,185 @@
     <section id="merch" class="section alt">
       <div class="section-header">
         <h2>Merch & Books</h2>
+        <p>Books, merch, and spooky little nightmares from Sonic Nova Studios.</p>
       </div>
 
-      <article class="card book-card screamlings-feature">
-        <h3>Screamlings</h3>
-        <p>A spooky kids horror book series filled with creepy fun, strange little monsters, and kid-friendly chills.</p>
+      <div id="screamlings-library" class="screamlings-library">
+        <div class="screamlings-glow"></div>
 
-        <div class="screamlings-covers">
-          <a class="screamlings-cover-link"
-             href="https://www.amazon.com/dp/B0FR1W3QFK?binding=kindle_edition&qid=1776622960&sr=8-1&ref=dbs_dp_rwt_sb_pc_tkin"
-             target="_blank" rel="noopener"
-             aria-label="Open Screamlings on Amazon">
-            <img
-              src="./assets/Screamlings1.jpg"
-              alt="Screamlings Book 1 cover"
-              class="card-image screamlings-cover"
-              loading="lazy"
-            />
-          </a>
+        <div class="screamlings-library-top">
+          <div>
+            <span class="sl-kicker">Screamlings Series</span>
+            <h3>Spooky stories for brave readers.</h3>
+            <p>
+              A creepy, kid-friendly horror collection packed with haunted lockers,
+              imaginary friends, cornfield monsters, and strange things that should
+              probably stay closed.
+            </p>
+          </div>
 
-          <a class="screamlings-cover-link"
-             href="https://www.amazon.com/dp/B0FR1W3QFK?binding=kindle_edition&qid=1776622960&sr=8-1&ref=dbs_dp_rwt_sb_pc_tkin"
-             target="_blank" rel="noopener"
-             aria-label="Open Screamlings on Amazon">
-            <img
-              src="./assets/Screamlings2.png"
-              alt="Screamlings Book 2 cover"
-              class="card-image screamlings-cover"
-              loading="lazy"
-            />
+          <a class="sl-facebook-link"
+             href="https://www.facebook.com/profile.php?id=61589140915956"
+             target="_blank" rel="noopener">
+            Follow Screamlings
           </a>
         </div>
 
-        <div class="merch-cta-row">
-          <a href="https://www.amazon.com/dp/B0FR1W3QFK?binding=kindle_edition&qid=1776622960&sr=8-1&ref=dbs_dp_rwt_sb_pc_tkin"
-             target="_blank" rel="noopener"
-             class="btn purple big">
-            View Screamlings on Amazon
-          </a>
-        </div>
+        <div class="screamlings-showcase">
+          <div class="screamlings-phone-panel">
+            <div class="phone-top-row">
+              <span class="phone-dot"></span>
+              <span class="phone-logo">Screamlings</span>
+              <span class="phone-ghost">👻</span>
+            </div>
 
-        <div class="merch-cta-row">
-          <a href="https://www.facebook.com/profile.php?id=61589140915956"
-             target="_blank" rel="noopener"
-             class="btn purple big">
-            Follow Screamlings on Facebook
-          </a>
+            <div class="featured-story-window">
+              <img
+                src="./assets/Screamlings1.jpg"
+                alt="The Scarecrow's Grin cover"
+                class="featured-cover-art"
+                loading="lazy"
+              />
+
+              <div class="featured-copy">
+                <span class="featured-tag">Featured</span>
+                <h4>The Scarecrow’s Grin</h4>
+                <p>Some smiles are meant to scare.</p>
+                <a href="https://www.amazon.com/dp/B0D4FRTV11"
+                   target="_blank" rel="noopener"
+                   class="btn scare-btn">
+                  Read on Amazon
+                </a>
+              </div>
+            </div>
+
+            <div class="phone-menu-row" aria-hidden="true">
+              <span>Books</span>
+              <span>Series</span>
+              <span>Characters</span>
+            </div>
+          </div>
+
+          <div class="sl-story-grid">
+            <article class="sl-story-card">
+              <a class="sl-cover sl-cover-img-link"
+                 href="https://www.amazon.com/dp/B0D4FRTV11"
+                 target="_blank" rel="noopener"
+                 aria-label="View The Scarecrow's Grin on Amazon">
+                <img
+                  src="./assets/Screamlings1.jpg"
+                  alt="The Scarecrow's Grin cover"
+                  loading="lazy"
+                />
+              </a>
+
+              <div class="sl-story-content">
+                <div class="sl-rating-row">
+                  <span>⭐ 4.7</span>
+                  <span>Spooky Fiction</span>
+                </div>
+
+                <h4>The Scarecrow’s Grin</h4>
+                <p class="sl-tagline">Some smiles are meant to scare.</p>
+                <p>
+                  When Andy follows a trail of crows into the cornfield, he finds
+                  a scarecrow that moves when it should not. Now it knows his name,
+                  and it is waiting for him to come back.
+                </p>
+
+                <div class="sl-info-row">
+                  <span>Ages 8-12</span>
+                  <span>Book 1</span>
+                </div>
+
+                <a href="https://www.amazon.com/dp/B0D4FRTV11"
+                   target="_blank" rel="noopener"
+                   class="sl-story-link">
+                  View on Amazon
+                </a>
+              </div>
+            </article>
+
+            <article class="sl-story-card">
+              <a class="sl-cover sl-cover-img-link"
+                 href="https://www.amazon.com/dp/B0GWY7YC52"
+                 target="_blank" rel="noopener"
+                 aria-label="View My Brother's Imaginary Friend Is Moving In on Amazon">
+                <img
+                  src="./assets/Screamlings2.png"
+                  alt="My Brother's Imaginary Friend Is Moving In cover"
+                  loading="lazy"
+                />
+              </a>
+
+              <div class="sl-story-content">
+                <div class="sl-rating-row">
+                  <span>⭐ New</span>
+                  <span>Spooky Fiction</span>
+                </div>
+
+                <h4>My Brother’s Imaginary Friend Is Moving In</h4>
+                <p class="sl-tagline">Pretend friends should not need a bedroom.</p>
+                <p>
+                  A brother’s imaginary friend starts taking up real space in the
+                  house. At first it is weird. Then it is watching. Then it wants
+                  everyone to make room.
+                </p>
+
+                <div class="sl-info-row">
+                  <span>Ages 8-12</span>
+                  <span>Book 2</span>
+                </div>
+
+                <a href="https://www.amazon.com/dp/B0GWY7YC52"
+                   target="_blank" rel="noopener"
+                   class="sl-story-link">
+                  View on Amazon
+                </a>
+              </div>
+            </article>
+
+            <article class="sl-story-card">
+              <a class="sl-cover sl-cover-img-link"
+                 href="https://www.amazon.com/dp/B0GY5P1N1J"
+                 target="_blank" rel="noopener"
+                 aria-label="View The Thing in Locker 325 on Amazon">
+                <img
+                  src="./assets/Screamlings3.jpg"
+                  alt="The Thing in Locker 325 cover"
+                  loading="lazy"
+                />
+              </a>
+
+              <div class="sl-story-content">
+                <div class="sl-rating-row">
+                  <span>⭐ New</span>
+                  <span>Spooky Fiction</span>
+                </div>
+
+                <h4>The Thing in Locker 325</h4>
+                <p class="sl-tagline">Some lockers should stay closed.</p>
+                <p>
+                  Lucas finds something alive inside his school locker. It promises
+                  to help him, but every favor makes the darkness behind the door
+                  a little hungrier.
+                </p>
+
+                <div class="sl-info-row">
+                  <span>Ages 8-12</span>
+                  <span>Book 3</span>
+                </div>
+
+                <a href="https://www.amazon.com/dp/B0GY5P1N1J"
+                   target="_blank" rel="noopener"
+                   class="sl-story-link">
+                  View on Amazon
+                </a>
+              </div>
+            </article>
+          </div>
         </div>
-      </article>
+      </div>
 
       <div class="grid merch-grid">
         <article class="card rb-card">
@@ -409,6 +544,7 @@
         <h2>Contact</h2>
         <p>For collabs, commissions, licensing, or hate mail</p>
       </div>
+
       <p class="center">
         Email: <a href="mailto:sonicnovarecords@gmail.com">sonicnovarecords@gmail.com</a>
       </p>

@@ -18,13 +18,40 @@
 </head>
 
 <body>
-  <header class="hud">
+  <section id="title-screen" class="title-screen">
+    <div class="title-card">
+      <div class="eyebrow">Sonic Nova Arcade</div>
+      <h1>Void Invaders</h1>
+      <p class="subtitle">
+        Blast through the void, collect unstable power-ups, and survive waves of evolving alien horrors.
+      </p>
+
+      <div class="menu-buttons">
+        <button id="start-game" type="button">Start Game</button>
+        <button id="sound-toggle" type="button">Sound: On</button>
+        <button id="controls-toggle" type="button">Controls</button>
+      </div>
+
+      <div class="title-stats">
+        Best Score: <span id="title-best-score">0</span>
+      </div>
+
+      <div id="controls-card" class="controls-card" hidden>
+        <p><strong>Keyboard:</strong> Move with ← →, shoot with Space, restart with R.</p>
+        <p><strong>Mobile:</strong> Drag the ship or use the buttons. Hold FIRE to shoot.</p>
+        <p><strong>Power-ups:</strong> D = Double Shot, R = Rapid Fire, S = Shield, B = Void Bomb, + = Extra Life.</p>
+      </div>
+    </div>
+  </section>
+
+  <header class="hud game-shell" hidden>
     <div id="score">Score: 0</div>
+    <div id="high-score">Best: 0</div>
     <div id="lives">Lives: ❤❤❤</div>
     <button id="restart" type="button">Restart</button>
   </header>
 
-  <main class="wrap">
+  <main class="wrap game-shell" hidden>
     <canvas id="game" width="600" height="650"></canvas>
 
     <div id="mobile-controls" class="mobile-controls" aria-label="Mobile controls">
@@ -40,7 +67,11 @@
     <div class="panel">
       <div class="title" id="over-title">GAME OVER</div>
       <div class="final">Final Score: <span id="final-score">0</span></div>
-      <button id="play-again" type="button">Play again</button>
+      <div class="final best-line">Best Score: <span id="final-best-score">0</span></div>
+      <div class="overlay-buttons">
+        <button id="play-again" type="button">Play again</button>
+        <button id="back-title" type="button">Title screen</button>
+      </div>
     </div>
   </div>
 
