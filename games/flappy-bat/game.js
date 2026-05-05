@@ -1,4 +1,4 @@
-// Flappy Bat - Bone Pillars + Custom Achievements + Sound Toggle + Music Toggle + Power-ups + Moving Pipes + Patterned Variety
+// Flappy Bat - Bone Pillars + Custom Achievements + Sound Toggle + Music Toggle + Power-ups + Moving Pipes + Patterned Variety + Custom Backgrounds
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -134,6 +134,29 @@ const bgMusic = new Audio("assets/audio/flappybatsong.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 0.35;
 bgMusic.preload = "auto";
+
+// -------------------- Background assets --------------------
+const BACKGROUND_SOURCES = [
+  "assets/background1.png",
+  "assets/background2.png",
+  "assets/background3.png",
+  "assets/background4.png",
+  "assets/background5.png"
+];
+
+const BACKGROUND_IMAGES = BACKGROUND_SOURCES.map((src) => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
+const BACKGROUND_SCORE_STEP = 10;
+const BACKGROUND_TRANSITION_FRAMES = 70;
+
+let backgroundStartIndex = 0;
+let backgroundIndex = 0;
+let previousBackgroundIndex = 0;
+let backgroundFadeFrames = 0;
 
 function initAudio() {
   if (!soundEnabled) return;
@@ -462,6 +485,7 @@ function updateUI() {
 let fb_bird = { x: 80, y: 300, velocity: 0, radius: 15, rotation: 0 };
 let fb_pipes = [];
 let fb_frame = 0;
+let framesSincePipe = 0;
 
 const FB_GRAVITY = 0.25;
 const FB_JUMP = -6;
@@ -470,16 +494,18 @@ let fb_speed = 3;
 const FB_PIPE_W = 60;
 const FB_GAP_BASE = 170;
 const FB_SPAWN_RATE = 110;
+const MIN_GAP_HEIGHT = 132;
+const MIN_PIPE_CLEARANCE_FRAMES = 66;
 
 const TOP_MARGIN = 50;
 const BOTTOM_MARGIN = 50;
-const MAX_GAP_JUMP = 110;
+const MAX_GAP_JUMP = 84;
 
 // Moving pipe settings
 const MOVING_PIPE_CHANCE = 0.05;
 const MOVING_PIPE_MIN_SCORE = 6;
-const MOVING_AMP_MIN = 18;
-const MOVING_AMP_MAX = 30;
+const MOVING_AMP_MIN = 14;
+const MOVING_AMP_MAX = 24;
 const MOVING_SPEED_MIN = 0.035;
 const MOVING_SPEED_MAX = 0.06;
 
@@ -552,12 +578,14 @@ function pickPattern() {
   const maxGapY = canvas.height - BOTTOM_MARGIN - gapH;
 
   patternBaseGapY = rand(minGapY, maxGapY);
-  lastGapY = null;
 }
 
 function computeSpawnEvery() {
-  const raw = Math.floor(FB_SPAWN_RATE * (3 / fb_speed));
-  return clamp(raw, 55, 140);
+  const difficultyTarget = Math.floor(FB_SPAWN_RATE * (3 / fb_speed));
+  const scroll = Math.max(1, currentScrollSpeed());
+  const safeMinimum = Math.ceil(MIN_PIPE_CLEARANCE_FRAMES + FB_PIPE_W / scroll);
+
+  return clamp(Math.max(difficultyTarget, safeMinimum), safeMinimum, 140);
 }
 
 function maybeMakeMovingPipe(pipe) {
@@ -600,7 +628,7 @@ function spawnPipe() {
 
   let gapH = FB_GAP_BASE * pattern.gapMul;
   const gapTighten = clamp(score * 0.35, 0, 22);
-  gapH = clamp(gapH - gapTighten, 120, 220);
+  gapH = clamp(gapH - gapTighten, MIN_GAP_HEIGHT, 220);
 
   const minGapY = TOP_MARGIN;
   const maxGapY = canvas.height - BOTTOM_MARGIN - gapH;
@@ -625,8 +653,8 @@ function spawnPipe() {
     oscSpeed: 0
   };
 
-  lastSpawnWasMoving = false;
   maybeMakeMovingPipe(pipe);
+  lastSpawnWasMoving = pipe.isMoving;
 
   fb_pipes.push(pipe);
   lastGapY = gapY;
@@ -646,10 +674,12 @@ function currentScrollSpeed() {
 function initRun() {
   isGameOver = false;
   score = 0;
+  pickRunBackground();
 
   fb_bird = { x: 80, y: 300, velocity: 0, radius: 15, rotation: 0 };
   fb_pipes = [];
   fb_frame = 0;
+  framesSincePipe = 0;
   fb_speed = 3;
   flapFrames = 0;
   hauntedEvent = null;
@@ -743,8 +773,13 @@ function updateGame() {
 
   fb_speed = clamp(3 + score * 0.05, 3, 7.2);
 
+  framesSincePipe++;
   const spawnEvery = computeSpawnEvery();
-  if (fb_frame % spawnEvery === 0) spawnPipe();
+
+  if (framesSincePipe >= spawnEvery) {
+    spawnPipe();
+    framesSincePipe = 0;
+  }
 
   const scroll = currentScrollSpeed();
 
@@ -794,6 +829,7 @@ function updateGame() {
     if (!p.passed && p.x + FB_PIPE_W < fb_bird.x) {
       score++;
       p.passed = true;
+      setBackgroundForScore(score);
 
       if (p.isMoving) {
         runMovingPassed++;
@@ -1265,6 +1301,111 @@ function drawNearCaveFrame(t) {
   ctx.restore();
 }
 
+function imageReady(img) {
+  return img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+}
+
+function backgroundIndexForScore(currentScore) {
+  return (
+    backgroundStartIndex +
+    Math.floor(currentScore / BACKGROUND_SCORE_STEP)
+  ) % BACKGROUND_IMAGES.length;
+}
+
+function setBackgroundForScore(currentScore, force = false) {
+  const nextIndex = backgroundIndexForScore(currentScore);
+
+  if (force) {
+    backgroundIndex = nextIndex;
+    previousBackgroundIndex = nextIndex;
+    backgroundFadeFrames = 0;
+    return;
+  }
+
+  if (nextIndex === backgroundIndex) return;
+
+  previousBackgroundIndex = backgroundIndex;
+  backgroundIndex = nextIndex;
+  backgroundFadeFrames = BACKGROUND_TRANSITION_FRAMES;
+}
+
+function pickRunBackground() {
+  backgroundStartIndex = Math.floor(rand(0, BACKGROUND_IMAGES.length));
+  setBackgroundForScore(0, true);
+}
+
+function drawCoverBackgroundImage(img, t, layerIndex, alpha = 1) {
+  if (!imageReady(img)) return;
+
+  const iw = img.naturalWidth;
+  const ih = img.naturalHeight;
+  const scale = Math.max(canvas.width / iw, canvas.height / ih);
+  const sourceW = Math.min(iw, canvas.width / scale);
+  const sourceH = Math.min(ih, canvas.height / scale);
+  const maxSx = Math.max(0, iw - sourceW);
+  const maxSy = Math.max(0, ih - sourceH);
+  const phase = t * 0.0026 + layerIndex * 1.41;
+  const sx = maxSx * (0.5 + Math.sin(phase) * 0.5);
+  const sy = clamp(
+    maxSy * (0.5 + Math.sin(phase * 0.55 + 1.2) * 0.08),
+    0,
+    maxSy
+  );
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, sx, sy, sourceW, sourceH, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
+}
+
+function drawCustomBackground(t) {
+  const current = BACKGROUND_IMAGES[backgroundIndex];
+  const previous = BACKGROUND_IMAGES[previousBackgroundIndex];
+  const hasCurrent = imageReady(current);
+  const hasPrevious = imageReady(previous);
+
+  if (!hasCurrent && !hasPrevious) return false;
+
+  ctx.save();
+  ctx.fillStyle = "#050108";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (
+    backgroundFadeFrames > 0 &&
+    previousBackgroundIndex !== backgroundIndex &&
+    hasPrevious
+  ) {
+    const progress = 1 - backgroundFadeFrames / BACKGROUND_TRANSITION_FRAMES;
+
+    drawCoverBackgroundImage(previous, t, previousBackgroundIndex, 1);
+
+    if (hasCurrent) {
+      drawCoverBackgroundImage(current, t, backgroundIndex, progress);
+      backgroundFadeFrames--;
+    }
+  } else {
+    drawCoverBackgroundImage(
+      hasCurrent ? current : previous,
+      t,
+      hasCurrent ? backgroundIndex : previousBackgroundIndex,
+      1
+    );
+    backgroundFadeFrames = 0;
+  }
+
+  const readability = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  readability.addColorStop(0, "rgba(4, 1, 8, 0.24)");
+  readability.addColorStop(0.5, "rgba(4, 1, 8, 0.08)");
+  readability.addColorStop(1, "rgba(4, 1, 8, 0.34)");
+  ctx.fillStyle = readability;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.restore();
+  return true;
+}
+
 function drawVignette() {
   const radial = ctx.createRadialGradient(
     canvas.width / 2,
@@ -1298,15 +1439,20 @@ function drawVignette() {
 function drawBackground() {
   const t = fb_frame;
 
-  drawBackdropBase(t);
-  drawMoonCleft(t);
-  drawStoneTexture(t);
-  drawDistantCrypt(t);
-  drawFarCaveLayer(t);
-  drawCrystalClusters(t);
+  const customBackgroundDrawn = drawCustomBackground(t);
+
+  if (!customBackgroundDrawn) {
+    drawBackdropBase(t);
+    drawMoonCleft(t);
+    drawStoneTexture(t);
+    drawDistantCrypt(t);
+    drawFarCaveLayer(t);
+    drawCrystalClusters(t);
+    drawNearCaveFrame(t);
+  }
+
   drawDustMotes(t);
   drawFogLayer(t * 0.9);
-  drawNearCaveFrame(t);
 
   if (hauntedEvent === "rattle" || hauntedEvent === "hunger") {
     const pulse = 0.07 + Math.sin(t * 0.12) * 0.025;
@@ -1932,7 +2078,6 @@ function draw() {
     drawPowerups();
     drawBat();
     drawBlackout();
-    drawHauntedTitle();
     drawStatusHUD();
 
     if (mode === "playing") {
