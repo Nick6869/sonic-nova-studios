@@ -4,6 +4,8 @@ const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const highScoreEl = document.getElementById("highScore");
 const stageNameEl = document.getElementById("stageName");
+const streakEl = document.getElementById("streak");
+const omenNameEl = document.getElementById("omenName");
 
 const overlay = document.getElementById("overlay");
 const overlayTitle = document.getElementById("overlayTitle");
@@ -16,11 +18,14 @@ const TILE = canvas.width / GRID_SIZE;
 
 const START_SPEED = 145;
 const MIN_SPEED = 62;
+const RELIC_MIN_SCORE = 4;
+const RELIC_DURATION = 5200;
 
 const STAGES = [
   {
     name: "Graveyard",
     threshold: 0,
+    background: "assets/background1.png",
     skyTop: "#140713",
     skyBottom: "#050305",
     fog: "rgba(157, 87, 255, 0.12)",
@@ -29,7 +34,8 @@ const STAGES = [
   },
   {
     name: "Catacombs",
-    threshold: 6,
+    threshold: 8,
+    background: "assets/background2.png",
     skyTop: "#190808",
     skyBottom: "#050102",
     fog: "rgba(180, 22, 43, 0.15)",
@@ -38,7 +44,8 @@ const STAGES = [
   },
   {
     name: "Blood Moon",
-    threshold: 14,
+    threshold: 18,
+    background: "assets/background3.png",
     skyTop: "#29040b",
     skyBottom: "#080103",
     fog: "rgba(255, 47, 80, 0.13)",
@@ -46,17 +53,9 @@ const STAGES = [
     accent: "rgba(255, 47, 80, 0.58)"
   },
   {
-    name: "Witching Woods",
-    threshold: 25,
-    skyTop: "#061508",
-    skyBottom: "#010502",
-    fog: "rgba(125, 255, 157, 0.12)",
-    grid: "rgba(125, 255, 157, 0.05)",
-    accent: "rgba(125, 255, 157, 0.52)"
-  },
-  {
     name: "Void Chapel",
-    threshold: 40,
+    threshold: 32,
+    background: "assets/background4.png",
     skyTop: "#07051b",
     skyBottom: "#010005",
     fog: "rgba(132, 74, 255, 0.14)",
@@ -65,34 +64,77 @@ const STAGES = [
   }
 ];
 
-const DEATH_LINES = [
-  "The grave claimed you.",
-  "Your soul was swallowed.",
-  "The serpent returned to darkness.",
-  "The curse took hold.",
-  "The tombstones remember."
+const RUN_OMENS = [
+  {
+    name: "Nightfall",
+    speedOffset: 0,
+    comboWindow: 4200,
+    relicChance: 0.14,
+    obstacleBonus: 0,
+    darkness: 0
+  },
+  {
+    name: "Blood Rush",
+    speedOffset: -8,
+    comboWindow: 3600,
+    relicChance: 0.2,
+    obstacleBonus: 0,
+    darkness: 0
+  },
+  {
+    name: "Heavy Fog",
+    speedOffset: 8,
+    comboWindow: 4800,
+    relicChance: 0.16,
+    obstacleBonus: 1,
+    darkness: 0.1
+  },
+  {
+    name: "Grave Shift",
+    speedOffset: 0,
+    comboWindow: 4200,
+    relicChance: 0.24,
+    obstacleBonus: 1,
+    darkness: 0.04
+  }
 ];
+
+for (const stage of STAGES) {
+  const image = new Image();
+  image.src = stage.background;
+  stage.image = image;
+}
 
 let snake;
 let direction;
 let pendingDirection;
 let inputQueue;
 let food;
+let relic;
 let obstacles;
 let score;
 let highScore;
+let streak;
+let comboExpiresAt;
+let pendingGrowth;
 let gameState;
 let lastFrameTime;
 let moveAccumulator;
 let soundOn;
 let audioContext;
 let eatFlash;
+let screenShake;
+let runOmen;
+let stageOffset;
 
 function boot() {
   highScore = Number(localStorage.getItem("horrorSnakeHighScore")) || 0;
   soundOn = true;
   gameState = "ready";
+  runOmen = RUN_OMENS[0];
+  stageOffset = 0;
 
+  prepareRunFlavor();
   resetGame();
   draw(performance.now());
 
@@ -113,6 +155,11 @@ function boot() {
   requestAnimationFrame(gameLoop);
 }
 
+function prepareRunFlavor() {
+  runOmen = RUN_OMENS[Math.floor(Math.random() * RUN_OMENS.length)];
+  stageOffset = Math.floor(Math.random() * STAGES.length);
+}
+
 function resetGame() {
   const center = Math.floor(GRID_SIZE / 2);
 
@@ -128,6 +175,11 @@ function resetGame() {
   inputQueue = [];
   obstacles = [];
   score = 0;
+  streak = 0;
+  comboExpiresAt = 0;
+  pendingGrowth = 0;
+  relic = null;
+  screenShake = 0;
   food = createFood();
   eatFlash = 0;
   lastFrameTime = 0;
@@ -137,9 +189,13 @@ function resetGame() {
 }
 
 function startGame() {
+  prepareRunFlavor();
   resetGame();
   createObstacles();
   gameState = "running";
+  overlayTitle.textContent = "Serpent of the Grave";
+  overlayText.textContent = "";
+  startBtn.textContent = "Start Run";
   overlay.classList.add("hidden");
   playSound("start");
 }
@@ -150,7 +206,7 @@ function pauseGame() {
   gameState = "paused";
 
   overlayTitle.textContent = "Paused";
-  overlayText.textContent = "The grave waits. Press Space to continue.";
+  overlayText.textContent = "Space resumes";
   startBtn.textContent = "Resume";
   overlay.classList.remove("hidden");
 }
@@ -164,6 +220,7 @@ function resumeGame() {
 
 function gameOver() {
   gameState = "dead";
+  screenShake = 11;
   playSound("death");
 
   if (score > highScore) {
@@ -173,10 +230,8 @@ function gameOver() {
 
   updateHud();
 
-  const randomLine = DEATH_LINES[Math.floor(Math.random() * DEATH_LINES.length)];
-
-  overlayTitle.textContent = "You Died";
-  overlayText.textContent = `${randomLine} The serpent devoured ${score} soul${score === 1 ? "" : "s"}.`;
+  overlayTitle.textContent = "Run Ended";
+  overlayText.textContent = `Score ${score} | Best ${highScore}`;
   startBtn.textContent = "Try Again";
   overlay.classList.remove("hidden");
 }
@@ -262,7 +317,7 @@ function gameLoop(time) {
     const speed = getCurrentSpeed();
 
     while (moveAccumulator >= speed) {
-      updateGame();
+      updateGame(time);
       moveAccumulator -= speed;
     }
   }
@@ -271,7 +326,19 @@ function gameLoop(time) {
   requestAnimationFrame(gameLoop);
 }
 
-function updateGame() {
+function updateGame(time) {
+  const now = time || performance.now();
+
+  if (comboExpiresAt && now > comboExpiresAt && streak !== 0) {
+    streak = 0;
+    comboExpiresAt = 0;
+    updateHud();
+  }
+
+  if (relic && now > relic.expiresAt) {
+    relic = null;
+  }
+
   if (inputQueue.length > 0) {
     const next = inputQueue.shift();
 
@@ -287,22 +354,32 @@ function updateGame() {
     y: head.y + direction.y
   };
 
-  if (hitWall(nextHead) || hitSnake(nextHead) || hitObstacle(nextHead)) {
+  const willEatFood = isSameCell(nextHead, food);
+  const willEatRelic = relic && isSameCell(nextHead, relic);
+  const ignoreTail = !willEatFood && !willEatRelic && pendingGrowth === 0;
+
+  if (hitWall(nextHead) || hitSnake(nextHead, ignoreTail) || hitObstacle(nextHead)) {
     gameOver();
     return;
   }
 
   snake.unshift(nextHead);
 
-  if (nextHead.x === food.x && nextHead.y === food.y) {
-    score += 1;
-    eatFlash = 1;
+  let growth = 0;
 
+  if (willEatFood) {
+    growth += handleFoodEaten(now);
     createObstacles();
-    food = createFood();
+  }
 
-    playSound("eat");
-    updateHud();
+  if (willEatRelic) {
+    growth += handleRelicEaten(now);
+  }
+
+  if (growth > 0) {
+    pendingGrowth += growth - 1;
+  } else if (pendingGrowth > 0) {
+    pendingGrowth -= 1;
   } else {
     snake.pop();
   }
@@ -312,48 +389,145 @@ function hitWall(pos) {
   return pos.x < 0 || pos.x >= GRID_SIZE || pos.y < 0 || pos.y >= GRID_SIZE;
 }
 
-function hitSnake(pos) {
-  return snake.some((part) => part.x === pos.x && part.y === pos.y);
+function hitSnake(pos, ignoreTail = false) {
+  const body = ignoreTail ? snake.slice(0, -1) : snake;
+  return body.some((part) => isSameCell(part, pos));
 }
 
 function hitObstacle(pos) {
-  return obstacles.some((obstacle) => obstacle.x === pos.x && obstacle.y === pos.y);
+  return obstacles.some((obstacle) => isSameCell(obstacle, pos));
+}
+
+function isSameCell(a, b) {
+  return Boolean(a && b && a.x === b.x && a.y === b.y);
 }
 
 function createFood() {
+  const cell = createOpenCell([relic]);
+
+  return {
+    ...cell,
+    pulseOffset: Math.random() * Math.PI * 2
+  };
+}
+
+function createRelic(now) {
+  const cell = createOpenCell([food]);
+
+  return {
+    ...cell,
+    pulseOffset: Math.random() * Math.PI * 2,
+    expiresAt: now + RELIC_DURATION
+  };
+}
+
+function createOpenCell(extraBlocked = []) {
   let attempts = 0;
 
   while (attempts < 1000) {
     const candidate = {
       x: Math.floor(Math.random() * GRID_SIZE),
       y: Math.floor(Math.random() * GRID_SIZE),
-      pulseOffset: Math.random() * Math.PI * 2
     };
 
-    const blockedBySnake = snake.some((part) => part.x === candidate.x && part.y === candidate.y);
-    const blockedByObstacle = obstacles.some(
-      (obstacle) => obstacle.x === candidate.x && obstacle.y === candidate.y
-    );
-
-    if (!blockedBySnake && !blockedByObstacle) {
+    if (!isCellBlocked(candidate, extraBlocked)) {
       return candidate;
     }
 
     attempts += 1;
   }
 
-  return { x: 2, y: 2, pulseOffset: 0 };
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const candidate = { x, y };
+
+      if (!isCellBlocked(candidate, extraBlocked)) {
+        return candidate;
+      }
+    }
+  }
+
+  return { x: 2, y: 2 };
+}
+
+function isCellBlocked(pos, extraBlocked = []) {
+  return (
+    snake.some((part) => isSameCell(part, pos)) ||
+    obstacles.some((obstacle) => isSameCell(obstacle, pos)) ||
+    extraBlocked.some((item) => isSameCell(item, pos))
+  );
+}
+
+function handleFoodEaten(now) {
+  updateStreak(now);
+
+  const streakBonus = Math.min(3, Math.floor(streak / 3));
+  score += 1 + streakBonus;
+  eatFlash = 1;
+  screenShake = Math.max(screenShake, 2.5 + streakBonus);
+  food = createFood();
+
+  maybeSpawnRelic(now);
+  playSound(streakBonus > 0 ? "bonus" : "eat");
+  updateHud();
+
+  return 1;
+}
+
+function handleRelicEaten(now) {
+  updateStreak(now);
+
+  const relicBonus = 3 + Math.min(4, Math.floor(streak / 2));
+  score += relicBonus;
+  eatFlash = 1.4;
+  screenShake = Math.max(screenShake, 7);
+  relic = null;
+
+  playSound("relic");
+  updateHud();
+
+  return 2;
+}
+
+function updateStreak(now) {
+  streak = comboExpiresAt && now <= comboExpiresAt ? streak + 1 : 1;
+  comboExpiresAt = now + getComboWindow();
+}
+
+function maybeSpawnRelic(now) {
+  if (relic || score < RELIC_MIN_SCORE) return;
+
+  const streakBoost = Math.min(0.08, streak * 0.008);
+  const chance = runOmen.relicChance + streakBoost;
+
+  if (Math.random() <= chance) {
+    relic = createRelic(now);
+  }
+}
+
+function getComboWindow() {
+  return runOmen ? runOmen.comboWindow : 4200;
 }
 
 function getDesiredObstacleCount() {
-  if (score < 5) return 0;
+  if (score < 6) return 0;
 
-  return Math.min(8, Math.floor(score / 5) + 1);
+  const omenBonus = runOmen ? runOmen.obstacleBonus : 0;
+  return Math.min(10, Math.floor(score / 6) + 1 + omenBonus);
 }
 
 function createObstacles() {
   const desiredCount = getDesiredObstacleCount();
-  obstacles = [];
+  obstacles = obstacles.filter(
+    (obstacle) =>
+      !snake.some((part) => isSameCell(part, obstacle)) &&
+      !isSameCell(obstacle, food) &&
+      !isSameCell(obstacle, relic)
+  );
+
+  if (obstacles.length > desiredCount) {
+    obstacles = obstacles.slice(0, desiredCount);
+  }
 
   let attempts = 0;
 
@@ -365,11 +539,10 @@ function createObstacles() {
 
     const head = snake[0];
 
-    const overlapsSnake = snake.some((part) => part.x === obstacle.x && part.y === obstacle.y);
-    const overlapsFood = food && food.x === obstacle.x && food.y === obstacle.y;
-    const overlapsObstacle = obstacles.some(
-      (existing) => existing.x === obstacle.x && existing.y === obstacle.y
-    );
+    const overlapsSnake = snake.some((part) => isSameCell(part, obstacle));
+    const overlapsFood = isSameCell(food, obstacle);
+    const overlapsRelic = isSameCell(relic, obstacle);
+    const overlapsObstacle = obstacles.some((existing) => isSameCell(existing, obstacle));
 
     const tooCloseToHead =
       Math.abs(obstacle.x - head.x) + Math.abs(obstacle.y - head.y) <= 3;
@@ -382,6 +555,7 @@ function createObstacles() {
     if (
       !overlapsSnake &&
       !overlapsFood &&
+      !overlapsRelic &&
       !overlapsObstacle &&
       !tooCloseToHead &&
       !tooCloseToSpawn
@@ -394,41 +568,65 @@ function createObstacles() {
 }
 
 function getCurrentSpeed() {
-  const stageBonus = getCurrentStage().name === "Blood Moon" ? 8 : 0;
-  return Math.max(MIN_SPEED, START_SPEED - score * 3.4 - stageBonus);
+  const omenOffset = runOmen ? runOmen.speedOffset : 0;
+  return Math.max(MIN_SPEED, START_SPEED - score * 3.2 + omenOffset);
 }
 
 function getCurrentStage() {
-  let current = STAGES[0];
+  let currentIndex = 0;
 
-  for (const stage of STAGES) {
+  STAGES.forEach((stage, index) => {
     if (score >= stage.threshold) {
-      current = stage;
+      currentIndex = index;
     }
-  }
+  });
 
-  return current;
+  return STAGES[(currentIndex + stageOffset) % STAGES.length];
 }
 
 function updateHud() {
   scoreEl.textContent = score;
   highScoreEl.textContent = Math.max(highScore, score);
   stageNameEl.textContent = getCurrentStage().name;
+  streakEl.textContent = `${streak}x`;
+  omenNameEl.textContent = runOmen.name;
 }
 
 function draw(time) {
   const stage = getCurrentStage();
 
+  ctx.save();
+  applyScreenShake();
   drawBackground(stage, time);
-  drawDecorations(stage, time);
+  if (!hasLoadedStageBackground(stage)) {
+    drawDecorations(stage, time);
+  }
   drawObstacles(stage, time);
+  drawRelic(time);
   drawFood(time);
   drawSnake(time);
   drawVignette();
   drawEatFlash();
+  drawComboMeter(time);
 
   if (gameState === "ready") {
     drawStartHint(time);
+  }
+
+  ctx.restore();
+}
+
+function applyScreenShake() {
+  if (screenShake <= 0) return;
+
+  const shakeX = (Math.random() - 0.5) * screenShake;
+  const shakeY = (Math.random() - 0.5) * screenShake;
+  ctx.translate(shakeX, shakeY);
+
+  screenShake *= 0.82;
+
+  if (screenShake < 0.25) {
+    screenShake = 0;
   }
 }
 
@@ -439,8 +637,19 @@ function drawBackground(stage, time) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  if (hasLoadedStageBackground(stage)) {
+    drawCoverImage(stage.image, time);
+
+    const shade = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    shade.addColorStop(0, "rgba(0, 0, 0, 0.3)");
+    shade.addColorStop(0.55, "rgba(0, 0, 0, 0.18)");
+    shade.addColorStop(1, "rgba(0, 0, 0, 0.56)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   ctx.save();
-  ctx.globalAlpha = 0.85;
+  ctx.globalAlpha = hasLoadedStageBackground(stage) ? 0.55 : 0.85;
 
   for (let i = 0; i < 9; i++) {
     const x = ((time * 0.012 + i * 93) % (canvas.width + 140)) - 70;
@@ -474,6 +683,21 @@ function drawBackground(stage, time) {
     ctx.lineTo(canvas.width, line);
     ctx.stroke();
   }
+}
+
+function hasLoadedStageBackground(stage) {
+  return stage.image && stage.image.complete && stage.image.naturalWidth > 0;
+}
+
+function drawCoverImage(image, time) {
+  const scale = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight) * 1.04;
+  const width = image.naturalWidth * scale;
+  const height = image.naturalHeight * scale;
+  const drift = Math.sin(time * 0.00012 + stageOffset) * 7;
+  const x = (canvas.width - width) / 2 + drift;
+  const y = (canvas.height - height) / 2;
+
+  ctx.drawImage(image, x, y, width, height);
 }
 
 function drawDecorations(stage, time) {
@@ -601,6 +825,43 @@ function drawObstacles(stage, time) {
 
     ctx.restore();
   }
+}
+
+function drawRelic(time) {
+  if (!relic) return;
+
+  const x = relic.x * TILE + TILE / 2;
+  const y = relic.y * TILE + TILE / 2;
+  const remaining = Math.max(0, relic.expiresAt - time);
+  const life = Math.min(1, remaining / RELIC_DURATION);
+  const pulse = 1 + Math.sin(time * 0.01 + relic.pulseOffset) * 0.14;
+  const size = TILE * 0.92 * pulse;
+
+  ctx.save();
+  ctx.globalAlpha = Math.max(0.32, life);
+  ctx.shadowColor = "rgba(255, 218, 116, 0.95)";
+  ctx.shadowBlur = 24;
+  ctx.fillStyle = "#ffd66f";
+
+  ctx.beginPath();
+  ctx.moveTo(x, y - size * 0.5);
+  ctx.lineTo(x + size * 0.42, y);
+  ctx.lineTo(x, y + size * 0.5);
+  ctx.lineTo(x - size * 0.42, y);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(90, 22, 8, 0.78)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(80, 16, 6, 0.7)";
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.14, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
 }
 
 function drawFood(time) {
@@ -815,6 +1076,7 @@ function drawSnakeTongue(x, y, time) {
 }
 
 function drawVignette() {
+  const edgeDarkness = 0.55 + (runOmen ? runOmen.darkness : 0);
   const gradient = ctx.createRadialGradient(
     canvas.width / 2,
     canvas.height / 2,
@@ -825,7 +1087,7 @@ function drawVignette() {
   );
 
   gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-  gradient.addColorStop(1, "rgba(0, 0, 0, 0.55)");
+  gradient.addColorStop(1, `rgba(0, 0, 0, ${edgeDarkness})`);
 
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -846,6 +1108,40 @@ function drawEatFlash() {
   }
 }
 
+function drawComboMeter(time) {
+  if (streak < 2 || !comboExpiresAt) return;
+
+  const remaining = Math.max(0, comboExpiresAt - time);
+  const ratio = Math.min(1, remaining / getComboWindow());
+
+  if (ratio <= 0) return;
+
+  const width = 148;
+  const height = 8;
+  const x = (canvas.width - width) / 2;
+  const y = 16;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.46)";
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, 4);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 214, 111, 0.88)";
+  ctx.beginPath();
+  ctx.roundRect(x, y, width * ratio, height, 4);
+  ctx.fill();
+
+  ctx.font = "700 14px Courier New";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#f3d8aa";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
+  ctx.shadowBlur = 6;
+  ctx.fillText(`${streak}x`, canvas.width / 2, y + 12);
+  ctx.restore();
+}
+
 function drawStartHint(time) {
   const alpha = 0.55 + Math.sin(time * 0.004) * 0.2;
 
@@ -857,7 +1153,7 @@ function drawStartHint(time) {
   ctx.textBaseline = "middle";
   ctx.shadowColor = "rgba(180, 22, 43, 0.8)";
   ctx.shadowBlur = 12;
-  ctx.fillText("PRESS START", canvas.width / 2, canvas.height - 54);
+  ctx.fillText("START", canvas.width / 2, canvas.height - 54);
   ctx.restore();
 }
 
@@ -892,6 +1188,18 @@ function playSound(type) {
   if (type === "eat") {
     playTone(audio, 190, 0.04, 0.035, "square", now);
     playTone(audio, 320, 0.06, 0.03, "triangle", now + 0.04);
+  }
+
+  if (type === "bonus") {
+    playTone(audio, 220, 0.04, 0.035, "square", now);
+    playTone(audio, 390, 0.07, 0.032, "triangle", now + 0.04);
+    playTone(audio, 520, 0.08, 0.026, "triangle", now + 0.1);
+  }
+
+  if (type === "relic") {
+    playTone(audio, 260, 0.08, 0.04, "triangle", now);
+    playTone(audio, 420, 0.1, 0.035, "triangle", now + 0.07);
+    playTone(audio, 680, 0.1, 0.025, "sine", now + 0.14);
   }
 
   if (type === "death") {

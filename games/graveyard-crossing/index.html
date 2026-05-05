@@ -11,11 +11,16 @@
     <section class="game-shell">
       <div class="title-wrap">
         <h1>Graveyard Crossing</h1>
-        <p>Get the survivor to all five graves before the nightmare catches up.</p>
+        <p>Cross the cursed road, ride the coffins, and seal every grave.</p>
       </div>
 
       <div class="canvas-wrap">
-        <canvas id="gameCanvas" width="720" height="768"></canvas>
+        <canvas
+          id="gameCanvas"
+          width="720"
+          height="768"
+          aria-label="Graveyard Crossing arcade game"
+        ></canvas>
       </div>
 
       <div class="touch-controls" aria-label="Mobile game controls">
@@ -27,23 +32,24 @@
 
         <div class="dpad" aria-label="Movement controls">
           <span></span>
-          <button type="button" class="control-btn" data-action="up" aria-label="Move up">▲</button>
+          <button type="button" class="control-btn" data-action="up" aria-label="Move up">^</button>
           <span></span>
 
-          <button type="button" class="control-btn" data-action="left" aria-label="Move left">◀</button>
-          <button type="button" class="control-btn center-pad" data-action="start" aria-label="Start game">●</button>
-          <button type="button" class="control-btn" data-action="right" aria-label="Move right">▶</button>
+          <button type="button" class="control-btn" data-action="left" aria-label="Move left">&lt;</button>
+          <button type="button" class="control-btn center-pad" data-action="start" aria-label="Start game">Start</button>
+          <button type="button" class="control-btn" data-action="right" aria-label="Move right">&gt;</button>
 
           <span></span>
-          <button type="button" class="control-btn" data-action="down" aria-label="Move down">▼</button>
+          <button type="button" class="control-btn" data-action="down" aria-label="Move down">v</button>
           <span></span>
         </div>
       </div>
 
       <div class="controls">
-        <p><strong>Keyboard:</strong> Arrow Keys or WASD</p>
-        <p><strong>Phone:</strong> Use the D-pad or swipe on the game</p>
-        <p><strong>Start:</strong> Enter, Space, or Start | <strong>Pause:</strong> P or Pause | <strong>Restart:</strong> R or Restart</p>
+        <p><strong>Move:</strong> Arrow Keys, WASD, swipe, or D-pad</p>
+        <p><strong>Start:</strong> Enter or Space</p>
+        <p><strong>Pause:</strong> P or Pause</p>
+        <p><strong>Restart:</strong> R or Restart</p>
       </div>
     </section>
   </main>
