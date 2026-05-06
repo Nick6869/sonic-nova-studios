@@ -15,6 +15,8 @@ html {
 body {
   margin: 0;
   background:
+    linear-gradient(rgba(5, 5, 8, .74), rgba(5, 5, 8, .82)),
+    url("assets/background.png") center / cover fixed,
     radial-gradient(circle at 25% 20%, rgba(120, 0, 180, .18), transparent 34%),
     radial-gradient(circle at 70% 75%, rgba(190, 0, 55, .13), transparent 32%),
     #050505;
@@ -99,10 +101,11 @@ canvas:focus-visible {
   position: relative;
   z-index: 1;
   border: 1px solid rgba(255, 77, 122, .35);
-  background: rgba(8, 8, 13, .88);
-  border-radius: 22px;
+  background: rgba(8, 8, 13, .84);
+  border-radius: 8px;
   padding: 28px 22px 24px;
   text-align: center;
+  backdrop-filter: blur(10px);
   box-shadow:
     0 0 35px rgba(189, 0, 0, .22),
     inset 0 0 30px rgba(255, 77, 122, .05);
@@ -111,7 +114,7 @@ canvas:focus-visible {
 .eyebrow {
   color: #ff87c5;
   font-size: clamp(22px, 5vw, 30px);
-  letter-spacing: 3px;
+  letter-spacing: 0;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -144,20 +147,22 @@ h1 {
 
 .menu-buttons button,
 .overlay-buttons button,
-#restart {
+#restart,
+#menu-button {
   font-size: 24px;
   background: linear-gradient(180deg, #171717, #070707);
   color: #f2f2f2;
   border: 1px solid #3d101a;
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 0 16px rgba(189, 0, 0, .12);
 }
 
 .menu-buttons button:hover,
 .overlay-buttons button:hover,
-#restart:hover {
+#restart:hover,
+#menu-button:hover {
   border-color: #ff4d7a;
   box-shadow: 0 0 24px rgba(255, 77, 122, .2);
 }
@@ -168,12 +173,13 @@ h1 {
   font-size: 24px;
 }
 
-.controls-card {
+.controls-card,
+.trophies-card {
   margin: 16px auto 0;
   width: min(500px, 100%);
   border: 1px solid rgba(255, 255, 255, .12);
   background: rgba(0, 0, 0, .38);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 12px 14px;
   color: #d9d9d9;
   font-size: 20px;
@@ -189,6 +195,68 @@ h1 {
   margin-bottom: 0;
 }
 
+.trophies-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: #ffe66d;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.trophies-list {
+  display: grid;
+  gap: 8px;
+}
+
+.trophy-row {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(0, 0, 0, .24);
+  border-radius: 8px;
+}
+
+.trophy-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 230, 109, .52);
+  color: #ffe66d;
+  background: rgba(255, 230, 109, .08);
+}
+
+.trophy-row.locked {
+  color: #8f8f8f;
+}
+
+.trophy-row.locked .trophy-icon {
+  border-color: rgba(255, 255, 255, .18);
+  color: #777;
+  background: rgba(255, 255, 255, .04);
+}
+
+.trophy-name {
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.trophy-row.locked .trophy-name {
+  color: #aaaaaa;
+}
+
+.trophy-desc {
+  margin-top: 3px;
+  font-size: 18px;
+  line-height: 1.05;
+}
+
 /* -------------------- Game Layout -------------------- */
 
 .hud {
@@ -200,6 +268,7 @@ h1 {
   padding: 14px 10px;
   font-size: 22px;
   line-height: 1;
+  text-shadow: 0 0 12px rgba(125, 249, 255, .25);
 }
 
 #score,
@@ -217,6 +286,11 @@ h1 {
   padding: 8px 14px;
 }
 
+.hud-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .wrap {
   width: min(740px, 95vw);
   display: flex;
@@ -228,12 +302,13 @@ h1 {
 
 canvas {
   display: block;
-  border: 2px solid #2a0000;
-  border-radius: 14px;
+  border: 2px solid rgba(255, 77, 122, .48);
+  border-radius: 8px;
   background: #000;
   box-shadow:
-    0 0 25px rgba(189, 0, 0, .14),
-    0 0 70px rgba(88, 21, 180, .08);
+    0 0 0 1px rgba(125, 249, 255, .10),
+    0 0 28px rgba(255, 77, 122, .18),
+    0 0 90px rgba(88, 21, 180, .14);
   max-width: 100%;
   height: auto;
   touch-action: none;
@@ -259,7 +334,7 @@ canvas {
 
 .touch-btn {
   min-height: 58px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid #333;
   background: linear-gradient(180deg, #171717, #080808);
   color: #eeeeee;
@@ -280,7 +355,7 @@ canvas {
 
 .fire-btn {
   font-size: 26px;
-  letter-spacing: 2px;
+  letter-spacing: 0;
   color: #ffdddd;
   border-color: #4a0000;
 }
@@ -305,7 +380,7 @@ canvas {
   width: min(420px, 92vw);
   border: 1px solid #3a0000;
   background: #0b0b0b;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 20px 16px;
   text-align: center;
   box-shadow: 0 0 30px rgba(189, 0, 0, .18);
@@ -340,10 +415,11 @@ canvas {
     font-size: clamp(16px, 4.8vw, 22px);
   }
 
-  #restart {
+  #restart,
+  #menu-button {
     font-size: clamp(18px, 5vw, 22px);
     padding: 7px 10px;
-    border-radius: 9px;
+    border-radius: 8px;
   }
 
   .wrap {
@@ -353,7 +429,7 @@ canvas {
   }
 
   canvas {
-    border-radius: 12px;
+    border-radius: 8px;
     border-width: 2px;
   }
 
@@ -401,13 +477,19 @@ canvas {
     justify-content: center;
   }
 
+  .hud-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
   #score,
   #high-score,
   #lives {
     font-size: 18px;
   }
 
-  #restart {
+  #restart,
+  #menu-button {
     font-size: 17px;
     padding: 6px 9px;
   }
