@@ -526,8 +526,8 @@ body {
 /* Story cards */
 .sl-story-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
 }
 
 .sl-story-card {
@@ -551,7 +551,7 @@ body {
 
 .sl-cover {
   position: relative;
-  min-height: 250px;
+  min-height: 210px;
   overflow: hidden;
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   background: #080b12;
@@ -568,7 +568,7 @@ body {
 .sl-cover-img-link img {
   width: 100%;
   height: 100%;
-  min-height: 250px;
+  min-height: 210px;
   display: block;
   object-fit: cover;
   object-position: center;
@@ -656,7 +656,7 @@ body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 1rem;
+  padding: 0.85rem;
 }
 
 .sl-rating-row,
@@ -686,15 +686,15 @@ body {
 }
 
 .sl-story-content h4 {
-  margin: 0.75rem 0 0.35rem;
-  font-size: 1.08rem;
+  margin: 0.65rem 0 0.3rem;
+  font-size: 0.98rem;
   line-height: 1.14;
 }
 
 .sl-story-content p {
   color: #aeb6c8;
-  font-size: 0.9rem;
-  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  margin: 0 0 0.55rem;
 }
 
 .sl-story-content .sl-tagline {
