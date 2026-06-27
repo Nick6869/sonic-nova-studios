@@ -391,6 +391,7 @@ a {
 
 .card h3,
 .product-card h3,
+.product-card h4,
 .about-panel h3,
 .social-panel h3,
 .book-card h4 {
@@ -585,17 +586,25 @@ a {
   text-decoration: underline;
 }
 
-.merch-grid {
-  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.75fr) minmax(260px, 0.75fr);
-  grid-template-rows: repeat(2, auto);
-  margin-top: 1rem;
+.featured-book {
+  border-color: rgba(197, 248, 75, 0.36);
+  background:
+    linear-gradient(135deg, rgba(197, 248, 75, 0.12), transparent 42%),
+    rgba(17, 23, 34, 0.88);
 }
 
 .rb-card {
   display: grid;
+  grid-template-columns: minmax(210px, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.rb-copy {
+  display: grid;
   gap: 0.75rem;
-  align-content: stretch;
-  grid-row: span 2;
+  align-content: center;
 }
 
 .rb-grid-link {
@@ -608,7 +617,7 @@ a {
 
 .rb-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   padding: 8px;
   background: var(--line);
@@ -635,6 +644,29 @@ a {
   transform: rotate(1deg) scale(1.02);
 }
 
+.product-groups {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.product-group {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.group-heading {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.group-heading h3 {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
 .product-card {
   display: grid;
   gap: 0.75rem;
@@ -642,10 +674,27 @@ a {
   align-content: start;
 }
 
+.product-card-wide {
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  align-items: center;
+}
+
+.product-copy {
+  display: grid;
+  gap: 0.75rem;
+  align-content: center;
+}
+
 .product-cover {
   width: min(220px, 100%);
   aspect-ratio: 2 / 3;
   justify-self: center;
+}
+
+.coloring-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .about-layout {
@@ -823,13 +872,12 @@ a {
   }
 
   .book-grid,
-  .merch-grid {
+  .coloring-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rb-card {
-    grid-column: 1 / -1;
-    grid-row: auto;
+    grid-template-columns: 1fr;
   }
 
   .about-layout {
@@ -884,7 +932,7 @@ a {
     grid-template-columns: 1fr;
   }
 
-  .merch-grid,
+  .product-card-wide,
   .about-layout {
     grid-template-columns: 1fr;
   }
@@ -970,7 +1018,8 @@ a {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .book-grid {
+  .book-grid,
+  .coloring-grid {
     grid-template-columns: 1fr;
   }
 
