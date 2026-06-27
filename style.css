@@ -691,21 +691,35 @@ a {
     rgba(17, 23, 34, 0.88);
 }
 
-.rb-card {
+.store-showcase {
   display: grid;
-  grid-template-columns: minmax(210px, 0.42fr) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  align-items: stretch;
   margin-top: 1rem;
 }
 
-.rb-copy {
+.store-card {
   display: grid;
-  gap: 0.75rem;
-  align-content: center;
+  gap: 1rem;
+  align-content: start;
 }
 
-.rb-grid-link {
+.store-copy {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.store-copy h3,
+.store-copy p {
+  margin: 0;
+}
+
+.store-copy p {
+  color: var(--muted);
+}
+
+.store-grid-link {
   display: block;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -713,15 +727,19 @@ a {
   background: rgba(0, 0, 0, 0.24);
 }
 
-.rb-grid {
+.store-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   padding: 8px;
   background: var(--line);
 }
 
-.rb-grid img {
+.tp-card .store-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.store-grid img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
@@ -730,15 +748,15 @@ a {
   transition: transform 0.16s ease, background 0.16s ease;
 }
 
-.rb-grid-link:hover img {
+.store-grid-link:hover img {
   background: #111720;
 }
 
-.rb-grid-link:hover img:nth-child(3n + 1) {
+.store-grid-link:hover img:nth-child(3n + 1) {
   transform: rotate(-1deg) scale(1.02);
 }
 
-.rb-grid-link:hover img:nth-child(3n + 2) {
+.store-grid-link:hover img:nth-child(3n + 2) {
   transform: rotate(1deg) scale(1.02);
 }
 
@@ -1061,7 +1079,7 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .rb-card {
+  .store-showcase {
     grid-template-columns: 1fr;
   }
 
@@ -1207,7 +1225,8 @@ a {
     font-size: 1.85rem;
   }
 
-  .rb-grid {
+  .store-grid,
+  .tp-card .store-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
