@@ -224,19 +224,43 @@
           </a>
         </div>
 
-        <div class="book-grid">
-          <article class="book-card featured-book">
-            <a class="book-cover" href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">
+        <article class="mascot-feature">
+          <div class="mascot-feature-cover">
+            <a href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">
               <img src="./assets/Screamlings5.jpg" alt="The Mascot Suit cover" loading="lazy">
             </a>
-            <div>
-              <span class="credit-label">Newest release - Book 5</span>
-              <h4>The Mascot Suit</h4>
-              <p>A school mascot suit should not move when nobody is inside.</p>
-              <a href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">View on Amazon</a>
-            </div>
-          </article>
+          </div>
 
+          <div class="mascot-feature-copy">
+            <span class="credit-label">Featured preview - Book 5</span>
+            <h4>The Mascot Suit</h4>
+            <p>A school mascot suit should not move when nobody is inside. Read the opening chapter preview below.</p>
+            <a href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">View on Amazon</a>
+
+            <div class="preview-grid" aria-label="The Mascot Suit chapter one preview pages">
+              <button class="preview-page" type="button" data-preview-index="0" aria-label="Open preview page 1">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_01.png" alt="The Mascot Suit chapter 1 preview page 1" loading="lazy">
+              </button>
+              <button class="preview-page" type="button" data-preview-index="1" aria-label="Open preview page 2">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_02.png" alt="The Mascot Suit chapter 1 preview page 2" loading="lazy">
+              </button>
+              <button class="preview-page" type="button" data-preview-index="2" aria-label="Open preview page 3">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_03.png" alt="The Mascot Suit chapter 1 preview page 3" loading="lazy">
+              </button>
+              <button class="preview-page" type="button" data-preview-index="3" aria-label="Open preview page 4">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_04.png" alt="The Mascot Suit chapter 1 preview page 4" loading="lazy">
+              </button>
+              <button class="preview-page" type="button" data-preview-index="4" aria-label="Open preview page 5">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_05.png" alt="The Mascot Suit chapter 1 preview page 5" loading="lazy">
+              </button>
+              <button class="preview-page" type="button" data-preview-index="5" aria-label="Open preview page 6">
+                <img src="./assets/mascot_chapter1_branded_tighter_page_06.png" alt="The Mascot Suit chapter 1 preview page 6" loading="lazy">
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <div class="book-grid">
           <article class="book-card">
             <a class="book-cover" href="https://www.amazon.com/dp/B0D4FRTV11" target="_blank" rel="noopener">
               <img src="./assets/Screamlings1.jpg" alt="The Scarecrow's Grin cover" loading="lazy">
@@ -433,12 +457,76 @@
     </section>
   </main>
 
+  <div class="preview-modal" id="preview-modal" hidden>
+    <button class="preview-close" type="button" aria-label="Close preview">&times;</button>
+    <button class="preview-nav previous" type="button" aria-label="Previous preview page">&lsaquo;</button>
+    <figure class="preview-reader" aria-live="polite">
+      <img id="preview-reader-image" src="./assets/mascot_chapter1_branded_tighter_page_01.png" alt="The Mascot Suit chapter 1 preview page 1">
+      <figcaption id="preview-reader-caption">Page 1 of 6</figcaption>
+    </figure>
+    <button class="preview-nav next" type="button" aria-label="Next preview page">&rsaquo;</button>
+  </div>
+
   <footer class="site-footer">
     <p>&copy; <span id="year"></span> Sonic Nova Studios. All rights reserved.</p>
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    const previewPages = [
+      './assets/mascot_chapter1_branded_tighter_page_01.png',
+      './assets/mascot_chapter1_branded_tighter_page_02.png',
+      './assets/mascot_chapter1_branded_tighter_page_03.png',
+      './assets/mascot_chapter1_branded_tighter_page_04.png',
+      './assets/mascot_chapter1_branded_tighter_page_05.png',
+      './assets/mascot_chapter1_branded_tighter_page_06.png'
+    ];
+    const previewModal = document.getElementById('preview-modal');
+    const previewImage = document.getElementById('preview-reader-image');
+    const previewCaption = document.getElementById('preview-reader-caption');
+    const previewButtons = document.querySelectorAll('[data-preview-index]');
+    let activePreviewIndex = 0;
+
+    function showPreview(index) {
+      activePreviewIndex = (index + previewPages.length) % previewPages.length;
+      previewImage.src = previewPages[activePreviewIndex];
+      previewImage.alt = `The Mascot Suit chapter 1 preview page ${activePreviewIndex + 1}`;
+      previewCaption.textContent = `Page ${activePreviewIndex + 1} of ${previewPages.length}`;
+    }
+
+    function openPreview(index) {
+      showPreview(index);
+      previewModal.hidden = false;
+      document.body.classList.add('preview-open');
+      previewModal.querySelector('.preview-close').focus();
+    }
+
+    function closePreview() {
+      previewModal.hidden = true;
+      document.body.classList.remove('preview-open');
+      previewButtons[activePreviewIndex]?.focus();
+    }
+
+    previewButtons.forEach((button) => {
+      button.addEventListener('click', () => openPreview(Number(button.dataset.previewIndex)));
+    });
+
+    previewModal.querySelector('.preview-close').addEventListener('click', closePreview);
+    previewModal.querySelector('.previous').addEventListener('click', () => showPreview(activePreviewIndex - 1));
+    previewModal.querySelector('.next').addEventListener('click', () => showPreview(activePreviewIndex + 1));
+    previewModal.addEventListener('click', (event) => {
+      if (event.target === previewModal) {
+        closePreview();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (previewModal.hidden) return;
+      if (event.key === 'Escape') closePreview();
+      if (event.key === 'ArrowLeft') showPreview(activePreviewIndex - 1);
+      if (event.key === 'ArrowRight') showPreview(activePreviewIndex + 1);
+    });
   </script>
 </body>
 </html>
