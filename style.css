@@ -149,6 +149,12 @@ a {
   transform: translateY(-1px);
 }
 
+.main-nav a.active {
+  color: var(--ink);
+  background: rgba(89, 217, 255, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(89, 217, 255, 0.16);
+}
+
 .hero {
   position: relative;
   min-height: 560px;
@@ -156,6 +162,19 @@ a {
   align-items: end;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, rgba(89, 217, 255, 0.14), transparent 28%),
+    linear-gradient(78deg, rgba(197, 248, 75, 0.1), transparent 38%),
+    linear-gradient(180deg, transparent 58%, rgba(5, 13, 29, 0.9));
+  mix-blend-mode: screen;
+  opacity: 0.72;
 }
 
 .hero::after {
@@ -190,6 +209,18 @@ a {
   padding: 6rem 0 3.4rem;
 }
 
+.hero-content::before,
+.page-hero::before {
+  content: "";
+  display: block;
+  width: 96px;
+  height: 4px;
+  margin-bottom: 1.1rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cyan), var(--lime), var(--coral));
+  box-shadow: 0 0 28px rgba(89, 217, 255, 0.34);
+}
+
 .eyebrow,
 .credit-label {
   display: inline-flex;
@@ -206,6 +237,7 @@ a {
   letter-spacing: 0;
   line-height: 1.2;
   text-transform: uppercase;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
 }
 
 .credit-label {
@@ -221,6 +253,8 @@ a {
   font-size: 4rem;
   line-height: 0.98;
   letter-spacing: 0;
+  text-wrap: balance;
+  text-shadow: 0 16px 44px rgba(0, 0, 0, 0.44);
 }
 
 .hero p {
@@ -228,6 +262,8 @@ a {
   margin: 0;
   color: var(--soft);
   font-size: 1.1rem;
+  text-wrap: pretty;
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
 }
 
 .hero-actions,
@@ -236,6 +272,11 @@ a {
   flex-wrap: wrap;
   gap: 0.8rem;
   margin-top: 1.6rem;
+}
+
+.hero-actions {
+  position: relative;
+  padding-top: 0.2rem;
 }
 
 .studio-strip {
@@ -278,6 +319,59 @@ a {
   padding: 5.5rem max(1.25rem, calc((100vw - var(--max)) / 2));
 }
 
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 5rem max(1.25rem, calc((100vw - var(--max)) / 2)) 3.25rem;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(5, 13, 29, 0.96), rgba(5, 13, 29, 0.72)),
+    linear-gradient(135deg, rgba(89, 217, 255, 0.14), rgba(255, 95, 109, 0.08)),
+    url("./assets/background.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.page-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(197, 248, 75, 0.16), transparent 18rem),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: auto, 42px 42px, 42px 42px;
+  opacity: 0.8;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.62), transparent 82%);
+}
+
+.page-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.page-hero h1 {
+  max-width: 860px;
+  margin: 0.85rem 0 0.7rem;
+  font-size: 3.25rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-wrap: balance;
+  text-shadow: 0 14px 40px rgba(0, 0, 0, 0.46);
+}
+
+.page-hero p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--soft);
+  font-size: 1.06rem;
+  padding-left: 1rem;
+  border-left: 3px solid rgba(197, 248, 75, 0.72);
+  text-wrap: pretty;
+  text-shadow: 0 8px 26px rgba(0, 0, 0, 0.42);
+}
+
 .section.alt {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
@@ -314,8 +408,45 @@ a {
   gap: 1rem;
 }
 
+.home-directory {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent),
+    var(--bg);
+}
+
+.directory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.directory-card {
+  display: grid;
+  gap: 0.75rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.directory-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  object-fit: cover;
+  background: #090d12;
+}
+
+.directory-card h3,
+.directory-card p {
+  margin: 0;
+}
+
+.directory-card p {
+  color: var(--muted);
+}
+
 .games-grid {
-  grid-template-columns: repeat(2, minmax(220px, 320px));
+  grid-template-columns: repeat(2, minmax(280px, 520px));
   gap: clamp(1.25rem, 4vw, 3rem);
   justify-content: center;
   width: 100%;
@@ -383,6 +514,33 @@ a {
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36);
 }
 
+.gameplay-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.gameplay-preview a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  background: #050607;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+.gameplay-preview img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.gameplay-preview a:hover img {
+  transform: scale(1.035);
+  filter: brightness(1.08);
+}
+
 .card-body {
   display: grid;
   gap: 0.65rem;
@@ -393,7 +551,9 @@ a {
 .product-card h3,
 .product-card h4,
 .about-panel h3,
+.about-panel h2,
 .social-panel h3,
+.book-card h3,
 .book-card h4 {
   margin: 0;
   line-height: 1.15;
@@ -517,6 +677,7 @@ a {
   border-bottom: 1px solid var(--line);
 }
 
+.library-intro h2,
 .library-intro h3 {
   margin: 0.75rem 0 0.5rem;
   font-size: 2rem;
@@ -573,6 +734,12 @@ a {
 }
 
 .mascot-feature-copy h4 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.mascot-feature-copy h3 {
   margin: 0;
   font-size: 2rem;
   line-height: 1.05;
@@ -704,6 +871,99 @@ a {
   align-content: start;
 }
 
+.merch-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+}
+
+.merch-intro > div:first-child,
+.merch-note {
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent),
+    var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.merch-intro h2,
+.merch-intro p,
+.merch-note p {
+  margin: 0;
+}
+
+.merch-intro h2 {
+  margin-top: 0.75rem;
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.merch-intro p,
+.merch-note p {
+  color: var(--muted);
+}
+
+.merch-note {
+  display: grid;
+  gap: 0.5rem;
+  align-content: center;
+  border-color: rgba(197, 248, 75, 0.22);
+  background:
+    linear-gradient(135deg, rgba(197, 248, 75, 0.1), transparent 44%),
+    var(--panel);
+}
+
+.merch-note strong {
+  color: var(--lime);
+  line-height: 1.1;
+}
+
+.product-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1.2rem;
+}
+
+.product-chip-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.merch-page .store-showcase {
+  grid-template-columns: 1fr;
+  gap: 1.4rem;
+  margin-top: 0;
+}
+
+.merch-page .store-card {
+  grid-template-columns: minmax(230px, 0.28fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.merch-page .store-copy {
+  align-content: center;
+  padding: 0.25rem;
+}
+
+.merch-page .store-copy h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
 .store-copy {
   display: grid;
   gap: 0.75rem;
@@ -717,6 +977,12 @@ a {
 
 .store-copy p {
   color: var(--muted);
+}
+
+.store-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
 }
 
 .store-grid-link {
@@ -758,6 +1024,53 @@ a {
 
 .store-grid-link:hover img:nth-child(3n + 2) {
   transform: rotate(1deg) scale(1.02);
+}
+
+.design-gallery {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.design-card {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(6, 10, 16, 0.82);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.design-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(89, 217, 255, 0.32);
+  background: rgba(12, 18, 28, 0.94);
+}
+
+.design-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #f8f8f8;
+}
+
+.tp-card .design-card img {
+  object-fit: contain;
+  padding: 0.45rem;
+  background: #f8f8f8;
+}
+
+.design-card span {
+  display: grid;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.55rem;
+  color: var(--soft);
+  font-size: 0.8rem;
+  font-weight: 850;
+  line-height: 1.15;
 }
 
 .product-groups {
@@ -862,12 +1175,16 @@ a {
 
 .social-card {
   display: grid;
-  gap: 0.2rem;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
   min-height: 96px;
-  padding: 0.85rem;
+  padding: 0.95rem 1rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.035);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.065), transparent 46%),
+    rgba(255, 255, 255, 0.035);
   color: var(--ink);
   text-decoration: none;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
@@ -879,9 +1196,75 @@ a {
   background: rgba(89, 217, 255, 0.08);
 }
 
-.social-card span {
+.social-icon,
+.btn-icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.social-icon {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.social-icon svg,
+.btn-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.social-icon.youtube {
+  background: linear-gradient(135deg, #ff0033, #a90e26);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.social-icon.x-twitter {
+  background: linear-gradient(135deg, #f6f7f2, #8f96a3);
+  color: #05070d;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.social-icon.tiktok {
+  background:
+    linear-gradient(135deg, rgba(0, 242, 234, 0.88), transparent 38%),
+    linear-gradient(315deg, rgba(255, 0, 80, 0.9), transparent 42%),
+    #090b12;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.social-icon.instagram {
+  background:
+    radial-gradient(circle at 30% 105%, #feda75 0 18%, transparent 28%),
+    linear-gradient(135deg, #833ab4, #fd1d1d 54%, #fcb045);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.social-copy {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.social-copy span,
+.social-card > span:not(.social-icon) {
   color: var(--muted);
   font-size: 0.86rem;
+}
+
+.btn-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 0.35rem;
+}
+
+.btn-icon.facebook {
+  color: #1877f2;
 }
 
 .contact-section {
@@ -889,6 +1272,13 @@ a {
   background:
     linear-gradient(180deg, rgba(255, 95, 109, 0.07), transparent 50%),
     var(--bg-2);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr) minmax(220px, 0.7fr);
+  gap: 1rem;
+  align-items: stretch;
 }
 
 .contact-card {
@@ -899,6 +1289,11 @@ a {
   margin: 0 auto;
   padding: 1.4rem;
   text-align: center;
+}
+
+.contact-grid .contact-card {
+  width: 100%;
+  align-content: center;
 }
 
 .contact-card > a {
@@ -1020,7 +1415,7 @@ a {
 }
 
 .preview-reader figcaption {
-  color: var(--paper);
+  color: var(--ink);
   font-size: 0.86rem;
   font-weight: 800;
 }
@@ -1032,7 +1427,7 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   background: rgba(15, 23, 34, 0.9);
-  color: var(--paper);
+  color: var(--ink);
   cursor: pointer;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
@@ -1079,12 +1474,38 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .merch-intro {
+    grid-template-columns: 1fr;
+  }
+
   .store-showcase {
     grid-template-columns: 1fr;
   }
 
+  .merch-page .store-card {
+    grid-template-columns: 1fr;
+  }
+
+  .merch-page .store-grid,
+  .merch-page .tp-card .store-grid,
+  .design-gallery {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .about-layout {
     grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+  }
+
+  .contact-grid .contact-card {
+    grid-column: 1 / -1;
   }
 
   .social-panel {
@@ -1107,6 +1528,10 @@ a {
 
   .hero h1 {
     font-size: 2.7rem;
+  }
+
+  .page-hero h1 {
+    font-size: 2.6rem;
   }
 
   .studio-strip {
@@ -1136,8 +1561,13 @@ a {
   }
 
   .product-card-wide,
-  .about-layout {
+  .about-layout,
+  .contact-grid {
     grid-template-columns: 1fr;
+  }
+
+  .contact-grid .contact-card {
+    grid-column: auto;
   }
 
   .about-image-card {
@@ -1221,13 +1651,26 @@ a {
   }
 
   .section-header h2,
+  .page-hero h1,
+  .library-intro h2,
   .library-intro h3 {
     font-size: 1.85rem;
   }
 
+  .directory-grid {
+    grid-template-columns: 1fr;
+  }
+
   .store-grid,
-  .tp-card .store-grid {
+  .tp-card .store-grid,
+  .merch-page .store-grid,
+  .merch-page .tp-card .store-grid,
+  .design-gallery {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .design-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .book-grid,

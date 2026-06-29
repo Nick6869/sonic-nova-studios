@@ -3,37 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sonic Nova Studios | Games, Books, Music, Video & Merch</title>
+  <title>Sonic Nova Studios | Games, Books, Media & Merch</title>
   <meta
     name="description"
     content="Sonic Nova Studios creates games, books, music, videos, merchandise, and strange little ideas with a horror-arcade edge."
   />
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
   <header class="site-header">
-    <a class="logo-wrap" href="#top" aria-label="Sonic Nova Studios home">
+    <a class="logo-wrap" href="./index.html" aria-label="Sonic Nova Studios home">
       <span class="logo-mark" aria-hidden="true">
         <img src="./assets/sonic-nova.jpg" alt="" loading="lazy">
       </span>
 
       <span class="logo-text">
         <strong>Sonic Nova Studios</strong>
-        <span>Games, books, music, video, and merch.</span>
+        <span>Games, books, media, and merch.</span>
       </span>
     </a>
 
     <nav class="main-nav" aria-label="Primary navigation">
-      <a href="#games">Games</a>
-      <a href="#music">Music</a>
-      <a href="#videos">Videos</a>
-      <a href="#screamlings-library">Books</a>
-      <a href="#merch">Merch</a>
-      <a href="#contact">Contact</a>
+      <a class="active" href="./index.html">Home</a>
+      <a href="./games.html">Games</a>
+      <a href="./media.html">Media</a>
+      <a href="./books.html">Books</a>
+      <a href="./merch.html">Merch</a>
+      <a href="./contact.html">Contact</a>
     </nav>
   </header>
 
-  <main id="top">
+  <main>
     <section class="hero" aria-label="Sonic Nova Studios introduction">
       <div class="hero-media" aria-hidden="true"></div>
 
@@ -41,455 +41,72 @@
         <span class="eyebrow">Independent creative studio</span>
         <h1>Strange ideas, original media, and spooky little worlds.</h1>
         <p>
-          Sonic Nova Studios produces games, music, books, videos, and merchandise
+          Sonic Nova Studios produces browser games, music, books, videos, and merchandise
           with a horror-arcade edge, a loud creative pulse, and a growing catalog of
           weird things worth clicking into.
         </p>
 
-        <div class="hero-actions" aria-label="Featured sections">
-          <a class="btn primary" href="#games">Play the games</a>
-          <a class="btn ghost" href="#screamlings-library">Browse Screamlings</a>
+        <div class="hero-actions" aria-label="Featured pages">
+          <a class="btn primary" href="./games.html">Play the games</a>
+          <a class="btn ghost" href="./books.html">Browse books</a>
+          <a class="btn ghost" href="./merch.html">Shop merch</a>
         </div>
       </div>
     </section>
 
     <section class="studio-strip" aria-label="Sonic Nova Studios catalog highlights">
-      <a href="#games">
+      <a href="./games.html">
         <strong>Browser Games</strong>
       </a>
-      <a href="#music">
-        <strong>Music</strong>
+      <a href="./media.html">
+        <strong>Music & Videos</strong>
       </a>
-      <a href="#screamlings-library">
+      <a href="./books.html">
         <strong>Books</strong>
       </a>
-      <a href="#merch">
-        <strong>Merch</strong>
+      <a href="./merch.html">
+        <strong>Merch Stores</strong>
       </a>
     </section>
 
-    <section id="games" class="section">
+    <section class="section home-directory" aria-label="Explore Sonic Nova Studios">
       <div class="section-header">
-        <span class="eyebrow">Developed by Sonic Nova Studios</span>
-        <h2>Games</h2>
-        <p>Arcade-inspired horror games you can play in a browser or on your phone.</p>
+        <span class="eyebrow">Explore the catalog</span>
+        <h2>Pick a tab and jump straight into the section you need.</h2>
+        <p>The site is now organized into dedicated pages so the growing catalog has room to expand.</p>
       </div>
 
-      <div class="grid games-grid">
-        <article class="card media-card">
-          <span class="credit-label">Developed by Sonic Nova Studios</span>
-          <a class="media-cover game-tile" href="./games/flappy-bat/index.html" target="_blank" rel="noopener">
-            <img src="./assets/flappy-bat-cover.png" alt="Flappy Bat cover art" loading="lazy">
-          </a>
-          <div class="card-body">
-            <h3>Flappy Bat</h3>
-            <p>A cursed arcade flyer about a bat dodging haunted pipes and traps.</p>
-            <a class="btn small" href="./games/flappy-bat/index.html" target="_blank" rel="noopener">Play Flappy Bat</a>
-          </div>
-        </article>
+      <div class="directory-grid">
+        <a class="card directory-card" href="./games.html">
+          <img src="./assets/hell-climb-cover.png" alt="Hell Climb cover art" loading="lazy">
+          <span class="credit-label">Games</span>
+          <h3>Playable browser games</h3>
+          <p>Flappy Bat, Hell Climb, and future Sonic Nova game projects.</p>
+        </a>
 
-        <article class="card media-card">
-          <span class="credit-label">Developed by Sonic Nova Studios</span>
-          <a class="media-cover game-tile" href="./games/hell-climb/index.html" target="_blank" rel="noopener">
-            <img src="./assets/hell-climb-cover.png" alt="Hell Climb cover art" loading="lazy">
-          </a>
-          <div class="card-body">
-            <h3>Hell Climb</h3>
-            <p>Vertical platforming through cursed levels, hazards, and strange unlocks.</p>
-            <a class="btn small" href="./games/hell-climb/index.html" target="_blank" rel="noopener">Play Hell Climb</a>
-          </div>
-        </article>
-      </div>
-    </section>
+        <a class="card directory-card" href="./media.html">
+          <img src="./assets/background.png" alt="Sonic Nova Studios visual art" loading="lazy">
+          <span class="credit-label">Media</span>
+          <h3>Music, videos, and socials</h3>
+          <p>Spotify tracks, YouTube embeds, and social channels in one place.</p>
+        </a>
 
-    <section id="music" class="section alt">
-      <div class="section-header">
-        <span class="eyebrow">Produced by Sonic Nova Studios</span>
-        <h2>Music</h2>
-        <p>Metal and experimental tracks with a cinematic edge.</p>
-      </div>
+        <a class="card directory-card" href="./books.html">
+          <img src="./assets/Screamlings5.jpg" alt="The Mascot Suit cover" loading="lazy">
+          <span class="credit-label">Books</span>
+          <h3>Screamlings and other releases</h3>
+          <p>The full Screamlings lineup, preview pages, White Light, and coloring books.</p>
+        </a>
 
-      <div class="split">
-        <div class="section-copy">
-          <p>
-            Heavy, cinematic, and sometimes ridiculous. Each release is presented as
-            part of the Sonic Nova Studios creative catalog.
-          </p>
-
-          <ul class="link-list">
-            <li>
-              <a href="https://open.spotify.com/track/6S79fpKhJZODrIO2DQ285Z" target="_blank" rel="noopener">
-                Afterglow by Nerve Communion
-              </a>
-              <span>Produced by Sonic Nova Studios</span>
-            </li>
-            <li>
-              <a href="https://open.spotify.com/track/2uF12WZ4OANAUg7o04L3Ok" target="_blank" rel="noopener">
-                The Consortium by Nerve Communion
-              </a>
-              <span>Produced by Sonic Nova Studios</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="embed-stack">
-          <div class="spotify-embed">
-            <iframe
-              src="https://open.spotify.com/embed/track/6S79fpKhJZODrIO2DQ285Z"
-              width="100%"
-              height="152"
-              frameborder="0"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-            </iframe>
-          </div>
-
-          <div class="spotify-embed">
-            <iframe
-              src="https://open.spotify.com/embed/track/2uF12WZ4OANAUg7o04L3Ok"
-              width="100%"
-              height="152"
-              frameborder="0"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-            </iframe>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="videos" class="section">
-      <div class="section-header">
-        <span class="eyebrow">Produced by Sonic Nova Studios</span>
-        <h2>Videos</h2>
-        <p>Highlights, channel experiments, and short-form creative work.</p>
-      </div>
-
-      <div class="video-grid">
-        <article class="video-card">
-          <div class="video-embed">
-            <iframe
-              width="100%"
-              height="315"
-              src="https://www.youtube.com/embed/Lqpg_BW_Ucg"
-              title="Sonic Nova Studios highlight 2"
-              frameborder="0"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen>
-            </iframe>
-          </div>
-          <p>Produced by Sonic Nova Studios</p>
-        </article>
-
-        <article class="video-card">
-          <div class="video-embed">
-            <iframe
-              width="100%"
-              height="315"
-              src="https://www.youtube.com/embed/je49swBCMYk"
-              title="Sonic Nova Studios highlight"
-              frameborder="0"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen>
-            </iframe>
-          </div>
-          <p>Produced by Sonic Nova Studios</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="merch" class="section alt">
-      <div class="section-header">
-        <span class="eyebrow">Published and merchandised by Sonic Nova Studios</span>
-        <h2>Books & Merch</h2>
-        <p>Books, coloring books, shirts, stickers, and spooky little nightmares from the studio catalog.</p>
-      </div>
-
-      <div id="screamlings-library" class="screamlings-library">
-        <div class="library-intro">
-          <div>
-            <span class="eyebrow">Screamlings Series</span>
-            <h3>Spooky stories for brave readers.</h3>
-            <p>
-              A creepy, kid-friendly horror collection packed with haunted lockers,
-              imaginary friends, cornfield monsters, and strange things that should probably stay closed.
-            </p>
-            <p class="brand-credit">Published by Sonic Nova Studios</p>
-          </div>
-
-          <a class="btn ghost" href="https://www.facebook.com/profile.php?id=61589140915956" target="_blank" rel="noopener">
-            Follow Screamlings
-          </a>
-        </div>
-
-        <article class="mascot-feature">
-          <div class="mascot-feature-cover">
-            <a href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">
-              <img src="./assets/Screamlings5.jpg" alt="The Mascot Suit cover" loading="lazy">
-            </a>
-          </div>
-
-          <div class="mascot-feature-copy">
-            <span class="credit-label">Featured preview - Book 5</span>
-            <h4>The Mascot Suit</h4>
-            <p>A school mascot suit should not move when nobody is inside. Read the opening chapter preview below.</p>
-            <a href="https://www.amazon.com/dp/B0H683J7T3" target="_blank" rel="noopener">View on Amazon</a>
-
-            <div class="preview-grid" aria-label="The Mascot Suit chapter one preview pages">
-              <button class="preview-page" type="button" data-preview-index="0" aria-label="Open preview page 1">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_01.png" alt="The Mascot Suit chapter 1 preview page 1" loading="lazy">
-              </button>
-              <button class="preview-page" type="button" data-preview-index="1" aria-label="Open preview page 2">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_02.png" alt="The Mascot Suit chapter 1 preview page 2" loading="lazy">
-              </button>
-              <button class="preview-page" type="button" data-preview-index="2" aria-label="Open preview page 3">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_03.png" alt="The Mascot Suit chapter 1 preview page 3" loading="lazy">
-              </button>
-              <button class="preview-page" type="button" data-preview-index="3" aria-label="Open preview page 4">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_04.png" alt="The Mascot Suit chapter 1 preview page 4" loading="lazy">
-              </button>
-              <button class="preview-page" type="button" data-preview-index="4" aria-label="Open preview page 5">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_05.png" alt="The Mascot Suit chapter 1 preview page 5" loading="lazy">
-              </button>
-              <button class="preview-page" type="button" data-preview-index="5" aria-label="Open preview page 6">
-                <img src="./assets/mascot_chapter1_branded_tighter_page_06.png" alt="The Mascot Suit chapter 1 preview page 6" loading="lazy">
-              </button>
-            </div>
-          </div>
-        </article>
-
-        <div class="book-grid">
-          <article class="book-card">
-            <a class="book-cover" href="https://www.amazon.com/dp/B0D4FRTV11" target="_blank" rel="noopener">
-              <img src="./assets/Screamlings1.jpg" alt="The Scarecrow's Grin cover" loading="lazy">
-            </a>
-            <div>
-              <span class="credit-label">Book 1</span>
-              <h4>The Scarecrow's Grin</h4>
-              <p>Some smiles are meant to scare.</p>
-              <a href="https://www.amazon.com/dp/B0D4FRTV11" target="_blank" rel="noopener">View on Amazon</a>
-            </div>
-          </article>
-
-          <article class="book-card">
-            <a class="book-cover" href="https://www.amazon.com/dp/B0GWY7YC52" target="_blank" rel="noopener">
-              <img src="./assets/Screamlings2.png" alt="My Brother's Imaginary Friend Is Moving In cover" loading="lazy">
-            </a>
-            <div>
-              <span class="credit-label">Book 2</span>
-              <h4>My Brother's Imaginary Friend Is Moving In</h4>
-              <p>Pretend friends should not need a bedroom.</p>
-              <a href="https://www.amazon.com/dp/B0GWY7YC52" target="_blank" rel="noopener">View on Amazon</a>
-            </div>
-          </article>
-
-          <article class="book-card">
-            <a class="book-cover" href="https://www.amazon.com/dp/B0GY5P1N1J" target="_blank" rel="noopener">
-              <img src="./assets/Screamlings3.jpg" alt="The Thing in Locker 325 cover" loading="lazy">
-            </a>
-            <div>
-              <span class="credit-label">Book 3</span>
-              <h4>The Thing in Locker 325</h4>
-              <p>Some lockers should stay closed.</p>
-              <a href="https://www.amazon.com/dp/B0GY5P1N1J" target="_blank" rel="noopener">View on Amazon</a>
-            </div>
-          </article>
-
-          <article class="book-card">
-            <a class="book-cover" href="https://www.amazon.com/dp/B0GZK13TC3" target="_blank" rel="noopener">
-              <img src="./assets/Screamlings4.jpg" alt="The Thing in Locker 325 Part 2 cover" loading="lazy">
-            </a>
-            <div>
-              <span class="credit-label">Book 4</span>
-              <h4>The Thing in Locker 325 (Part 2)</h4>
-              <p>The missing side of school is hungry.</p>
-              <a href="https://www.amazon.com/dp/B0GZK13TC3" target="_blank" rel="noopener">View on Amazon</a>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <div class="store-showcase" aria-label="Sonic Nova Studios merch stores">
-        <article class="card store-card rb-card">
-          <div class="store-copy">
-            <span class="credit-label">Merch by Sonic Nova Studios</span>
-            <h3>Redbubble Store</h3>
-            <p>Over 200 original designs on shirts, stickers, and more.</p>
-            <a href="https://www.redbubble.com/people/Nyoung665/shop" target="_blank" rel="noopener" class="btn primary">
-              Visit Redbubble
-            </a>
-          </div>
-
-          <a class="store-grid-link" href="https://www.redbubble.com/people/Nyoung665/shop" target="_blank" rel="noopener" aria-label="Open Redbubble shop">
-            <div class="store-grid">
-              <img src="./assets/grim-reefer.jpg" alt="Grim Reefer design" loading="lazy" />
-              <img src="./assets/time-to-float.jpg" alt="Time to Float design" loading="lazy" />
-              <img src="./assets/santa-reaper.jpg" alt="Santa Reaper design" loading="lazy" />
-              <img src="./assets/alex-frog.jpg" alt="Alex Frog design" loading="lazy" />
-              <img src="./assets/cryptid-of-habit.jpg" alt="Cryptid of Habit design" loading="lazy" />
-              <img src="./assets/final-boss-karen.jpg" alt="Final Boss Karen design" loading="lazy" />
-              <img src="./assets/godofdoh.jpg" alt="God of Doh design" loading="lazy" />
-              <img src="./assets/howyoudoin.jpg" alt="How You Doin design" loading="lazy" />
-              <img src="./assets/iwantyou.jpg" alt="I Want You design" loading="lazy" />
-              <img src="./assets/charfield.jpg" alt="Charfield design" loading="lazy" />
-              <img src="./assets/frankenstoned.jpg" alt="Frankenstoned design" loading="lazy" />
-              <img src="./assets/adoptdontshop.jpg" alt="Adopt Don't Shop design" loading="lazy" />
-            </div>
-          </a>
-        </article>
-
-        <article class="card store-card tp-card">
-          <div class="store-copy">
-            <span class="credit-label">New storefront</span>
-            <h3>TeePublic Store</h3>
-            <p>Fresh shirts and design drops with cryptids, aliens, and retro weirdness.</p>
-            <a href="https://tee.pub/lic/3bwbD_079F4" target="_blank" rel="noopener" class="btn primary">
-              Visit TeePublic
-            </a>
-          </div>
-
-          <a class="store-grid-link" href="https://tee.pub/lic/3bwbD_079F4" target="_blank" rel="noopener" aria-label="Open TeePublic shop">
-            <div class="store-grid">
-              <img src="./assets/teepublic-cryptid-witness.webp" alt="Cryptid Witness Protection Program design" loading="lazy" />
-              <img src="./assets/teepublic-beam-me-up.webp" alt="Beam Me Up UFO design" loading="lazy" />
-              <img src="./assets/teepublic-best-youve-got.webp" alt="This Is The Best You've Got alien design" loading="lazy" />
-              <img src="./assets/teepublic-country-roads-mothman.webp" alt="Country Roads Take Me Elsewhere Mothman design" loading="lazy" />
-              <img src="./assets/teepublic-alien-abduction.webp" alt="Alien Abduction Horror design" loading="lazy" />
-              <img src="./assets/teepublic-alien-ufo-mechanic.webp" alt="Alien UFO Mechanic design" loading="lazy" />
-            </div>
-          </a>
-        </article>
-      </div>
-
-      <div class="product-groups">
-        <div class="product-group">
-          <div class="group-heading">
-            <span class="eyebrow">Adult horror</span>
-            <h3>White Light</h3>
-          </div>
-          <article class="card product-card product-card-wide">
-            <a class="product-cover" href="https://www.amazon.com/White-Light-Nicholas-Young-ebook/dp/B0GXB7HVDF" target="_blank" rel="noopener">
-              <img src="./assets/white-light.jpg" alt="White Light cover" loading="lazy">
-            </a>
-            <div class="product-copy">
-              <span class="credit-label">Horror novella</span>
-              <h4>White Light</h4>
-              <p>
-                The sky opens. The city falls. A boy runs.
-              </p>
-              <p>
-                Noah is forced into a collapsing city as an impossible invasion unfolds around him in real time. Every
-                street brings another nightmare. Every shelter becomes temporary. Every choice costs something.
-              </p>
-              <a href="https://www.amazon.com/White-Light-Nicholas-Young-ebook/dp/B0GXB7HVDF" target="_blank" rel="noopener" class="btn small">View on Amazon</a>
-            </div>
-          </article>
-        </div>
-
-        <div class="product-group">
-          <div class="group-heading">
-            <span class="eyebrow">Coloring books</span>
-            <h3>Relaxed, creepy, and cozy pages.</h3>
-          </div>
-          <div class="coloring-grid">
-            <article class="card product-card">
-              <a class="product-cover" href="https://www.amazon.com/dp/B0G83BC1VB" target="_blank" rel="noopener">
-                <img src="./assets/christmas-coloring.jpg" alt="A Spooktacular Christmas Coloring Book cover" loading="lazy">
-              </a>
-              <h4>A Spooktacular Christmas Coloring Book</h4>
-              <p>A horror Christmas coloring book packed with creepy festive pages.</p>
-              <a href="https://www.amazon.com/dp/B0G83BC1VB" target="_blank" rel="noopener" class="btn small">View on Amazon</a>
-            </article>
-
-            <article class="card product-card">
-              <a class="product-cover" href="https://www.amazon.com/dp/B0GCZ45Y5W" target="_blank" rel="noopener">
-                <img src="./assets/sweet-coloring.jpg" alt="The Sweet & Simple Food Coloring Book cover" loading="lazy">
-              </a>
-              <h4>The Sweet &amp; Simple Food Coloring Book</h4>
-              <p>A cozy, relaxing food-themed coloring book packed with simple, satisfying pages.</p>
-              <a href="https://www.amazon.com/dp/B0GCZ45Y5W" target="_blank" rel="noopener" class="btn small">View on Amazon</a>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="about" class="section">
-      <div class="section-header">
-        <span class="eyebrow">About the studio</span>
-        <h2>A small studio with a wide creative range.</h2>
-        <p>
-          Sonic Nova Studios creates original entertainment across horror games,
-          children's books, music, videos, merch, and whatever strange idea starts
-          making noise next.
-        </p>
-      </div>
-
-      <div class="about-layout">
-        <div class="about-image-card">
-          <img src="./assets/profile-pic.png" alt="Sonic Nova Studios profile" loading="lazy">
-        </div>
-
-        <div class="about-panel">
-          <h3>Built to make ideas feel finished.</h3>
-          <p>
-            The studio blends creative direction, copy, visual polish, responsive
-            presentation, and practical publishing know-how into one focused process.
-          </p>
-          <p>
-            The result is a growing catalog that feels connected, intentional,
-            and unmistakably Sonic Nova.
-          </p>
-        </div>
-
-        <div class="social-panel" id="socials">
-          <h3>Socials</h3>
-          <div class="socials-grid">
-            <a class="social-card" href="https://www.youtube.com/@SonicNovaStudios" target="_blank" rel="noopener">
-              <strong>YouTube</strong>
-              <span>Videos and highlights</span>
-            </a>
-            <a class="social-card" href="https://x.com/sonicnovastudio" target="_blank" rel="noopener">
-              <strong>Twitter / X</strong>
-              <span>@SonicNovaStudio</span>
-            </a>
-            <a class="social-card" href="https://www.tiktok.com/@sonicnovastudios" target="_blank" rel="noopener">
-              <strong>TikTok</strong>
-              <span>@sonicnovastudios</span>
-            </a>
-            <a class="social-card" href="https://www.instagram.com/sonicnovastudios/" target="_blank" rel="noopener">
-              <strong>Instagram</strong>
-              <span>@sonicnovastudios</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact" class="section contact-section">
-      <div class="section-header centered">
-        <span class="eyebrow">Contact</span>
-        <h2>Get in touch with Sonic Nova Studios.</h2>
-        <p>For creative commissions, collaborations, licensing, or business inquiries.</p>
-      </div>
-
-      <div class="contact-card">
-        <a href="mailto:sonicnovastudios@gmail.com">sonicnovastudios@gmail.com</a>
+        <a class="card directory-card" href="./merch.html">
+          <img src="./assets/teepublic-cryptid-witness.webp" alt="Cryptid Witness Protection Program design" loading="lazy">
+          <span class="credit-label">Merch</span>
+          <h3>Redbubble and TeePublic</h3>
+          <p>A larger merch page built for more storefront images and future drops.</p>
+        </a>
       </div>
     </section>
   </main>
-
-  <div class="preview-modal" id="preview-modal" hidden>
-    <button class="preview-close" type="button" aria-label="Close preview">&times;</button>
-    <button class="preview-nav previous" type="button" aria-label="Previous preview page">&lsaquo;</button>
-    <figure class="preview-reader" aria-live="polite">
-      <img id="preview-reader-image" src="./assets/mascot_chapter1_branded_tighter_page_01.png" alt="The Mascot Suit chapter 1 preview page 1">
-      <figcaption id="preview-reader-caption">Page 1 of 6</figcaption>
-    </figure>
-    <button class="preview-nav next" type="button" aria-label="Next preview page">&rsaquo;</button>
-  </div>
 
   <footer class="site-footer">
     <p>&copy; <span id="year"></span> Sonic Nova Studios. All rights reserved.</p>
@@ -497,60 +114,6 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    const previewPages = [
-      './assets/mascot_chapter1_branded_tighter_page_01.png',
-      './assets/mascot_chapter1_branded_tighter_page_02.png',
-      './assets/mascot_chapter1_branded_tighter_page_03.png',
-      './assets/mascot_chapter1_branded_tighter_page_04.png',
-      './assets/mascot_chapter1_branded_tighter_page_05.png',
-      './assets/mascot_chapter1_branded_tighter_page_06.png'
-    ];
-    const previewModal = document.getElementById('preview-modal');
-    const previewImage = document.getElementById('preview-reader-image');
-    const previewCaption = document.getElementById('preview-reader-caption');
-    const previewButtons = document.querySelectorAll('[data-preview-index]');
-    let activePreviewIndex = 0;
-
-    function showPreview(index) {
-      activePreviewIndex = (index + previewPages.length) % previewPages.length;
-      previewImage.src = previewPages[activePreviewIndex];
-      previewImage.alt = `The Mascot Suit chapter 1 preview page ${activePreviewIndex + 1}`;
-      previewCaption.textContent = `Page ${activePreviewIndex + 1} of ${previewPages.length}`;
-    }
-
-    function openPreview(index) {
-      showPreview(index);
-      previewModal.hidden = false;
-      document.body.classList.add('preview-open');
-      previewModal.querySelector('.preview-close').focus();
-    }
-
-    function closePreview() {
-      previewModal.hidden = true;
-      document.body.classList.remove('preview-open');
-      previewButtons[activePreviewIndex]?.focus();
-    }
-
-    previewButtons.forEach((button) => {
-      button.addEventListener('click', () => openPreview(Number(button.dataset.previewIndex)));
-    });
-
-    previewModal.querySelector('.preview-close').addEventListener('click', closePreview);
-    previewModal.querySelector('.previous').addEventListener('click', () => showPreview(activePreviewIndex - 1));
-    previewModal.querySelector('.next').addEventListener('click', () => showPreview(activePreviewIndex + 1));
-    previewModal.addEventListener('click', (event) => {
-      if (event.target === previewModal) {
-        closePreview();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (previewModal.hidden) return;
-      if (event.key === 'Escape') closePreview();
-      if (event.key === 'ArrowLeft') showPreview(activePreviewIndex - 1);
-      if (event.key === 'ArrowRight') showPreview(activePreviewIndex + 1);
-    });
   </script>
 </body>
 </html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Games | Sonic Nova Studios</title>
+  <meta name="description" content="Play browser games developed by Sonic Nova Studios." />
+  <link rel="stylesheet" href="style.css?v=14" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo-wrap" href="./index.html" aria-label="Sonic Nova Studios home">
+      <span class="logo-mark" aria-hidden="true">
+        <img src="./assets/sonic-nova.jpg" alt="" loading="lazy">
+      </span>
+      <span class="logo-text">
+        <strong>Sonic Nova Studios</strong>
+        <span>Games, books, media, and merch.</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a href="./index.html">Home</a>
+      <a class="active" href="./games.html">Games</a>
+      <a href="./media.html">Media</a>
+      <a href="./books.html">Books</a>
+      <a href="./merch.html">Merch</a>
+      <a href="./contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <span class="eyebrow">Developed by Sonic Nova Studios</span>
+      <h1>Games</h1>
+      <p>Arcade-inspired horror games you can play in a browser or on your phone.</p>
+    </section>
+
+    <section class="section">
+      <div class="grid games-grid">
+        <article class="card media-card">
+          <span class="credit-label">Developed by Sonic Nova Studios</span>
+          <a class="media-cover game-tile" href="./games/flappy-bat/index.html" target="_blank" rel="noopener">
+            <img src="./assets/flappy-bat-cover.png" alt="Flappy Bat cover art" loading="lazy">
+          </a>
+          <div class="gameplay-preview" aria-label="Flappy Bat gameplay screenshots">
+            <a href="./games/flappy-bat/index.html" target="_blank" rel="noopener">
+              <img src="./assets/gameplay-flappy-bat-01.png" alt="Flappy Bat gameplay with skull pillars and a haunted carnival background" loading="lazy">
+            </a>
+            <a href="./games/flappy-bat/index.html" target="_blank" rel="noopener">
+              <img src="./assets/gameplay-flappy-bat-02.png" alt="Flappy Bat gameplay showing the bat flying between skull pillars" loading="lazy">
+            </a>
+          </div>
+          <div class="card-body">
+            <h3>Flappy Bat</h3>
+            <p>A cursed arcade flyer about a bat dodging haunted pipes and traps.</p>
+            <a class="btn small" href="./games/flappy-bat/index.html" target="_blank" rel="noopener">Play Flappy Bat</a>
+          </div>
+        </article>
+
+        <article class="card media-card">
+          <span class="credit-label">Developed by Sonic Nova Studios</span>
+          <a class="media-cover game-tile" href="./games/hell-climb/index.html" target="_blank" rel="noopener">
+            <img src="./assets/hell-climb-cover.png" alt="Hell Climb cover art" loading="lazy">
+          </a>
+          <div class="gameplay-preview" aria-label="Hell Climb gameplay screenshots">
+            <a href="./games/hell-climb/index.html" target="_blank" rel="noopener">
+              <img src="./assets/gameplay-hell-climb-01.png" alt="Hell Climb gameplay with platforms, moonlit sky, and height counter" loading="lazy">
+            </a>
+            <a href="./games/hell-climb/index.html" target="_blank" rel="noopener">
+              <img src="./assets/gameplay-hell-climb-02.png" alt="Hell Climb gameplay showing the character climbing through purple night platforms" loading="lazy">
+            </a>
+          </div>
+          <div class="card-body">
+            <h3>Hell Climb</h3>
+            <p>Vertical platforming through cursed levels, hazards, and strange unlocks.</p>
+            <a class="btn small" href="./games/hell-climb/index.html" target="_blank" rel="noopener">Play Hell Climb</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> Sonic Nova Studios. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
