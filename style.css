@@ -477,8 +477,38 @@ a {
   font-size: clamp(2.6rem, 7vw, 5rem);
 }
 
+.game-previews > h2,
 #cabinet-title {
   margin: 2.5rem 0 1rem;
+}
+
+.game-preview-grid,
+.game-preview-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.game-preview-grid {
+  gap: 1rem;
+}
+
+.game-preview {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 0.85rem;
+}
+
+.game-preview-images {
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.game-preview-images img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
 }
 
 .cabinet-grid {
@@ -1516,7 +1546,8 @@ a {
 
   .split,
   .video-grid,
-  .feature-panel {
+  .feature-panel,
+  .game-preview-grid {
     grid-template-columns: 1fr;
   }
 
