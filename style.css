@@ -377,6 +377,9 @@ a {
 }
 
 #studio-highlights,
+#game-previews-title,
+#cabinet-title,
+#merch-collections,
 #merch-selection {
   scroll-margin-top: 8rem;
 }
@@ -401,8 +404,7 @@ a {
   text-decoration: none;
 }
 
-.directory-card img,
-.directory-card .sports-art {
+.directory-card img {
   width: 100%;
   aspect-ratio: 4 / 3;
   border: 1px solid var(--line);
@@ -418,6 +420,12 @@ a {
   height: auto;
   object-fit: contain;
   background: #f8f8f8;
+}
+
+.directory-card .podcast-directory-art {
+  height: auto;
+  object-fit: contain;
+  background: #171717;
 }
 
 .directory-card h3,
@@ -520,18 +528,13 @@ a {
   gap: clamp(0.75rem, 2vw, 1.4rem);
 }
 
-.home-spotlight .home-book-cover,
-.home-spotlight .sports-art {
+.home-spotlight .home-book-cover {
   width: 100%;
   min-height: 0;
   aspect-ratio: 2 / 3;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) - 2px);
   object-fit: cover;
-}
-
-.home-spotlight .sports-art {
-  font-size: clamp(1rem, 2vw, 1.6rem);
 }
 
 .home-spotlight-copy {
@@ -554,33 +557,31 @@ a {
   margin-top: 0.4rem;
 }
 
-.sports-art {
+.podcast-marks {
   display: grid;
-  place-content: center;
-  min-height: 170px;
-  padding: 1rem;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 19.7%, rgba(255, 255, 255, 0.16) 19.7% 20%),
-    radial-gradient(ellipse at 12% 6%, #236647, #091d21 75%);
-  color: #e8ffb9;
-  font-size: clamp(1.45rem, 2.3vw, 2.25rem);
-  font-weight: 900;
-  line-height: 0.97;
-  text-align: center;
-  text-shadow: 0 3px 12px #071a17;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: clamp(0.6rem, 2vw, 1.2rem);
+  padding: clamp(0.85rem, 3vw, 2rem);
+  background: var(--bg);
 }
 
-.directory-card .sports-art {
-  min-height: 0;
+.podcast-football-logo,
+.podcast-state-logo {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-strong);
 }
 
-.podcast-feature .sports-art {
-  min-height: 265px;
-  font-size: clamp(2.6rem, 7vw, 5rem);
+.podcast-football-logo {
+  border-radius: 50%;
 }
 
-.game-previews > h2,
-#cabinet-title {
+.podcast-state-logo {
+  border-radius: var(--radius);
+}
+
+.game-previews > h2 {
   margin: 2.5rem 0 1rem;
 }
 
@@ -591,6 +592,7 @@ a {
 }
 
 .game-preview-grid {
+  align-items: start;
   gap: 1rem;
 }
 
@@ -611,27 +613,6 @@ a {
   height: auto;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) - 2px);
-}
-
-.cabinet-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cabinet-link {
-  display: grid;
-  height: 100%;
-  gap: 0.3rem;
-  text-decoration: none;
-}
-
-.cabinet-link span {
-  color: var(--muted);
-  font-size: 0.9rem;
 }
 
 .card,
@@ -1019,6 +1000,35 @@ a {
 
 .merch-heading .section-header {
   margin-bottom: 0;
+}
+
+.merch-links,
+.merch-collections .collection-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.merch-collections,
+.collection-previews {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.collection-card {
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
+}
+
+.merch-collections .collection-heading {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.merch-collections .collection-heading h3 {
+  margin: 0;
 }
 
 .design-gallery {
@@ -1546,12 +1556,9 @@ a {
   .video-grid,
   .feature-panel,
   .game-preview-grid,
+  .merch-collections,
   .home-spotlight-grid {
     grid-template-columns: 1fr;
-  }
-
-  .cabinet-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-header {
