@@ -379,6 +379,7 @@ a {
 #studio-highlights,
 #game-previews-title,
 #cabinet-title,
+#miracle-over-the-mojave,
 #merch-collections,
 #merch-selection {
   scroll-margin-top: 8rem;
@@ -839,6 +840,16 @@ a {
   color: var(--lime);
   font-size: 0.85rem;
   font-weight: 800;
+}
+
+.music-release .video-card {
+  align-content: start;
+}
+
+.music-release .video-embed iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
 }
 
 .screamlings-library {
