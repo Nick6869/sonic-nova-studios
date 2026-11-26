@@ -1298,12 +1298,6 @@ a {
   border-color: rgba(255, 255, 255, 0.16);
 }
 
-.social-icon.x-twitter {
-  background: linear-gradient(135deg, #f6f7f2, #8f96a3);
-  color: #05070d;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 .social-icon.tiktok {
   background:
     linear-gradient(135deg, rgba(0, 242, 234, 0.88), transparent 38%),
