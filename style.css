@@ -582,7 +582,7 @@ a {
 }
 
 .game-previews > h2 {
-  margin: 2.5rem 0 1rem;
+  margin: 0 0 1rem;
 }
 
 .game-preview-grid,
@@ -613,6 +613,65 @@ a {
   height: auto;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) - 2px);
+}
+
+.studio-player {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.studio-player-bar {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
+  align-items: center;
+  gap: clamp(0.35rem, 1.5vw, 0.85rem);
+  padding: max(0.35rem, env(safe-area-inset-top)) max(0.55rem, env(safe-area-inset-right))
+    0.35rem max(0.55rem, env(safe-area-inset-left));
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.studio-player-bar .btn {
+  justify-self: start;
+  min-height: 36px;
+  padding-inline: clamp(0.5rem, 1.5vw, 0.85rem);
+  font-size: clamp(0.69rem, 2.8vw, 0.86rem);
+  white-space: nowrap;
+}
+
+.studio-player-bar .btn:last-child {
+  justify-self: end;
+}
+
+.studio-player-bar h1 {
+  margin: 0;
+  font-size: clamp(0.9rem, 4vw, 1.3rem);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.studio-player-stage {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.studio-player-stage iframe:not([hidden]) {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+}
+
+.studio-game-fallback {
+  margin: auto;
+  padding: 1rem;
+  text-align: center;
 }
 
 .card,

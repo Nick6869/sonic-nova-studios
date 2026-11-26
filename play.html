@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Play | Sonic Nova Studios</title>
+  <link rel="stylesheet" href="style.css?v=20">
+  <script src="play.js" defer></script>
+</head>
+<body class="studio-player">
+  <header class="studio-player-bar">
+    <a class="btn ghost small" href="./games.html#game-previews-title">All Games</a>
+    <h1 id="studio-game-title">Arcade of Horror</h1>
+    <a class="btn ghost small" href="./">Studio Home</a>
+  </header>
+
+  <main class="studio-player-stage">
+    <div class="studio-game-fallback" id="studio-game-fallback">
+      <p>Choose a game to play.</p>
+      <a class="btn primary" href="./games.html#game-previews-title">Browse games</a>
+    </div>
+    <iframe id="studio-game-frame" title="Sonic Nova Studios game" allow="autoplay; fullscreen; screen-wake-lock" allowfullscreen hidden></iframe>
+  </main>
+</body>
+</html>
