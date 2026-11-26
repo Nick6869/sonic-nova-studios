@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="app-assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="app-assets/icons/icon-180.png" />
   <link rel="preload" as="image" href="hub-assets/background.webp" />
-  <link rel="stylesheet" href="arcade.css?v=28" />
+  <link rel="stylesheet" href="arcade.css?v=29" />
   <script src="app-assets/developer-mode.js?v=1" defer></script>
   <script src="app-assets/mobile-runtime.js?v=2" defer></script>
   <link rel="stylesheet" href="app-assets/arcade-ux.css?v=4" />
@@ -50,7 +50,8 @@
       <div class="cabinet-top">
         <img class="studio-mark" src="hub-assets/channels4_profile.jpg" alt="" />
         <p><strong>Sonic Nova Studios</strong><span>Presents</span></p>
-        <span class="cabinet-light"></span>
+        <a class="studio-home-link" href="../">Studio Home</a>
+        <span class="cabinet-light" aria-hidden="true"></span>
       </div>
 
       <img
@@ -93,7 +94,7 @@
     </section>
 
     <footer class="arcade-footer">
-      <span>Sonic Nova Studios</span>
+      <a href="../">Sonic Nova Studios</a>
       <span class="footer-rule"></span>
       <a href="privacy.html">Privacy</a>
       <div class="offline-tools" id="offlineTools" hidden>
@@ -114,6 +115,7 @@
         <h2 id="playingTitle">Game</h2>
       </div>
       <div class="player-actions">
+        <a class="bar-button studio-home-link" href="../">Studio Home</a>
         <button class="bar-button" id="fullscreenButton" type="button" aria-pressed="false">
           Fullscreen
         </button>

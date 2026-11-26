@@ -372,6 +372,14 @@ a {
   gap: 1rem;
 }
 
+.home-page {
+  min-width: 0;
+}
+
+#studio-highlights {
+  scroll-margin-top: 8rem;
+}
+
 .home-directory {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent),
@@ -437,7 +445,8 @@ a {
   padding: clamp(1.25rem, 4vw, 3rem);
 }
 
-.feature-copy h2 {
+.feature-copy h2,
+.feature-copy h3 {
   margin: 0;
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   line-height: 1.1;
@@ -450,6 +459,92 @@ a {
 
 .feature-copy .contact-actions {
   margin-top: 1.35rem;
+}
+
+.home-arcade-feature {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+}
+
+.home-feature-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.35rem;
+}
+
+.home-arcade-shots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 0.75rem;
+  padding: clamp(0.8rem, 2.5vw, 1.5rem);
+  background: var(--bg);
+}
+
+.home-arcade-shots figure {
+  margin: 0;
+}
+
+.home-arcade-shots img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.home-arcade-shots figcaption {
+  margin-top: 0.4rem;
+  color: var(--soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.home-spotlight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.home-spotlight {
+  display: grid;
+  grid-template-columns: clamp(104px, 13vw, 148px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.4rem);
+}
+
+.home-spotlight .home-book-cover,
+.home-spotlight .sports-art {
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  object-fit: cover;
+}
+
+.home-spotlight .sports-art {
+  font-size: clamp(1rem, 2vw, 1.6rem);
+}
+
+.home-spotlight-copy {
+  display: grid;
+  justify-items: start;
+  gap: 0.45rem;
+}
+
+.home-spotlight-copy :is(h3, p) {
+  margin: 0;
+}
+
+.home-spotlight-copy p:first-child {
+  color: var(--cyan);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.home-spotlight-copy .btn {
+  margin-top: 0.4rem;
 }
 
 .sports-art {
@@ -1547,7 +1642,8 @@ a {
   .split,
   .video-grid,
   .feature-panel,
-  .game-preview-grid {
+  .game-preview-grid,
+  .home-spotlight-grid {
     grid-template-columns: 1fr;
   }
 

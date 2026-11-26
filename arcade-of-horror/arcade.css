@@ -269,8 +269,33 @@ button {
   box-shadow: 0 0 16px rgba(83, 223, 255, 0.28);
 }
 
-.cabinet-light {
+.studio-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bone);
+  text-decoration: none;
+}
+
+.cabinet-top .studio-home-link {
+  min-height: 36px;
   margin-left: auto;
+  padding: 0 10px;
+  border: 1px solid rgba(83, 223, 255, 0.35);
+  border-radius: 7px;
+  background: var(--panel-high);
+  font: 700 0.75rem var(--ui);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.studio-home-link:hover,
+.studio-home-link:focus-visible {
+  color: var(--ember);
+}
+
+.cabinet-light {
+  flex: 0 0 8px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
