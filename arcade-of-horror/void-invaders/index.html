@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+
+  <title>Void Invaders</title>
+
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+
+<body>
+  <section id="title-screen" class="title-screen">
+    <div class="title-card">
+      <div class="title-art-wrap" aria-label="Void Invaders">
+        <img class="title-art" src="assets/titlecard.webp" alt="Void Invaders title screen" />
+        <div class="title-art-glow"></div>
+        <div class="title-art-vignette"></div>
+      </div>
+
+      <div class="title-panel">
+        <div class="eyebrow">Sonic Nova Arcade</div>
+        <p class="subtitle">
+          Quick start: run Campaign first, hold Autofire if you want a smoother first sortie, then spend salvage at docks to shape your build.
+        </p>
+
+        <div class="menu-buttons">
+          <button id="start-game" type="button">Play Campaign</button>
+          <button id="trophies-toggle" type="button">Trophies</button>
+          <button id="controls-toggle" type="button">Instructions</button>
+        </div>
+
+        <details class="menu-foldout mode-foldout">
+          <summary>Modes</summary>
+          <div class="menu-buttons compact-buttons">
+            <button id="start-endless" type="button">Endless Rift</button>
+          </div>
+        </details>
+
+        <details class="menu-foldout">
+          <summary>Options</summary>
+          <div class="menu-buttons compact-buttons">
+            <button id="sound-toggle" type="button">Sound: On</button>
+            <button id="music-toggle" type="button">Music: On</button>
+            <button id="autofire-toggle" type="button">Autofire: Off</button>
+          </div>
+        </details>
+        </div>
+
+        <div class="title-stats">
+          Best Score: <span id="title-best-score">0</span>
+          <span id="career-summary">No sorties logged yet.</span>
+        </div>
+
+        <div id="controls-card" class="controls-card" hidden>
+          <p><strong>Move:</strong> Left/Right, A/D, drag, or side buttons.</p>
+          <p><strong>Shoot:</strong> Space, J, FIRE, or enable Autofire.</p>
+          <p><strong>Focus:</strong> hold Shift for precision movement and graze bonuses.</p>
+          <p><strong>Power-ups:</strong> D = Double Shot, R = Rapid Fire, S = Shield, T = Time Snare, B = Void Bomb, + = Extra Life.</p>
+          <p><strong>Goal:</strong> survive to sector 3, spend salvage at the dock, then chase deeper boss clears.</p>
+        </div>
+
+        <div id="trophies-card" class="trophies-card" hidden>
+          <div class="trophies-head">
+            <span>Trophies</span>
+            <span id="trophy-progress">0/50</span>
+          </div>
+          <div id="trophies-list" class="trophies-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <header class="hud game-shell" hidden>
+    <div id="score">Score: 0</div>
+    <div id="high-score">Best: 0</div>
+    <div id="lives">Lives: 3</div>
+    <div id="salvage">Salvage: 0</div>
+    <div class="hud-buttons">
+      <button id="menu-button" type="button">Menu</button>
+      <button id="pause-button" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+  </header>
+
+  <main class="wrap game-shell" hidden>
+    <canvas id="game" width="600" height="650" aria-label="Void Invaders space shooter"></canvas>
+
+    <div id="mobile-controls" class="mobile-controls" aria-label="Mobile controls">
+      <button id="touch-left" class="touch-btn" type="button" aria-label="Move left">&lt;</button>
+      <button id="touch-fire" class="touch-btn fire-btn" type="button" aria-label="Fire">FIRE</button>
+      <button id="touch-right" class="touch-btn" type="button" aria-label="Move right">&gt;</button>
+    </div>
+
+    <p class="hint">Move: Left/Right or A/D &nbsp;&nbsp; Focus: Hold Shift for graze bonuses &nbsp;&nbsp; Shoot: Space/J or Autofire &nbsp;&nbsp; Pause: P</p>
+  </main>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel">
+      <div class="title" id="over-title">GAME OVER</div>
+      <div class="final">Final Score: <span id="final-score">0</span></div>
+      <div class="final best-line">Best Score: <span id="final-best-score">0</span></div>
+      <div id="final-run-summary" class="run-summary"></div>
+      <div class="overlay-buttons">
+        <button id="play-again" type="button">Play again</button>
+        <button id="continue-endless" type="button" hidden>Enter Endless Rift</button>
+        <button id="back-title" type="button">Title screen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="upgrade-dock" class="upgrade-dock" hidden aria-hidden="true">
+    <div class="dock-panel" role="dialog" aria-modal="true" aria-labelledby="dock-title">
+      <div class="title" id="dock-title">UPGRADE DOCK</div>
+      <p id="dock-summary" class="dock-summary"></p>
+      <div id="upgrade-offers" class="upgrade-offers"></div>
+      <div class="dock-services" aria-label="Dock services">
+        <button id="dock-repair" class="dock-service" type="button">Repair Hull</button>
+        <button id="dock-reroll" class="dock-service" type="button">Refresh Offers</button>
+      </div>
+      <div class="dock-launch-buttons">
+        <button id="start-bonus-raid" class="bonus-raid" type="button">Launch Salvage Raid</button>
+        <button id="leave-dock" class="leave-dock" type="button">Skip Raid / Next Sector</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pause-menu" class="pause-menu" hidden aria-hidden="true">
+    <div class="pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="title" id="pause-title">PAUSED</div>
+      <p class="pause-note">Options</p>
+      <div class="pause-buttons">
+        <button id="resume-game" type="button">Resume</button>
+        <button id="pause-sound-toggle" type="button">Sound: On</button>
+        <button id="pause-music-toggle" type="button">Music: On</button>
+        <button id="pause-autofire-toggle" type="button">Autofire: Off</button>
+        <button id="pause-restart" type="button">Reset Game</button>
+        <button id="pause-main-menu" type="button">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

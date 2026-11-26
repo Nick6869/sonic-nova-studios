@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flappy Bat</title>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <header id="hud" class="hud hidden">
+    <div id="score">Score: 0</div>
+    <div id="best">Best: 0</div>
+    <div id="coins">Coins: 0</div>
+    <button id="dive" type="button">Dive</button>
+    <button id="pause" type="button">Pause</button>
+    <button id="restart" type="button">Restart</button>
+  </header>
+
+  <main class="wrap">
+    <canvas id="game" width="600" height="650" aria-label="Flappy Bat flight game"></canvas>
+    <p class="hint">Tap lightly to flap, hold Down/S or Dive to drop, and thread close calls for bonus coins. Press P to pause, R to retry, M for menu.</p>
+  </main>
+
+  <!-- MAIN MENU -->
+  <div id="menu" class="overlay">
+    <div class="card menu-card">
+      <div class="title-screen-wrap" aria-label="Flappy Bat">
+        <img class="title-screen" src="assets/titlescreen.webp" alt="Flappy Bat title screen" />
+        <div class="title-bat" aria-hidden="true">
+          <img id="title-bat-frame-a" src="assets/charactera.webp" alt="" />
+          <img id="title-bat-frame-b" src="assets/characterb.webp" alt="" />
+        </div>
+        <div class="title-screen-fog"></div>
+        <div class="title-screen-vignette"></div>
+      </div>
+
+      <div class="menu-panel">
+        <div class="sub menu-stats">
+          Best Score: <span id="menu-best">0</span> | Coins: <span id="menu-coins">0</span>
+        </div>
+        <div id="profile-summary" class="profile-summary"></div>
+        <div id="daily-challenge" class="daily-challenge"></div>
+        <div class="menu-actions">
+          <button id="btn-play" type="button" class="primary">Play</button>
+          <button id="btn-shop" type="button">Shop</button>
+          <button id="btn-achievements" type="button">Trophies</button>
+        </div>
+
+        <details class="menu-foldout mode-foldout">
+          <summary>Modes</summary>
+          <div class="expedition-panel">
+            <div class="panel-label">Mode</div>
+            <div id="expedition-list" class="expedition-list"></div>
+          </div>
+        </details>
+
+        <details class="menu-foldout">
+          <summary>Instructions</summary>
+          <div class="menu-foldout-body">
+            <p><strong>Flap:</strong> tap, click, Space, or Up.</p>
+            <p><strong>Dive:</strong> hold Down/S or the Dive button to correct your line.</p>
+            <p><strong>Score:</strong> thread pillars, graze close calls, and grab coins.</p>
+          </div>
+        </details>
+
+        <details class="menu-foldout">
+          <summary>Options</summary>
+          <div class="menu-actions compact-actions">
+            <button id="btn-sound" type="button">Sound: On</button>
+            <button id="btn-music" type="button">Music: On</button>
+            <button id="btn-effects" type="button">Effects: On</button>
+            <button id="btn-tap-flash" type="button">Tap Flash: Off</button>
+            <button id="btn-reset-best" type="button" class="danger">Reset Best</button>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <div id="shop" class="overlay hidden">
+    <div class="card shop-card">
+      <div class="title">Crypt Shop</div>
+      <div class="sub">Coins: <span id="shop-coins">0</span></div>
+
+      <canvas id="shop-preview" class="shop-preview" width="180" height="130"></canvas>
+      <div id="shop-preview-name" class="shop-preview-name">Default Bat</div>
+
+      <div id="shop-list" class="shop-list"></div>
+
+      <div class="menu-actions">
+        <button id="btn-shop-back" type="button">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TROPHIES -->
+  <div id="achievements" class="overlay hidden">
+    <div class="card">
+      <div class="title">Trophies</div>
+      <div id="ach-sub" class="sub">Score goals, survival feats, and cursed tricks.</div>
+
+      <div id="ach-list" class="ach-list"></div>
+
+      <div class="menu-actions">
+        <button id="btn-ach-back" type="button">Back</button>
+        <button id="btn-ach-reset" type="button" class="danger">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <div id="pause-overlay" class="overlay hidden">
+    <div class="card">
+      <div class="title">Paused</div>
+      <div class="final">Score: <span id="paused-score">0</span></div>
+
+      <div class="menu-actions">
+        <button id="btn-resume" type="button" class="primary">Resume</button>
+        <button id="btn-pause-restart" type="button">Restart</button>
+        <button id="btn-pause-menu" type="button">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="overlay" class="overlay hidden">
+    <div class="card">
+      <div id="over-title" class="title">Game Over</div>
+      <div class="final">Final Score: <span id="final-score">0</span></div>
+      <div class="final muted">Best: <span id="final-best">0</span></div>
+      <div id="death-cause" class="death-cause"></div>
+      <div id="run-daily" class="daily-challenge run-daily"></div>
+      <div id="run-progression" class="run-progression"></div>
+      <div id="run-medal" class="run-medal">Wing</div>
+      <div id="run-rank" class="run-rank"></div>
+      <div id="run-summary" class="run-summary"></div>
+
+      <div class="menu-actions">
+        <button id="play-again" type="button" class="primary">Retry</button>
+        <button id="btn-menu" type="button">Main Menu</button>
+      </div>
+      <div class="tiny">Tap outside this card or press Space to retry.</div>
+    </div>
+  </div>
+
+  <!-- Trophy toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

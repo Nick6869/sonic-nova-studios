@@ -195,7 +195,7 @@ a {
   background:
     linear-gradient(90deg, rgba(5, 13, 29, 0.97) 0%, rgba(5, 13, 29, 0.78) 38%, rgba(5, 13, 29, 0.4) 100%),
     linear-gradient(0deg, rgba(5, 13, 29, 0.97) 0%, rgba(10, 24, 58, 0.28) 44%, rgba(5, 13, 29, 0.7) 100%),
-    url("./assets/background.png");
+    url("./assets/studio-background.jpg");
   background-size: cover;
   background-position: center;
   transform: scale(1.01);
@@ -279,42 +279,6 @@ a {
   padding-top: 0.2rem;
 }
 
-.studio-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  padding: 1px max(1.25rem, calc((100vw - var(--max)) / 2));
-  border-bottom: 1px solid var(--line);
-  background: var(--line);
-}
-
-.studio-strip a {
-  display: flex;
-  align-items: center;
-  min-height: 104px;
-  padding: 1rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-    #0a0e14;
-  color: var(--ink);
-  text-decoration: none;
-  transition: background 0.16s ease, transform 0.16s ease;
-}
-
-.studio-strip a:hover {
-  background:
-    linear-gradient(180deg, rgba(89, 217, 255, 0.09), rgba(197, 248, 75, 0.035)),
-    #0d1219;
-  transform: translateY(-1px);
-}
-
-.studio-strip strong {
-  color: var(--soft);
-  font-size: 1rem;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
 .section {
   padding: 5.5rem max(1.25rem, calc((100vw - var(--max)) / 2));
 }
@@ -327,7 +291,7 @@ a {
   background:
     linear-gradient(90deg, rgba(5, 13, 29, 0.96), rgba(5, 13, 29, 0.72)),
     linear-gradient(135deg, rgba(89, 217, 255, 0.14), rgba(255, 95, 109, 0.08)),
-    url("./assets/background.png");
+    url("./assets/studio-background.jpg");
   background-size: cover;
   background-position: center;
 }
@@ -416,23 +380,28 @@ a {
 
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .directory-card {
   display: grid;
+  align-content: start;
   gap: 0.75rem;
   color: var(--ink);
   text-decoration: none;
 }
 
-.directory-card img {
+.directory-card img,
+.directory-card .sports-art {
   width: 100%;
   aspect-ratio: 4 / 3;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) - 2px);
   object-fit: cover;
+}
+
+.directory-card img {
   background: #090d12;
 }
 
@@ -445,11 +414,92 @@ a {
   color: var(--muted);
 }
 
-.games-grid {
-  grid-template-columns: repeat(2, minmax(280px, 520px));
-  gap: clamp(1.25rem, 4vw, 3rem);
-  justify-content: center;
+.feature-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.feature-panel > img {
   width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.feature-copy {
+  align-self: center;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.feature-copy h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.feature-copy p {
+  margin: 0.8rem 0 0;
+  color: var(--soft);
+}
+
+.feature-copy .contact-actions {
+  margin-top: 1.35rem;
+}
+
+.sports-art {
+  display: grid;
+  place-content: center;
+  min-height: 170px;
+  padding: 1rem;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 19.7%, rgba(255, 255, 255, 0.16) 19.7% 20%),
+    radial-gradient(ellipse at 12% 6%, #236647, #091d21 75%);
+  color: #e8ffb9;
+  font-size: clamp(1.45rem, 2.3vw, 2.25rem);
+  font-weight: 900;
+  line-height: 0.97;
+  text-align: center;
+  text-shadow: 0 3px 12px #071a17;
+}
+
+.directory-card .sports-art {
+  min-height: 0;
+}
+
+.podcast-feature .sports-art {
+  min-height: 265px;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+}
+
+#cabinet-title {
+  margin: 2.5rem 0 1rem;
+}
+
+.cabinet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cabinet-link {
+  display: grid;
+  height: 100%;
+  gap: 0.3rem;
+  text-decoration: none;
+}
+
+.cabinet-link span {
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .card,
@@ -507,38 +557,6 @@ a {
 .book-cover:hover img {
   transform: scale(1.025);
   filter: brightness(1.05);
-}
-
-.game-tile {
-  aspect-ratio: 3 / 4;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36);
-}
-
-.gameplay-preview {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem;
-}
-
-.gameplay-preview a {
-  display: block;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius) - 2px);
-  background: #050607;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
-}
-
-.gameplay-preview img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  transition: transform 0.18s ease, filter 0.18s ease;
-}
-
-.gameplay-preview a:hover img {
-  transform: scale(1.035);
-  filter: brightness(1.08);
 }
 
 .card-body {
@@ -871,57 +889,6 @@ a {
   align-content: start;
 }
 
-.merch-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
-  gap: 1rem;
-  align-items: stretch;
-  margin-bottom: 1rem;
-}
-
-.merch-intro > div:first-child,
-.merch-note {
-  padding: 1.1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent),
-    var(--panel);
-  box-shadow: var(--shadow-soft);
-}
-
-.merch-intro h2,
-.merch-intro p,
-.merch-note p {
-  margin: 0;
-}
-
-.merch-intro h2 {
-  margin-top: 0.75rem;
-  font-size: 2rem;
-  line-height: 1.05;
-}
-
-.merch-intro p,
-.merch-note p {
-  color: var(--muted);
-}
-
-.merch-note {
-  display: grid;
-  gap: 0.5rem;
-  align-content: center;
-  border-color: rgba(197, 248, 75, 0.22);
-  background:
-    linear-gradient(135deg, rgba(197, 248, 75, 0.1), transparent 44%),
-    var(--panel);
-}
-
-.merch-note strong {
-  color: var(--lime);
-  line-height: 1.1;
-}
-
 .product-chip-list {
   display: flex;
   flex-wrap: wrap;
@@ -1001,10 +968,6 @@ a {
   background: var(--line);
 }
 
-.tp-card .store-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .store-grid img {
   width: 100%;
   aspect-ratio: 1;
@@ -1053,12 +1016,6 @@ a {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  background: #f8f8f8;
-}
-
-.tp-card .design-card img {
-  object-fit: contain;
-  padding: 0.45rem;
   background: #f8f8f8;
 }
 
@@ -1245,6 +1202,17 @@ a {
   border-color: rgba(255, 255, 255, 0.18);
 }
 
+.social-icon.pinterest {
+  background: linear-gradient(135deg, #c40022, #830521);
+  font: italic 800 1.5rem Georgia, serif;
+}
+
+.social-icon.threads {
+  background: #090b12;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
 .social-copy {
   display: grid;
   gap: 0.22rem;
@@ -1372,6 +1340,23 @@ a {
   margin: 0;
 }
 
+.footer-socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.footer-socials a {
+  padding-block: 0.4rem;
+  color: var(--soft);
+}
+
+.footer-socials a:hover {
+  color: var(--cyan);
+}
+
 .preview-open {
   overflow: hidden;
 }
@@ -1478,10 +1463,6 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .merch-intro {
-    grid-template-columns: 1fr;
-  }
-
   .store-showcase {
     grid-template-columns: 1fr;
   }
@@ -1491,7 +1472,6 @@ a {
   }
 
   .merch-page .store-grid,
-  .merch-page .tp-card .store-grid,
   .design-gallery {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1521,7 +1501,7 @@ a {
   .hero-media {
     background:
       linear-gradient(180deg, rgba(10, 24, 58, 0.58), rgba(5, 13, 29, 0.95) 72%),
-      url("./assets/background.png");
+      url("./assets/studio-background.jpg");
     background-size: cover;
     background-position: center;
   }
@@ -1534,18 +1514,14 @@ a {
     font-size: 2.6rem;
   }
 
-  .studio-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .studio-strip a {
-    min-height: 88px;
-  }
-
-  .games-grid,
   .split,
-  .video-grid {
+  .video-grid,
+  .feature-panel {
     grid-template-columns: 1fr;
+  }
+
+  .cabinet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-header {
@@ -1599,12 +1575,13 @@ a {
   .main-nav {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .main-nav a {
     justify-content: center;
     font-size: 0.84rem;
+    padding-inline: 0.25rem;
   }
 
   .hero {
@@ -1629,18 +1606,6 @@ a {
     grid-template-columns: 1fr;
   }
 
-  .studio-strip {
-    padding-inline: 1rem;
-  }
-
-  .studio-strip a {
-    padding: 0.85rem;
-  }
-
-  .studio-strip strong {
-    font-size: 0.86rem;
-  }
-
   .contact-actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -1662,9 +1627,7 @@ a {
   }
 
   .store-grid,
-  .tp-card .store-grid,
   .merch-page .store-grid,
-  .merch-page .tp-card .store-grid,
   .design-gallery {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

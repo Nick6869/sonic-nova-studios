@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sonic Nova Studios | Games, Books, Media & Merch</title>
+  <title>Sonic Nova Studios | Games, Books, Media, Sports & Merch</title>
   <meta
     name="description"
-    content="Sonic Nova Studios creates games, books, music, videos, merchandise, and strange little ideas with a horror-arcade edge."
+    content="Sonic Nova Studios creates games, books, music, videos, sports podcasts, and merchandise with a horror-arcade edge."
   />
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=15" />
 </head>
 <body>
   <header class="site-header">
     <a class="logo-wrap" href="./index.html" aria-label="Sonic Nova Studios home">
       <span class="logo-mark" aria-hidden="true">
-        <img src="./assets/sonic-nova.jpg" alt="" loading="lazy">
+        <img src="./assets/sonic-nova.jpg" alt="" width="46" height="46">
       </span>
 
       <span class="logo-text">
@@ -24,9 +24,10 @@
     </a>
 
     <nav class="main-nav" aria-label="Primary navigation">
-      <a class="active" href="./index.html">Home</a>
+      <a class="active" aria-current="page" href="./index.html">Home</a>
       <a href="./games.html">Games</a>
       <a href="./media.html">Media</a>
+      <a href="./sports.html">Sports</a>
       <a href="./books.html">Books</a>
       <a href="./merch.html">Merch</a>
       <a href="./contact.html">Contact</a>
@@ -41,54 +42,42 @@
         <span class="eyebrow">Independent creative studio</span>
         <h1>Strange ideas, original media, and spooky little worlds.</h1>
         <p>
-          Sonic Nova Studios produces browser games, music, books, videos, and merchandise
-          with a horror-arcade edge, a loud creative pulse, and a growing catalog of
-          weird things worth clicking into.
+          Play our horror arcade, discover original books and music, catch the Parlay or Die Podcast, and shop Sonic Nova designs.
         </p>
 
         <div class="hero-actions" aria-label="Featured pages">
-          <a class="btn primary" href="./games.html">Play the games</a>
-          <a class="btn ghost" href="./books.html">Browse books</a>
+          <a class="btn primary" href="./arcade-of-horror/">Play Arcade of Horror</a>
+          <a class="btn ghost" href="./sports.html">Parlay or Die Podcast</a>
           <a class="btn ghost" href="./merch.html">Shop merch</a>
         </div>
       </div>
     </section>
 
-    <section class="studio-strip" aria-label="Sonic Nova Studios catalog highlights">
-      <a href="./games.html">
-        <strong>Browser Games</strong>
-      </a>
-      <a href="./media.html">
-        <strong>Music & Videos</strong>
-      </a>
-      <a href="./books.html">
-        <strong>Books</strong>
-      </a>
-      <a href="./merch.html">
-        <strong>Merch Stores</strong>
-      </a>
-    </section>
-
     <section class="section home-directory" aria-label="Explore Sonic Nova Studios">
       <div class="section-header">
-        <span class="eyebrow">Explore the catalog</span>
-        <h2>Pick a tab and jump straight into the section you need.</h2>
-        <p>The site is now organized into dedicated pages so the growing catalog has room to expand.</p>
+        <h2>Explore the studio</h2>
       </div>
 
       <div class="directory-grid">
         <a class="card directory-card" href="./games.html">
-          <img src="./assets/hell-climb-cover.png" alt="Hell Climb cover art" loading="lazy">
+          <img src="./arcade-of-horror/hub-assets/background.webp" alt="" loading="lazy" decoding="async">
           <span class="credit-label">Games</span>
-          <h3>Playable browser games</h3>
-          <p>Flappy Bat, Hell Climb, and future Sonic Nova game projects.</p>
+          <h3>Arcade of Horror</h3>
+          <p>Eight horror arcade games you can play in your browser.</p>
         </a>
 
         <a class="card directory-card" href="./media.html">
-          <img src="./assets/background.png" alt="Sonic Nova Studios visual art" loading="lazy">
+          <img src="./assets/studio-background.jpg" alt="" loading="lazy" decoding="async">
           <span class="credit-label">Media</span>
           <h3>Music, videos, and socials</h3>
           <p>Spotify tracks, YouTube embeds, and social channels in one place.</p>
+        </a>
+
+        <a class="card directory-card" href="./sports.html">
+          <span class="sports-art" aria-hidden="true"><span>PARLAY<br>OR DIE</span></span>
+          <span class="credit-label">Sports</span>
+          <h3>Parlay or Die Podcast</h3>
+          <p>Find the show on YouTube and Facebook.</p>
         </a>
 
         <a class="card directory-card" href="./books.html">
@@ -99,16 +88,21 @@
         </a>
 
         <a class="card directory-card" href="./merch.html">
-          <img src="./assets/teepublic-cryptid-witness.webp" alt="Cryptid Witness Protection Program design" loading="lazy">
+          <img src="./assets/rb-emotional-support-hellhound-poster.jpg" alt="Emotional Support Hellhound poster" loading="lazy" decoding="async">
           <span class="credit-label">Merch</span>
-          <h3>Redbubble and TeePublic</h3>
-          <p>A larger merch page built for more storefront images and future drops.</p>
+          <h3>Shop Redbubble</h3>
+          <p>Original designs on apparel, stickers, prints, and more.</p>
         </a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
+    <nav class="footer-socials" aria-label="Sonic Nova Studios social links">
+      <a href="https://www.pinterest.com/sonicnovastudios/" target="_blank" rel="noopener">Pinterest</a>
+      <a href="https://www.instagram.com/sonicnovastudios/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.threads.com/@sonicnovastudios/" target="_blank" rel="noopener">Threads</a>
+    </nav>
     <p>&copy; <span id="year"></span> Sonic Nova Studios. All rights reserved.</p>
   </footer>
 

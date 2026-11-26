@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sports | Sonic Nova Studios</title>
+  <meta name="description" content="Sonic Nova Studios is a proud producer of the Parlay or Die Podcast." />
+  <link rel="stylesheet" href="style.css?v=15" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo-wrap" href="./index.html" aria-label="Sonic Nova Studios home">
+      <span class="logo-mark" aria-hidden="true">
+        <img src="./assets/sonic-nova.jpg" alt="" width="46" height="46">
+      </span>
+      <span class="logo-text">
+        <strong>Sonic Nova Studios</strong>
+        <span>Games, books, media, and merch.</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a href="./index.html">Home</a>
+      <a href="./games.html">Games</a>
+      <a href="./media.html">Media</a>
+      <a class="active" aria-current="page" href="./sports.html">Sports</a>
+      <a href="./books.html">Books</a>
+      <a href="./merch.html">Merch</a>
+      <a href="./contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <h1>Sports</h1>
+      <p>Sonic Nova Studios is a proud producer of the Parlay or Die Podcast</p>
+    </section>
+
+    <section class="section" aria-labelledby="podcast-title">
+      <article class="feature-panel podcast-feature">
+        <div class="sports-art" aria-hidden="true"><span>PARLAY<br>OR DIE</span></div>
+        <div class="feature-copy">
+          <h2 id="podcast-title">Parlay or Die Podcast</h2>
+          <div class="contact-actions">
+          <a class="btn primary" href="https://www.youtube.com/channel/UCTgyCg3mTaax8WOXRcFsPLg" target="_blank" rel="noopener">Watch on YouTube</a>
+          <a class="btn ghost" href="https://www.facebook.com/profile.php?id=61569410754397" target="_blank" rel="noopener">Follow on Facebook</a>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-socials" aria-label="Sonic Nova Studios social links">
+      <a href="https://www.pinterest.com/sonicnovastudios/" target="_blank" rel="noopener">Pinterest</a>
+      <a href="https://www.instagram.com/sonicnovastudios/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.threads.com/@sonicnovastudios/" target="_blank" rel="noopener">Threads</a>
+    </nav>
+    <p>&copy; <span id="year"></span> Sonic Nova Studios. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

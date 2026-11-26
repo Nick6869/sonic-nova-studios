@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Blood Tunnel</title>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <section id="title-screen" class="title-screen">
+    <div class="title-art">
+      <img src="Assets/mainbackground.webp" alt="Blood Tunnel" />
+      <div class="title-vignette"></div>
+      <div class="title-copy">
+        <span>Sonic Nova Arcade</span>
+        <h1>Blood Tunnel</h1>
+        <p>Dodge the closing tunnel, manage heat, and dash through tight gaps.</p>
+      </div>
+    </div>
+
+    <div class="title-panel">
+      <div class="menu-buttons">
+        <button id="start-game" type="button">Start Run</button>
+        <button id="mode-toggle" type="button">Mode: Classic</button>
+        <button id="sound-toggle" type="button">Sound: On</button>
+        <button id="controls-toggle" type="button" aria-expanded="false" aria-controls="controls-card">Instructions</button>
+        <button id="shop-toggle" type="button" aria-expanded="false" aria-controls="shop-card">Blood Bank</button>
+        <button id="trophies-toggle" type="button" aria-expanded="false" aria-controls="trophies-card">Trophies</button>
+      </div>
+
+      <div class="title-stats">
+        <strong>Best <span id="title-best">0</span></strong>
+        <span id="career-summary">No descents logged yet.</span>
+        <span id="title-rite">Rite: Thread 12 hazards</span>
+        <span id="title-bank">Ichor: 0</span>
+      </div>
+
+      <details class="menu-foldout mode-foldout">
+        <summary>Pacts</summary>
+        <section class="pact-picker" aria-label="Choose a blood pact">
+          <div class="pact-title">Choose a Pact</div>
+          <div id="pact-list" class="pact-list"></div>
+        </section>
+      </details>
+
+      <div id="controls-card" class="info-card" hidden>
+        <p><strong>Move:</strong> Arrow Keys, WASD, drag, or Left/Right buttons.</p>
+        <p><strong>Fire:</strong> Hold Fire or J in bursts. Stop firing before heat maxes out.</p>
+        <p><strong>Dash:</strong> Space or Dash. Use it to cross closing-wall gaps.</p>
+        <p><strong>Goal:</strong> Complete the listed rite. Pacts add risk for stronger scoring.</p>
+      </div>
+
+      <div id="trophies-card" class="info-card trophies-card" hidden>
+        <div class="trophy-head">
+          <strong>Trophies</strong>
+          <span id="trophy-progress">0/64</span>
+        </div>
+        <div id="trophy-list" class="trophy-list"></div>
+      </div>
+
+      <div id="shop-card" class="info-card shop-card" hidden>
+        <div class="trophy-head">
+          <strong>Blood Bank</strong>
+          <span id="bank-status">0 Ichor</span>
+        </div>
+        <div id="shop-list" class="shop-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <header class="hud game-shell" hidden>
+    <div>Score <strong id="scoreVal">0</strong></div>
+    <div>Best <strong id="bestVal">0</strong></div>
+    <div>Depth <strong id="depthVal">0m</strong></div>
+    <div>Shield <strong id="shieldVal">0</strong></div>
+    <div>Heat <strong id="heatVal">0%</strong></div>
+    <div class="wide-stat">Rite <strong id="run-goal">--</strong></div>
+    <div class="wide-stat">Pact <strong id="run-pact">None</strong></div>
+    <div class="wide-stat">Zone <strong id="run-zone">Fresh</strong></div>
+    <div class="hud-buttons">
+      <button id="menu-button" type="button">Menu</button>
+      <button id="pause-button" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+  </header>
+
+  <main class="wrap game-shell" hidden>
+    <canvas id="game" width="600" height="760" aria-label="Blood Tunnel endless runner"></canvas>
+    <div class="mobile-controls" aria-label="Mobile controls">
+      <button id="touch-left" type="button" aria-label="Move left">&lt;</button>
+      <button id="touch-fire" type="button">Fire</button>
+      <button id="touch-dash" type="button">Dash</button>
+      <button id="touch-right" type="button" aria-label="Move right">&gt;</button>
+    </div>
+    <p class="hint">Move: Arrow Keys/WASD or drag | Tap Fire in bursts to avoid overheating | Dash: Space | Pause: P</p>
+  </main>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel">
+      <h2 id="over-title">GAME OVER</h2>
+      <p>Final Score: <span id="final-score">0</span></p>
+      <p id="final-summary">Depth 0m</p>
+      <div id="final-recap" class="recap-grid"></div>
+      <div class="overlay-buttons">
+        <button id="play-again" type="button">Play Again</button>
+        <button id="back-title" type="button">Title Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pause-menu" class="overlay" hidden>
+    <div class="panel">
+      <h2>PAUSED</h2>
+      <div class="overlay-buttons">
+        <button id="resume-game" type="button">Resume</button>
+        <button id="pause-sound-toggle" type="button">Sound: On</button>
+        <button id="pause-restart" type="button">Restart</button>
+        <button id="pause-main-menu" type="button">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

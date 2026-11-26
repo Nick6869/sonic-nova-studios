@@ -1,0 +1,381 @@
+.aoh-tools { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0; width:100%; grid-column:1/-1; }
+.aoh-tools button,.aoh-dialog button,.aoh-trophy-tools button { min-height:44px; padding:9px 13px; border:1px solid #927660; border-radius:7px; background:#21191d; color:#fff1db; font:600 14px/1.3 system-ui,sans-serif; cursor:pointer; touch-action:manipulation; }
+.aoh-tools button:hover,.aoh-dialog button:hover { background:#403039; }
+.aoh-tools button:focus-visible,.aoh-dialog :focus-visible,.aoh-trophy-tools :focus-visible { outline:3px solid #ffe298; outline-offset:3px; }
+.aoh-tools .daily-reward-trigger { position:static; inset:auto; z-index:auto; max-width:none; }
+.aoh-dialog { box-sizing:border-box; width:min(540px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); overflow:auto; padding:22px; border:1px solid #b98c68; border-radius:12px; background:#171318; color:#fff1db; box-shadow:0 20px 80px #000b; font:16px/1.5 system-ui,sans-serif; text-align:left; text-transform:none; letter-spacing:normal; z-index:2147483000; }
+.aoh-dialog:not([open]) { display:none !important; }
+.aoh-dialog::backdrop { background:rgba(0,0,0,.78); }
+.aoh-dialog h2 { color:#ffe2b4; font:700 24px/1.2 system-ui,sans-serif; margin:0 0 12px; text-transform:none; }
+.aoh-dialog h3 { color:#ffe2b4; font:700 18px/1.3 system-ui,sans-serif; margin:20px 0 9px; }
+.aoh-dialog p { display:block !important; color:#e0d2d8; font:16px/1.5 system-ui,sans-serif; margin:8px 0 16px; }
+.aoh-dialog label { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 0; border-bottom:1px solid #ffffff20; color:#fff1db; font:16px/1.4 system-ui,sans-serif; }
+.aoh-dialog input[type=checkbox] { appearance:auto; width:24px; height:24px; accent-color:#dcaf77; flex:none; }
+.aoh-dialog input[type=range] { width:48%; accent-color:#dcaf77; }
+.aoh-dialog input[type=text],.aoh-dialog select { box-sizing:border-box; min-height:44px; max-width:100%; padding:9px; color:#fff1db; background:#241c24; border:1px solid #99838f; font:16px system-ui,sans-serif; }
+.aoh-dialog button:disabled { opacity:.5; cursor:default; }
+.aoh-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:18px; }
+.aoh-primary { background:#6b2732 !important; border-color:#f4bf80 !important; }
+.aoh-status { min-height:24px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.aoh-trophy-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:8px 0; font:14px/1.4 system-ui,sans-serif; }
+.aoh-trophy-tools button[aria-pressed=true] { background:#654735; border-color:#ffe4ad; }
+body .aoh-trophy-tools button { width:auto !important; min-width:0; flex:0 1 auto; }
+.aoh-trophy-tools output { width:100%; color:#e4cfae; }
+[data-aoh-earned][hidden] { display:none !important; }
+[data-aoh-earned=false] { opacity:1 !important; }
+body [data-aoh-earned=false] strong,body [data-aoh-earned=false].locked .trophy-name { color:#e4cda8; }
+body [data-aoh-earned=false].locked .trophy-desc { color:#d3c4bd; }
+.aoh-dialog summary { min-height:44px; cursor:pointer; color:#ffe2b4; }
+.trophy-list:has([data-aoh-earned]),.trophies-list:has([data-aoh-earned]) { grid-auto-rows:max-content; align-content:start; }
+[data-aoh-earned] { height:auto; min-height:max-content; }
+.ach-item[data-aoh-earned] { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; }
+[data-aoh-earned] > .aoh-trophy-progress { display:block; grid-column:1/-1; color:#efdaae; font:13px/1.5 system-ui,sans-serif; margin-top:6px; }
+.aoh-trophy-progress progress { display:block; width:100%; height:9px; accent-color:#e2b37e; }
+html.aoh-reduced-motion *,html.aoh-reduced-motion *::before,html.aoh-reduced-motion *::after { scroll-behavior:auto !important; animation-duration:1ms !important; animation-iteration-count:1 !important; transition-duration:1ms !important; }
+html.aoh-reduced-motion canvas { transform:none !important; }
+@media(max-width:480px) { .aoh-dialog { padding:17px; } .aoh-tools { gap:6px; margin:7px 0; } .aoh-tools button { flex:1 1 100px; padding:8px; } .aoh-dialog input[type=file] { width:100%; min-width:0; } .aoh-dialog label:has(input[type=file]) { flex-wrap:wrap; } }
+
+/* One quiet title screen; detailed cabinet controls live behind Game menu. */
+.aoh-menu-home, .aoh-menu-art, .aoh-menu-back { display: none !important; }
+body .aoh-menu-surface {
+  position: fixed !important; inset: 0 0 0 auto !important;
+  box-sizing: border-box !important; width: 46vw !important; max-width: none !important;
+  height: 100dvh !important; min-height: 0 !important; max-height: none !important;
+  margin: 0 !important; padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) 18px !important;
+  border: 0 !important; border-radius: 0 !important; background: #111015 !important;
+  box-shadow: none !important; backdrop-filter: none !important; transform: none !important;
+  display: flex !important; flex-direction: column !important; justify-content: center !important;
+  overflow: auto !important; overscroll-behavior: contain;
+}
+body .aoh-menu-surface:not(.aoh-menu-expanded) > :not(.aoh-menu-home):not(.aoh-menu-art) { display: none !important; }
+body .aoh-menu-surface > .aoh-menu-art {
+  display: block !important; position: fixed !important; inset: 0 auto 0 0 !important;
+  width: 54vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important;
+  object-fit: contain !important; background: #08070b; pointer-events: none; opacity: 1 !important;
+}
+body .aoh-menu-surface > .aoh-menu-home { display: grid !important; gap: 10px; width: min(100%, 380px); margin: auto; text-align: left; }
+body .aoh-menu-home h1 { margin: 0 0 8px; color: #fff1db; font: 700 clamp(22px, 3.5vw, 36px)/1.1 system-ui, sans-serif; letter-spacing: -.03em; text-shadow: none; }
+body .aoh-menu-home .aoh-menu-kicker { display: block !important; margin: 0; color: #bba990; font: 11px/1.3 system-ui,sans-serif; letter-spacing: .14em; }
+body .aoh-menu-home button, body .aoh-menu-surface > .aoh-menu-back {
+  box-sizing: border-box; width: 100%; min-height: 44px; margin: 0; padding: 10px 14px;
+  border: 1px solid #67554c; border-radius: 8px; background: #241e24; color: #fff1db;
+  font: 600 15px/1.3 system-ui,sans-serif; text-transform: none; letter-spacing: normal; box-shadow: none;
+}
+body .aoh-menu-surface.aoh-menu-expanded { display: block !important; }
+body .aoh-menu-surface.aoh-menu-expanded > .aoh-menu-home { display: none !important; }
+body .aoh-menu-surface.aoh-menu-expanded > .aoh-menu-back { display: block !important; position: sticky; top: 0; z-index: 20; margin-bottom: 16px; background: #342b31; }
+@media (orientation: portrait) {
+  body .aoh-menu-surface { inset: 42dvh 0 0 !important; width: 100vw !important; height: 58dvh !important; }
+  body .aoh-menu-surface > .aoh-menu-art { width: 100vw !important; height: 42dvh !important; }
+  body .aoh-menu-surface.aoh-menu-expanded { top: 0 !important; height: 100dvh !important; }
+  body .aoh-menu-surface.aoh-menu-expanded > .aoh-menu-art { display: none !important; }
+}
+@media (max-height: 400px) and (orientation: landscape) {
+  body .aoh-menu-surface { padding: 10px 16px !important; }
+  body .aoh-menu-surface > .aoh-menu-home { gap: 6px; }
+  body .aoh-menu-home h1 { font-size: 22px; margin-bottom: 0; }
+  body .aoh-menu-home .aoh-menu-kicker { display: none !important; }
+}
+/* Keep legacy floating statistics inside the detailed menu. */
+body .aoh-menu-surface .title-stats { position: static !important; width: auto !important; margin: 12px 0 !important; }
+
+/* Gameplay uses the viewport remaining inside the arcade frame. */
+body.aoh-playing {
+  position: static !important;
+  width: 100% !important;
+  height: var(--app-height, 100dvh) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body.aoh-playing .aoh-fit-parent {
+  display: contents !important;
+  transform: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  contain: none !important;
+}
+body.aoh-playing .aoh-fit-parent::before,
+body.aoh-playing .aoh-fit-parent::after { display: none !important; }
+body.aoh-playing .aoh-fit-canvas {
+  position: fixed !important;
+  left: var(--aoh-canvas-left) !important;
+  top: var(--aoh-canvas-top) !important;
+  width: var(--aoh-canvas-width) !important;
+  height: var(--aoh-canvas-height) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  border: 2px solid #57494e !important;
+  outline: none !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  z-index: 1;
+}
+body.aoh-playing .aoh-fit-hud {
+  position: fixed !important;
+  inset: max(6px, env(safe-area-inset-top)) 6px auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 36px !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 3px 90px 3px 3px !important;
+  border: 0 !important;
+  background: #0f0d12 !important;
+  box-sizing: border-box !important;
+  z-index: 10 !important;
+}
+body.aoh-playing .aoh-fit-hud .hud-left,
+body.aoh-playing .aoh-fit-hud .hud-right,
+body.aoh-playing .aoh-fit-hud .hud-buttons { display: contents !important; }
+body.aoh-playing .aoh-fit-hud .stat,
+body.aoh-playing .aoh-fit-hud .hud-chip,
+body.aoh-playing .aoh-fit-hud .hud-card,
+body.aoh-playing .aoh-fit-hud > div:not(.hud-left):not(.hud-right):not(.hud-buttons) {
+  min-width: 0 !important;
+  min-height: 26px !important;
+  margin: 0 !important;
+  padding: 4px 6px !important;
+  border: 1px solid #44363e !important;
+  border-radius: 4px !important;
+  background: #18131a !important;
+  box-shadow: none !important;
+  color: #fff2de !important;
+  font: 12px/1.3 system-ui, sans-serif !important;
+}
+body.aoh-playing .aoh-fit-hud button {
+  min-width: 0 !important;
+  width: auto !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 6px 9px !important;
+  border: 1px solid #796354 !important;
+  border-radius: 6px !important;
+  font: 600 12px/1.2 system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+body.aoh-playing .aoh-fit-hud .hint,
+body.aoh-playing .aoh-fit-hud .title-row,
+body.aoh-playing .aoh-fit-hud .run-goal,
+body.aoh-playing .aoh-fit-hud .run-pact,
+body.aoh-playing .hint,
+body.aoh-playing .game-header,
+body.aoh-playing .ritual-panel,
+body.aoh-playing .run-status,
+body.aoh-playing .controls > .key-strip,
+body.aoh-playing .controls > p { display: none !important; }
+body.aoh-playing .aoh-fit-controls { display: none !important; }
+body.aoh-playing.aoh-touch .aoh-fit-controls {
+  position: fixed !important;
+  inset: auto max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 5px !important;
+  border: 1px solid #473841 !important;
+  border-radius: 8px !important;
+  background: #100d13 !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+  z-index: 10 !important;
+}
+body.aoh-playing .aoh-fit-controls button {
+  box-sizing: border-box !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  padding: 6px !important;
+  margin: 0 !important;
+  border: 1px solid #796354 !important;
+  border-radius: 6px !important;
+  font: 600 12px/1.15 system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  touch-action: none;
+}
+body.aoh-playing .aoh-fit-controls > button { flex: 1; }
+body.aoh-playing .aoh-fit-controls .dpad {
+  position: static !important;
+  display: grid !important;
+  grid-template: repeat(3, 44px) / repeat(3, 44px) !important;
+  gap: 4px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  transform: none !important;
+}
+body.aoh-playing .overlay,
+body.aoh-playing .trophy-overlay { position: fixed !important; inset: 0 !important; z-index: 100 !important; }
+.aoh-run-settings {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 1200;
+  min-height: 36px;
+  padding: 6px 12px;
+  color: #fff1db;
+  background: #30212b;
+  border: 1px solid #bd9676;
+  border-radius: 6px;
+  font: 600 13px/1.2 system-ui, sans-serif;
+}
+.aoh-run-settings[hidden] { display: none !important; }
+.aoh-run-details { white-space: pre-line; }
+
+/* Keep the HUD focused on the current attempt. */
+body.aoh-playing[data-aoh-game="bone-breaker"] .bounty-chip,
+body.aoh-playing[data-aoh-game="bone-breaker"] .ritual-chip,
+body.aoh-playing[data-aoh-game="bone-breaker"] #power { display: none !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .hud-left .stat { display: none !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .hud-left .stat:has(#score, #lives, #level, #remaining, #weapon, #ammo) { display: block !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .hud-right { display: none !important; }
+body.aoh-playing[data-aoh-game="blood-tunnel"] .wide-stat { display: none !important; }
+body.aoh-playing[data-aoh-game="hell-climb"] #shootBtn,
+body.aoh-playing[data-aoh-game="hell-climb"] #muteBtn,
+body.aoh-playing[data-aoh-game="hell-climb"] #modeBtn,
+body.aoh-playing[data-aoh-game="hell-climb"] #trophyBtn { display: none !important; }
+body.aoh-playing[data-aoh-game="hell-climb"]:not(.aoh-touch) #shootBtn { display: block !important; }
+
+/* Platform steering and actions share one compact strip. */
+body.aoh-playing[data-aoh-game="hell-climb"] .aoh-fit-controls {
+  display: none !important;
+}
+body.aoh-playing.aoh-touch[data-aoh-game="hell-climb"] .aoh-fit-controls {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+body.aoh-playing[data-aoh-game="hell-climb"] .mobile-move-row,
+body.aoh-playing[data-aoh-game="hell-climb"] .mobile-action-row { display: contents !important; }
+body.aoh-playing.aoh-landscape[data-aoh-game="hell-climb"] .aoh-fit-controls { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+/* D-pads use a side column when the phone is sideways. */
+body.aoh-playing[data-aoh-game="graveyard-crossing"] .aoh-fit-controls {
+  flex-direction: column !important;
+}
+body.aoh-playing[data-aoh-game="graveyard-crossing"] .mobile-actions {
+  display: flex !important;
+  gap: 4px !important;
+  width: 100%;
+}
+body.aoh-playing[data-aoh-game="graveyard-crossing"] .mobile-actions button { flex: 1; }
+body.aoh-playing[data-aoh-game="horror-snake"] .aoh-fit-controls {
+  display: none !important;
+  grid-template: repeat(3, 44px) / repeat(3, 44px) !important;
+  gap: 4px !important;
+  justify-content: center !important;
+}
+body.aoh-playing.aoh-touch[data-aoh-game="horror-snake"] .aoh-fit-controls { display: grid !important; }
+body.aoh-playing[data-aoh-game="horror-snake"] .mobile-controls .up { grid-area: 1 / 2 !important; }
+body.aoh-playing[data-aoh-game="horror-snake"] .mobile-controls .left { grid-area: 2 / 1 !important; }
+body.aoh-playing[data-aoh-game="horror-snake"] .mobile-controls .right { grid-area: 2 / 3 !important; }
+body.aoh-playing[data-aoh-game="horror-snake"] .mobile-controls .down { grid-area: 3 / 2 !important; }
+body.aoh-playing[data-aoh-game="horror-snake"] .mobile-controls .pause-mobile { grid-area: 2 / 2 !important; }
+body.aoh-playing.aoh-touch.aoh-landscape[data-aoh-game="graveyard-crossing"] .aoh-fit-controls,
+body.aoh-playing.aoh-touch.aoh-landscape[data-aoh-game="horror-snake"] .aoh-fit-controls {
+  right: auto !important;
+  width: 158px !important;
+}
+body.aoh-playing[data-aoh-game="graveyard-crossing"] .aoh-fit-controls .mobile-actions button {
+  min-width: 0 !important;
+  padding: 4px !important;
+  font-size: 11px !important;
+}
+
+/* Arena movement and aiming stay on opposite sides of the battlefield. */
+body.aoh-playing[data-aoh-game="undead-arena"] .right-controls {
+  position: static !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  width: 140px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body.aoh-playing[data-aoh-game="undead-arena"] .aim-pad { width: 60px !important; height: 60px !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .weapon-controls {
+  display: grid !important;
+  grid-template-columns: repeat(2, 66px) !important;
+  gap: 4px !important;
+}
+body.aoh-playing[data-aoh-game="undead-arena"] .weapon-controls button { font-size: 11px !important; }
+body.aoh-playing.aoh-touch.aoh-landscape[data-aoh-game="undead-arena"] .aoh-fit-controls { display: contents !important; }
+body.aoh-playing.aoh-touch.aoh-landscape[data-aoh-game="undead-arena"] .dpad {
+  position: fixed !important;
+  left: max(6px, env(safe-area-inset-left)) !important;
+  bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  z-index: 10;
+}
+body.aoh-playing.aoh-touch.aoh-landscape[data-aoh-game="undead-arena"] .right-controls {
+  position: fixed !important;
+  right: max(6px, env(safe-area-inset-right)) !important;
+  bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  z-index: 10;
+}
+body.aoh-playing #soulfire:not(:disabled) { background: #693844; border-color: #ffd789 !important; }
+body.aoh-playing button:focus-visible { outline: 2px solid #ffe3ae; outline-offset: 2px; }
+body.aoh-playing .toast,
+body.aoh-playing #toast,
+body.aoh-playing .trophy-toast,
+body.aoh-playing .achievement-toast {
+  position: fixed !important;
+  top: var(--aoh-hud-bottom) !important;
+  right: 12px !important;
+  bottom: auto !important;
+  left: 12px !important;
+  width: auto !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  padding: 7px 10px !important;
+  font: 13px/1.3 system-ui, sans-serif !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+body.aoh-playing[data-aoh-game="undead-arena"] #touchPause,
+body.aoh-playing[data-aoh-game="undead-arena"] .weapon-controls [data-weapon] { display: none !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .hud-right { display: contents !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] .hud-right > button:not(#pause) { display: none !important; }
+body.aoh-playing[data-aoh-game="undead-arena"] #touchWeaponSelect {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid #b18c6d;
+  border-radius: 6px;
+  background: #231a22;
+  color: #fff1db;
+  font: 13px system-ui, sans-serif;
+  order: 2;
+}
+body.aoh-playing.aoh-touch[data-aoh-game="hell-climb"] #pauseBtn,
+body.aoh-playing.aoh-touch[data-aoh-game="hell-climb"] #mainMenuBtn,
+body.aoh-playing[data-aoh-game="graveyard-crossing"] .mobile-actions [data-action="start"] { display: none !important; }
+body.aoh-playing .aoh-pause-restart {
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 8px 14px;
+  border: 1px solid #a7846a;
+  border-radius: 6px;
+  background: #2d2027;
+  color: #fff1db;
+  font: 600 14px system-ui, sans-serif;
+}

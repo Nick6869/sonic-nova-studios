@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Graveyard Crossing</title>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <main class="page">
+    <section class="game-shell">
+      <div class="canvas-wrap">
+        <canvas
+          id="gameCanvas"
+          width="720"
+          height="768"
+          aria-label="Graveyard Crossing arcade game"
+          tabindex="0"
+        ></canvas>
+        <button id="beginNight" class="action-btn" type="button" hidden>Begin night</button>
+
+        <section id="quickMenu" class="quick-menu" aria-label="Graveyard Crossing menu">
+          <img src="assets/titlecard.webp" alt="Graveyard Crossing" />
+          <div class="quick-menu-panel">
+            <div class="quick-menu-title">Graveyard Crossing</div>
+            <div class="quick-menu-actions">
+              <button type="button" class="action-btn" data-action="start">Play</button>
+              <button type="button" class="action-btn" id="quickSoundToggle">Sound: On</button>
+              <button type="button" class="action-btn" id="quickTrophiesBtn">Trophies</button>
+            </div>
+            <details class="menu-foldout">
+              <summary>Instructions</summary>
+              <div class="menu-foldout-body">
+                <p><strong>Move:</strong> arrows, WASD, swipe, or the D-pad.</p>
+                <p><strong>Goal:</strong> cross upward, seal graves when safe, then reach dawn.</p>
+                <p><strong>Mode:</strong> each night rolls a new curse and rite automatically.</p>
+                <p><strong>Pause:</strong> P or Pause. Restart with R or Restart.</p>
+              </div>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <div class="run-status" aria-live="polite">
+        <div class="status-card">
+          <span class="status-heading">Nightfall</span>
+          <strong id="modifierLabel">Open Graves</strong>
+          <small id="modifierText">Quick start: cross upward, seal graves when safe, and watch each night curse change the lanes.</small>
+        </div>
+        <div class="status-card rite-card">
+          <span class="status-heading">Bonus Rite</span>
+          <strong id="riteLabel">Awaiting Burial</strong>
+          <small id="riteText">Complete optional rites for extra score.</small>
+        </div>
+        <div class="status-card">
+          <span class="status-heading">Record</span>
+          <strong id="recordLabel">Score 0</strong>
+          <small id="recordText">Best score 0 | Best night 1 | No crossings logged</small>
+        </div>
+      </div>
+
+      <div class="utility-actions" aria-label="Game options">
+        <button type="button" class="action-btn" id="soundToggle" aria-pressed="true">Sound: On</button>
+        <button type="button" class="action-btn" id="trophiesBtn">Trophies <span id="trophyCount">0/50</span></button>
+      </div>
+
+      <div class="touch-controls" aria-label="Mobile game controls">
+        <div class="mobile-actions">
+          <button type="button" class="action-btn" data-action="start">Start</button>
+          <button type="button" class="action-btn" data-action="pause">Pause</button>
+          <button type="button" class="action-btn" data-action="restart">Restart</button>
+        </div>
+
+        <div class="dpad" aria-label="Movement controls">
+          <span></span>
+          <button type="button" class="control-btn" data-action="up" aria-label="Move up">&#9650;</button>
+          <span></span>
+
+          <button type="button" class="control-btn" data-action="left" aria-label="Move left">&#9664;</button>
+          <button type="button" class="control-btn center-pad" data-action="start" aria-label="Start game">Start</button>
+          <button type="button" class="control-btn" data-action="right" aria-label="Move right">&#9654;</button>
+
+          <span></span>
+          <button type="button" class="control-btn" data-action="down" aria-label="Move down">&#9660;</button>
+          <span></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <p><strong>Move:</strong> Arrow Keys, WASD, swipe, or D-pad</p>
+        <p><strong>Pause:</strong> P or Pause</p>
+      </div>
+
+      <div id="trophyOverlay" class="trophy-overlay" hidden aria-hidden="true">
+        <div class="trophy-panel">
+          <h2>Trophies</h2>
+          <p id="trophyProgress">0/50 earned</p>
+          <div id="trophyList" class="trophy-list"></div>
+          <button id="closeTrophies" type="button" class="action-btn">Close</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36"></script>
+</body>
+</html>

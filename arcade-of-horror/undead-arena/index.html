@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Undead Arena</title>
+  <link rel="stylesheet" href="style.css?v=34" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-left">
+      <div class="stat"><span class="label">Score</span> <span id="score">0</span></div>
+      <div class="stat"><span class="label">Best</span> <span id="best">0</span></div>
+      <div class="stat"><span class="label">Combo</span> <span id="combo">0x</span></div>
+      <div class="stat"><span class="label">Lives</span> <span id="lives">&hearts;&hearts;&hearts;</span></div>
+      <div class="stat"><span class="label">Armor</span> <span id="armor">0</span></div>
+      <div class="stat"><span class="label">Level</span> <span id="level">1</span></div>
+      <div class="stat"><span class="label">Remaining</span> <span id="remaining">10</span></div>
+      <div class="stat wave-stat"><span class="label">Wave</span> <span id="waveMod">Hospital</span></div>
+      <div class="stat"><span class="label">Dash</span> <span id="dashStatus">Ready</span></div>
+      <div class="stat weapon-stat"><span class="label">Weapon</span> <span id="weapon">Pistol</span></div>
+      <div class="stat"><span class="label">Ammo</span> <span id="ammo">INF</span></div>
+    </div>
+
+    <div class="hud-right">
+      <button id="soundToggle" type="button">Sound: On</button>
+      <button id="autoAimToggle" type="button">Aim Assist: On</button>
+      <button id="autoFireToggle" type="button">Auto Fire: Off</button>
+      <button id="pause" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="game-stage" aria-label="Undead Arena game screen">
+      <canvas id="game" width="900" height="620" aria-label="Undead Arena battlefield"></canvas>
+      <div id="titleScreen" class="title-screen" aria-label="Undead Arena title screen">
+        <div class="title-panel">
+          <p>Survive waves, dash through danger, and pick upgrades between outbreaks.</p>
+          <p class="career-summary" id="careerSummary">No outbreaks logged yet.</p>
+          <div class="title-menu-actions">
+            <button id="startRun" type="button">Play</button>
+            <button id="trophiesBtn" type="button">Trophies <span id="trophyCount">0/50</span></button>
+          </div>
+          <details class="menu-foldout">
+            <summary>Options</summary>
+            <div class="title-menu-actions compact-options">
+              <button id="titleSoundToggle" type="button">Sound: On</button>
+              <button id="titleAutoAimToggle" type="button">Aim Assist: On</button>
+              <button id="titleAutoFireToggle" type="button">Auto Fire: Off</button>
+            </div>
+          </details>
+          <details class="menu-foldout">
+            <summary>Instructions</summary>
+            <div class="menu-foldout-body">
+              <p><strong>Move:</strong> WASD, arrows, or D-pad.</p>
+              <p><strong>Aim:</strong> mouse, touch aim pad, or Aim Assist.</p>
+              <p><strong>Fire:</strong> hold Fire. Auto Fire can help on phones.</p>
+              <p><strong>Dash:</strong> Shift, E, or Dash. Swap weapons when ammo runs low.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+    <nav class="touch-controls" aria-label="Mobile game controls">
+      <div class="dpad">
+        <span></span><button class="touch-btn" type="button" data-input="ArrowUp" aria-label="Move up">Up</button><span></span>
+        <button class="touch-btn" type="button" data-input="ArrowLeft" aria-label="Move left">Left</button>
+        <span class="dpad-center" aria-hidden="true"></span>
+        <button class="touch-btn" type="button" data-input="ArrowRight" aria-label="Move right">Right</button>
+        <span></span><button class="touch-btn" type="button" data-input="ArrowDown" aria-label="Move down">Down</button><span></span>
+      </div>
+      <div class="right-controls">
+        <div id="touchAim" class="aim-pad" role="button" aria-label="Aim and fire">
+          <span id="touchAimKnob" class="aim-knob"></span>
+        </div>
+        <div class="weapon-controls" aria-label="Aim, shoot, dash, and select weapon">
+          <select id="touchWeaponSelect" aria-label="Weapon">
+            <option value="0">Pistol</option>
+            <option value="1">Shotgun</option>
+            <option value="2">Machine Gun</option>
+            <option value="3">Flamer</option>
+          </select>
+          <button id="touchFire" class="touch-btn fire" type="button" aria-label="Fire">Fire</button>
+          <button id="dash" class="touch-btn dash" type="button">Dash</button>
+          <button id="touchPause" class="touch-btn" type="button">Pause</button>
+          <button class="touch-btn" type="button" data-weapon="0">Pistol</button>
+          <button class="touch-btn" type="button" data-weapon="1">Shotgun</button>
+          <button class="touch-btn" type="button" data-weapon="2">Machine Gun</button>
+          <button class="touch-btn" type="button" data-weapon="3">Flamer</button>
+        </div>
+      </div>
+    </nav>
+    <p class="hint">Move: WASD / Arrows | Dash: Shift / E | Aim + shoot with mouse or touch | Swap weapons for ammo control | Pick upgrades after waves | Pause: P / Esc</p>
+  </main>
+
+  <div id="pauseOverlay" class="overlay hidden" aria-label="Game paused">
+    <div class="modal">
+      <div class="title pause-title">PAUSED</div>
+      <button id="resume" type="button">Resume</button>
+      <button id="restartPaused" class="aoh-pause-restart" type="button">Restart run</button>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay hidden">
+    <div class="modal">
+      <div class="title" id="overTitle">GAME OVER</div>
+      <div class="final">Final Score: <span id="finalScore">0</span></div>
+      <div class="final muted">Level Reached: <span id="finalLevel">1</span></div>
+      <div class="final muted">Best: <span id="finalBest">0</span></div>
+      <p class="final muted" id="lastHitCause" aria-live="polite"></p>
+      <div class="final muted" id="finalCareer">Career ledger updated.</div>
+      <button id="playAgain" type="button">Play Again</button>
+    </div>
+  </div>
+
+  <div id="upgradeOverlay" class="overlay hidden" aria-hidden="true">
+    <div class="modal upgrade-modal">
+      <div class="title">CHOOSE AN UPGRADE</div>
+      <div class="final muted" id="upgradePrompt">Wave cleared. Pick one build path: damage, mobility, armor, ammo, or scavenging.</div>
+      <div id="upgradeChoices" class="upgrade-choices"></div>
+    </div>
+  </div>
+
+  <div id="trophyOverlay" class="overlay hidden" aria-hidden="true">
+    <div class="modal trophy-modal">
+      <div class="title">TROPHIES</div>
+      <div class="final muted" id="trophyProgress">0/50 earned</div>
+      <div id="trophyList" class="trophy-list"></div>
+      <button id="closeTrophies" type="button">Close</button>
+    </div>
+  </div>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

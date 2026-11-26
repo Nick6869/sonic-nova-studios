@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hell Climb</title>
+
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-left">
+      <div class="title-row">
+        <div class="title">HELL CLIMB</div>
+        <div class="badge" id="modeBadge">CLASSIC</div>
+        <div class="badge subtle" id="dailyDate" hidden></div>
+      </div>
+      <div class="hint">Arrow keys or A/D to move. Hold Shift/S to brace during descent. Space, hold Shoot, or tap to fire. Launch pads, wings, and blue gates buy height; void maws demand distance.</div>
+      <div class="run-goal" id="runGoal">RITE: --</div>
+      <div class="run-pact" id="runPact">PACT: NONE</div>
+    </div>
+
+    <div class="hud-right">
+      <div class="stat">HEIGHT: <span id="height">0</span></div>
+      <div class="stat">BEST: <span id="best">0</span></div>
+      <div class="stat">SOULS: <span id="souls">0</span></div>
+      <button id="shootBtn" class="hud-action" type="button">Shoot</button>
+      <button id="trophyBtn" class="hud-action" type="button" title="View trophies">Trophies <span id="trophyCount">0/50</span></button>
+      <button id="pauseBtn" class="hud-action" type="button">Pause</button>
+      <button id="mainMenuBtn" class="hud-action" type="button">Main Menu</button>
+      <button id="muteBtn" class="hud-action" type="button">Mute</button>
+      <button id="modeBtn" class="hud-action" type="button" title="Switch between Classic, Daily, and Hell">Mode</button>
+      <button id="restart" class="hud-action" type="button">Restart</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <canvas id="game" width="600" height="650" aria-label="Hell Climb canvas"></canvas>
+    <section class="mobile-controls" aria-label="Mobile game controls">
+      <div class="mobile-move-row" aria-label="Movement controls">
+        <button id="mobileLeftBtn" class="mobile-arrow" type="button" aria-label="Move left">&#9664;</button>
+        <button id="mobileRightBtn" class="mobile-arrow" type="button" aria-label="Move right">&#9654;</button>
+      </div>
+      <div class="mobile-action-row">
+        <button id="mobileShootBtn" type="button">Shoot</button>
+        <button id="mobileTiltBtn" type="button">Tilt: Off</button>
+        <button id="mobilePauseBtn" type="button">Pause</button>
+        <button id="mobileMainMenuBtn" type="button">Main Menu</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="mainMenu" class="overlay menu-overlay">
+    <div class="panel menu-panel">
+      <div class="title-screen-wrap" aria-label="Hell Climb">
+        <img class="title-screen" src="assets/titlecard.webp" alt="Hell Climb title screen" />
+        <div class="title-screen-ember"></div>
+        <div class="title-screen-vignette"></div>
+      </div>
+
+      <div class="menu-panel-content">
+        <div class="menu-stats">
+          <div>CLASSIC BEST: <span id="menuClassicBest">0</span></div>
+          <div>DAILY BEST: <span id="menuDailyBest">0</span></div>
+          <div>HELL BEST: <span id="menuHellBest">0</span></div>
+          <div>SOULS BANKED: <span id="menuSouls">0</span></div>
+          <div>RITES COMPLETE: <span id="menuRites">0</span></div>
+          <div>BEST RITE CHAIN: <span id="menuRiteChain">0</span></div>
+          <div id="menuGoal">RITE: --</div>
+        </div>
+        <details class="menu-foldout">
+          <summary>Instructions</summary>
+          <div class="menu-foldout-body">
+            <p><strong>Move:</strong> Arrow Keys, A/D, touch arrows, or tilt.</p>
+            <p><strong>Shoot:</strong> Space, Shoot, or tap-fire to crack void maws.</p>
+            <p><strong>Platforms:</strong> stone is safe, blue drifts, bone crumbles, purple vanishes, orange launches.</p>
+            <p><strong>Mode:</strong> Classic is balanced, Daily is seeded, Hell is harsher.</p>
+          </div>
+        </details>
+        <div class="menu-actions">
+          <button id="playBtn" type="button">Play</button>
+          <button id="hellPlayBtn" type="button">Hell Mode</button>
+          <button id="menuModeBtn" type="button">Mode: Classic</button>
+          <button id="menuShopBtn" type="button">Soul Shop</button>
+          <button id="menuTrophyBtn" type="button">Trophies</button>
+        </div>
+        <details class="menu-foldout mode-foldout">
+          <summary>Mode Pacts</summary>
+          <section class="pact-picker" aria-label="Choose a run pact">
+            <div class="pact-title">MODE PACT</div>
+            <div class="pact-sub">Take on a risk for a stronger payout this run.</div>
+            <div class="pact-list" id="pactList"></div>
+          </section>
+        </details>
+        <details class="menu-foldout">
+          <summary>Options</summary>
+          <div class="sound-row">
+            <button id="menuMuteBtn" type="button">Mute</button>
+            <button id="menuMusicBtn" type="button">Music: On</button>
+            <button id="menuTiltBtn" type="button">Tilt: Off</button>
+            <label for="volumeSlider">Volume</label>
+            <input id="volumeSlider" type="range" min="0" max="100" value="70" />
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <div id="pauseOverlay" class="overlay pause-overlay" hidden>
+    <div class="panel pause-panel">
+      <div class="panel-kicker">THE PIT WAITS</div>
+      <div class="panel-title">PAUSED</div>
+      <div class="menu-actions">
+        <button id="resumeBtn" type="button">Resume</button>
+        <button id="pauseMenuBtn" type="button">Main Menu</button>
+          <button id="restartPaused" class="aoh-pause-restart" type="button">Restart run</button>
+      </div>
+      <div class="pause-sound-row">
+        <button id="pauseMusicBtn" type="button">Music: On</button>
+        <button id="pauseTiltBtn" type="button">Tilt: Off</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="panel">
+      <div class="panel-kicker">THE ABYSS COLLECTS</div>
+      <div class="panel-title">GAME OVER</div>
+      <div class="panel-body">Final height: <span id="final">0</span></div>
+      <div class="panel-sub" id="resultLine"></div>
+      <div class="recap-grid" id="runRecap"></div>
+      <div class="game-over-actions">
+        <button id="playAgain" type="button">Play Again</button>
+        <button id="gameOverMenuBtn" type="button">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="shopOverlay" class="overlay" hidden>
+    <div class="panel shop-panel" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+      <div class="panel-kicker">PAYMENT IN SOULS ONLY</div>
+      <div class="panel-title" id="shopTitle">SOUL SHOP</div>
+      <div class="panel-sub" id="shopStatus">Souls: 0</div>
+      <div class="shop-list" id="shopList"></div>
+      <button id="closeShop" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="trophyOverlay" class="overlay" hidden>
+    <div class="panel trophy-panel" role="dialog" aria-modal="true" aria-labelledby="trophyTitle">
+      <div class="panel-kicker">RELICS OF THE CLIMB</div>
+      <div class="panel-title" id="trophyTitle">TROPHIES</div>
+      <div class="panel-sub" id="trophyProgress">0/50 earned</div>
+      <div class="trophy-list" id="trophyList"></div>
+      <button id="closeTrophies" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="trophyToast" class="trophy-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

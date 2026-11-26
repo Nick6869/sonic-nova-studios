@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+  />
+  <meta name="theme-color" content="#060719" />
+  <meta name="application-name" content="Arcade of Horror" />
+  <meta name="apple-mobile-web-app-title" content="Arcade of Horror" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#060719" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Arcade of Horror</title>
+  <link rel="manifest" href="manifest.webmanifest?v=31" />
+  <link rel="privacy-policy" href="privacy.html" />
+  <link rel="icon" type="image/png" sizes="48x48" href="app-assets/icons/icon-48.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="app-assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="app-assets/icons/icon-180.png" />
+  <link rel="preload" as="image" href="hub-assets/background.webp" />
+  <link rel="stylesheet" href="arcade.css?v=28" />
+  <script src="app-assets/developer-mode.js?v=1" defer></script>
+  <script src="app-assets/mobile-runtime.js?v=2" defer></script>
+  <link rel="stylesheet" href="app-assets/arcade-ux.css?v=4" />
+  <script src="app-assets/save-data.js?v=2" defer></script>
+  <script src="app-assets/arcade-ux.js?v=4" defer></script>
+  <script src="arcade.js?v=27" defer></script>
+</head>
+<body class="app-booting">
+  <section class="launch-screen" id="launchScreen" role="status" aria-live="polite" aria-busy="true">
+    <img src="app-assets/icons/icon-192.png" alt="" />
+    <div>
+      <p class="launch-kicker">Sonic Nova Studios</p>
+      <h1>Arcade of Horror</h1>
+      <p id="launchStatus">Loading game bundle</p>
+    </div>
+    <span class="launch-loader" aria-hidden="true"></span>
+  </section>
+
+  <div class="atmosphere" aria-hidden="true">
+    <div class="fog fog-one"></div>
+    <div class="fog fog-two"></div>
+  </div>
+
+  <main class="arcade-screen" id="arcadeScreen">
+    <header class="marquee">
+      <div class="cabinet-top">
+        <img class="studio-mark" src="hub-assets/channels4_profile.jpg" alt="" />
+        <p><strong>Sonic Nova Studios</strong><span>Presents</span></p>
+        <span class="cabinet-light"></span>
+      </div>
+
+      <img
+        class="studio-backdrop"
+        src="hub-assets/background.webp"
+        alt=""
+      />
+
+      <div class="hero">
+        <p class="eyebrow">Eight nightmares. One arcade.</p>
+        <h1 class="hero-title">Arcade of Horror</h1>
+        <p class="intro">
+          Step into the cabinet and choose your curse. Every game is playable from this hall.
+        </p>
+        <div class="hero-actions">
+          <a class="primary-action" href="#collection">Choose A Game</a>
+          <button class="install-action" id="installButton" type="button" hidden>Install</button>
+          <button class="continue-action" id="continueButton" type="button" hidden>
+            Reopen <span id="continueTitle"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="collection" id="collection" aria-labelledby="collectionTitle">
+      <div class="collection-heading">
+        <div>
+          <p class="section-label">Select A Cabinet</p>
+          <h2 id="collectionTitle">Playable Nightmares</h2>
+        </div>
+        <div class="collection-meta" aria-label="Collection progress">
+          <p class="game-total"><strong id="gameCount">0</strong> games available</p>
+          <p><strong id="collectionMastery">0/414</strong> trophies claimed</p>
+          <p><strong id="collectionRecords">0/8</strong> records set</p>
+          <p><strong id="dailyFeatured">Daily: Loading</strong></p>
+        </div>
+      </div>
+
+      <div class="game-grid" id="gameGrid" aria-live="polite"></div>
+    </section>
+
+    <footer class="arcade-footer">
+      <span>Sonic Nova Studios</span>
+      <span class="footer-rule"></span>
+      <a href="privacy.html">Privacy</a>
+      <div class="offline-tools" id="offlineTools" hidden>
+        <button type="button" id="offlineButton">Download for offline play</button>
+        <span id="offlineStatus" role="status"></span>
+      </div>
+      <span>Arcade of Horror</span>
+    </footer>
+  </main>
+
+  <section class="player-screen" id="playerScreen" aria-label="Now playing" hidden>
+    <header class="player-bar">
+      <button class="bar-button back-button" id="backButton" type="button">
+        <span aria-hidden="true">&larr;</span> Arcade
+      </button>
+      <div class="playing-title">
+        <span><img src="hub-assets/channels4_profile.jpg" alt="" /> Now Playing</span>
+        <h2 id="playingTitle">Game</h2>
+      </div>
+      <div class="player-actions">
+        <button class="bar-button" id="fullscreenButton" type="button" aria-pressed="false">
+          Fullscreen
+        </button>
+      </div>
+    </header>
+
+    <div class="frame-shell is-loading" id="frameShell">
+      <div class="loading-screen" aria-live="polite">
+        <span class="loading-mark" aria-hidden="true"></span>
+        <span>Opening <strong id="loadingTitle">game</strong></span>
+        <span class="loading-detail" id="loadingDetail">Preparing app shell</span>
+      </div>
+      <iframe
+        id="gameFrame"
+        class="game-frame"
+        title="Selected arcade game"
+        allow="autoplay; fullscreen; screen-wake-lock"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <aside class="orientation-notice" id="orientationNotice" aria-live="polite" hidden>
+      <button
+        type="button"
+        class="orientation-dismiss"
+        id="orientationDismiss"
+        aria-label="Dismiss orientation notice"
+      >&times;</button>
+      <span id="orientationTitle">Rotate Device</span>
+      <p id="orientationMessage">This cabinet plays best in the requested orientation.</p>
+    </aside>
+  </section>
+
+  <noscript>
+    <p class="no-script">Arcade of Horror needs JavaScript enabled to open its games.</p>
+  </noscript>
+</body>
+</html>

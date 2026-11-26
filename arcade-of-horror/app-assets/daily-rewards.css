@@ -1,0 +1,97 @@
+.daily-reward-trigger {
+  position: fixed;
+  z-index: 9998;
+  right: max(14px, env(safe-area-inset-right, 0px));
+  bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 210, 122, 0.42);
+  border-radius: 999px;
+  color: #17090d;
+  background: #ffd27e;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.38);
+  font: 700 12px/1 "Courier New", monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.daily-reward-trigger:focus-visible,
+.daily-reward button:focus-visible {
+  outline: 3px solid #fff7e9;
+  outline-offset: 3px;
+}
+
+.daily-reward {
+  position: fixed;
+  z-index: 10000;
+  right: max(14px, env(safe-area-inset-right, 0px));
+  bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  width: min(360px, calc(100% - 28px));
+  padding: 15px;
+  border: 1px solid rgba(255, 210, 122, 0.42);
+  border-radius: 8px;
+  color: #f7f1e6;
+  background: rgba(10, 7, 15, 0.96);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.58), 0 0 24px rgba(180, 54, 76, 0.2);
+  font-family: "Courier New", monospace;
+  line-height: 1.35;
+}
+
+.daily-reward[hidden] { display: none; }
+.daily-reward strong { display: block; color: #ffd27e; font-size: 15px; text-transform: uppercase; }
+.daily-reward p { margin: 7px 0 12px; color: #d7cfda; font-size: 13px; }
+.daily-reward-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.daily-reward button {
+  min-height: 40px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 210, 122, 0.42);
+  border-radius: 6px;
+  color: #fff7e9;
+  background: #35151d;
+  font: 700 12px/1 "Courier New", monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.daily-reward button:first-child { color: #17090d; background: #ffd27e; }
+
+@media (pointer: coarse), (max-width: 760px), (max-height: 760px) {
+  .daily-reward {
+    top: auto;
+    right: max(8px, env(safe-area-inset-right, 0px));
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    left: auto;
+    width: min(278px, calc(100% - 16px));
+    padding: 9px 10px;
+    backdrop-filter: blur(10px);
+  }
+
+  .daily-reward strong {
+    font-size: 12px;
+  }
+
+  .daily-reward p {
+    margin: 4px 0 7px;
+    font-size: 11px;
+  }
+
+  .daily-reward-actions {
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .daily-reward button {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Keep the daily reward prompt readable without covering the title artwork. */
+.daily-reward {
+  border-color: rgba(255, 210, 122, 0.3);
+  border-radius: 12px;
+  background: rgba(10, 7, 15, 0.76);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.38), 0 0 18px rgba(180, 54, 76, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}

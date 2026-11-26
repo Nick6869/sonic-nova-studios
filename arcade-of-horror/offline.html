@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#060719" />
+  <title>Arcade of Horror Offline</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --night: #060719;
+      --panel: #10122c;
+      --ember: #53dfff;
+      --bone: #f4f8ff;
+      --bone-dim: #9baacb;
+      --blood: #f04bff;
+      --mono: "Lucida Console", "Courier New", monospace;
+      --ui: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--night);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+      color: var(--bone);
+      font-family: var(--ui);
+    }
+
+    main {
+      width: min(440px, 100%);
+      padding: 28px;
+      border: 1px solid rgba(83, 223, 255, 0.28);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+      text-align: center;
+    }
+
+    img {
+      display: block;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 22px;
+      border-radius: 18px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font: 1.8rem Georgia, "Times New Roman", serif;
+    }
+
+    p {
+      margin: 0;
+      color: var(--bone-dim);
+      line-height: 1.55;
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      margin-top: 24px;
+      padding: 0 20px;
+      border: 1px solid rgba(83, 223, 255, 0.55);
+      border-radius: 7px;
+      color: var(--night);
+      background: var(--ember);
+      font: 700 0.8rem var(--mono);
+      letter-spacing: 0.11em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Arcade Offline</h1>
+    <p>This screen is unavailable offline. Use the Arcade button to return to the lobby. When connected, choose Download for offline play to save all eight cabinets.</p>
+    <a href="">Retry</a>
+  </main>
+</body>
+</html>

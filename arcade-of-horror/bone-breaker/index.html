@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bone Breaker</title>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-chip"><span class="hud-label">Score</span><span id="score">0</span></div>
+    <div class="hud-chip"><span class="hud-label">Record</span><span id="best">0</span></div>
+    <div class="hud-chip"><span class="hud-label">Level</span><span id="wave">1 / 6</span></div>
+    <div class="hud-chip"><span class="hud-label">Lives</span><span id="lives">3</span></div>
+    <div class="hud-chip bounty-chip">
+      <span class="hud-label">Bounty</span>
+      <span id="bounty">Awaiting hunt</span>
+    </div>
+    <div class="hud-chip ritual-chip">
+      <span class="hud-label">Ritual</span>
+      <div class="ritual-track" role="meter" aria-label="Ritual charge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 percent charged"><span id="ritual-fill"></span></div>
+      <span id="ritual">0%</span>
+    </div>
+    <div id="power" class="power-readout">Power: None</div>
+    <button id="soulfire" type="button" disabled>Soulfire 0%</button>
+    <button id="auto-launch" type="button" title="Automatically launch held balls">Auto Launch: Off</button>
+    <button id="trophies" type="button" title="View trophies" aria-expanded="false" aria-controls="trophy-overlay">Trophies <span id="trophy-count">0/50</span></button>
+    <button id="pause" type="button" title="Pause">Pause</button>
+    <button id="restart" type="button" title="Restart">Restart</button>
+  </header>
+
+  <main class="wrap">
+    <div class="frame">
+      <canvas id="game" width="600" height="650" aria-label="Bone Breaker game canvas"></canvas>
+
+      <div id="title-screen" class="title-screen" aria-label="Bone Breaker title screen">
+        <div class="title-art-wrap" aria-hidden="true">
+          <img class="title-art" src="Assets/titlecard.webp" alt="" />
+          <div class="title-art-glow"></div>
+          <div class="title-art-vignette"></div>
+        </div>
+
+        <div class="title-panel">
+          <p>Break cursed bricks, choose a vow, and clear the graveyard levels.</p>
+          <p id="career-summary">No hunts logged yet.</p>
+          <div class="title-menu-actions">
+            <button id="title-start" class="title-start" type="button">Play</button>
+            <button id="title-sound-toggle" class="secondary-button" type="button" aria-pressed="true">Sound: On</button>
+            <button id="title-trophies" class="secondary-button" type="button" aria-controls="trophy-overlay" aria-expanded="false">Trophies</button>
+            <details class="menu-foldout">
+              <summary>Instructions</summary>
+              <div class="menu-foldout-body">
+                <p><strong>Move:</strong> Arrow Keys, A/D, mouse, or touch.</p>
+                <p><strong>Launch:</strong> Aim the paddle, then tap or click to launch.</p>
+                <p><strong>Ritual:</strong> Break bricks to charge Soulfire. Press E when full.</p>
+                <p><strong>Run:</strong> Clear six levels, chase bounties, and pick relics after waves.</p>
+              </div>
+            </details>
+            <details class="menu-foldout mode-foldout">
+              <summary>Modes</summary>
+              <section class="vow-board" aria-label="Select a hunt vow">
+                <div class="vow-heading">
+                  <h2>Mode</h2>
+                  <p id="vow-description">Gravekeeper is balanced. Blood Moon is faster and crueler. Soulbound starts with ritual charge.</p>
+                </div>
+                <div class="vow-options">
+                  <button class="vow-option selected" type="button" data-vow="keeper" aria-pressed="true"><strong>Gravekeeper</strong><span>Balanced</span></button>
+                  <button class="vow-option" type="button" data-vow="blood" aria-pressed="false"><strong>Blood Moon</strong><span>High Risk</span></button>
+                  <button class="vow-option" type="button" data-vow="soulbound" aria-pressed="false"><strong>Soulbound</strong><span>Soulfire</span></button>
+                </div>
+              </section>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div id="overlay" class="overlay hidden" aria-hidden="true">
+        <div class="panel">
+          <div id="over-title" class="title">GAME OVER</div>
+          <div id="score-summary" class="subtitle">Final Score: <span id="final-score">0</span></div>
+          <p id="overlay-copy" class="overlay-copy">The crypt seals shut... unless you break it open again.</p>
+          <div id="run-stats" class="run-stats hidden" aria-live="polite"></div>
+          <div id="upgrade-select" class="upgrade-select hidden" aria-label="Choose a relic"></div>
+          <button id="play-again" type="button">Play Again</button>
+          <button id="quick-retry" class="secondary-button hidden" type="button">Quick Retry Same Vow</button>
+          <button id="continue-endless" class="secondary-button hidden" type="button">Continue Endless Night</button>
+        </div>
+      </div>
+
+      <div id="trophy-overlay" class="overlay hidden" aria-hidden="true">
+        <div class="panel trophy-panel">
+          <div class="title">TROPHIES</div>
+          <div id="trophy-progress" class="subtitle">0/50 earned</div>
+          <div id="trophy-list" class="trophy-list"></div>
+          <button id="close-trophies" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Move: &larr; &rarr;, A/D, mouse, or touch. Launch clean angles, chase bounties, trigger Ritual with E when charged. Pause: P / Esc.</p>
+
+    <details class="instructions-box">
+      <summary>
+        <span>Instructions & Brick Guide</span>
+        <small>Gameplay notes, bounties, powerups</small>
+      </summary>
+
+      <section class="run-guide" aria-label="Run features">
+        <div>
+          <h2>Break The Seal</h2>
+          <p>Survive six named levels, each with its own cursed backdrop. Break the final altar level to unlock Endless Night for that run.</p>
+        </div>
+        <div>
+          <h2>Hunt Bounties</h2>
+          <p>Each level offers a fresh feat to claim for bonus souls. Clear a level to choose a permanent relic.</p>
+        </div>
+        <div>
+          <h2>Unleash Ritual</h2>
+          <p>Break bricks to fill the meter. Press <strong>E</strong> at full charge for a piercing Soulfire volley.</p>
+        </div>
+      </section>
+
+      <section class="legend" aria-label="Brick and relic types">
+        <div class="legend-card">
+          <span class="legend-icon bone">B</span>
+          <span><strong>Bone</strong> Basic brick</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon cracked">X2</span>
+          <span><strong>Cracked Bone</strong> Takes 2 hits</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon skull">SK</span>
+          <span><strong>Skull</strong> Bonus points</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon cursed">!</span>
+          <span><strong>Cursed</strong> May drop a bad powerup</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon coffin">III</span>
+          <span><strong>Coffin</strong> Takes 3 hits</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon reliquary">$</span>
+          <span><strong>Reliquary</strong> Rich soul charge</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon volatile">*</span>
+          <span><strong>Volatile</strong> Blasts neighbors</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon altar">VI</span>
+          <span><strong>Altar</strong> Boss barrier</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon multi">x3</span>
+          <span><strong>Multi</strong> Adds balls</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon slow">S</span>
+          <span><strong>Chill</strong> Slows the ball</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon shield">O</span>
+          <span><strong>Ward</strong> Blocks a miss</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon soul">E</span>
+          <span><strong>Soul</strong> Charges ritual</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon cleave">|</span>
+          <span><strong>Cleave</strong> Strikes a column</span>
+        </div>
+        <div class="legend-card">
+          <span class="legend-icon life">+</span>
+          <span><strong>Life</strong> Restores a heart</span>
+        </div>
+      </section>
+    </details>
+  </main>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36" defer></script>
+</body>
+</html>

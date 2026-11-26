@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serpent Sin</title>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="../app-assets/leaderboard.css?v=2" />
+  <link rel="stylesheet" href="../app-assets/daily-rewards.css" />
+  <link rel="stylesheet" href="../app-assets/arcade-ux.css?v=4" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="game-header">
+      <div class="title-lockup">
+        <h1>Serpent Sin</h1>
+        <span id="omenName" class="omen-chip">Nightfall</span>
+      </div>
+
+      <button id="muteBtn" class="small-btn" type="button">Sound: On</button>
+    </header>
+
+    <section class="hud">
+      <div class="hud-card">
+        <span>Souls Eaten</span>
+        <strong id="score">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Best Curse</span>
+        <strong id="highScore">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Horror Zone</span>
+        <strong id="stageName">Graveyard</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Streak</span>
+        <strong id="streak">0x</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Dread</span>
+        <strong id="dread">0/4</strong>
+      </div>
+    </section>
+
+    <section class="ritual-panel" aria-label="Ritual objective">
+      <div class="ritual-heading">
+        <span>Ritual Path</span>
+        <strong id="ritualName">First Offering</strong>
+      </div>
+      <div class="ritual-detail">
+        <p id="ritualGoal" aria-live="polite">Devour brains to manifest a sigil.</p>
+        <span id="omenRule" class="omen-rule">No omen modifiers.</span>
+        <div id="vowTrack" class="vow-track" aria-label="Blood vows"></div>
+        <div id="pactTrack" class="pact-track" aria-label="Mutations acquired">
+          <span class="pact-empty">No mutations grown</span>
+        </div>
+      </div>
+      <div id="sealTrack" class="seal-track" aria-label="Seals claimed"></div>
+    </section>
+
+    <section class="game-area">
+      <canvas id="gameCanvas" width="600" height="600" aria-label="Serpent Sin game board"></canvas>
+
+      <div id="overlay" class="overlay" aria-hidden="false">
+        <div class="title-art-vignette" aria-hidden="true"></div>
+        <div class="overlay-card">
+          <h2 id="overlayTitle">Serpent Sin</h2>
+          <p id="overlayText" aria-live="polite"></p>
+
+          <div id="menuPanel" class="menu-panel" aria-label="Game options">
+            <div id="careerSummary" class="difficulty-description">Start with Classic: eat brains and avoid your body. Try Haunted after your first run.</div>
+            <details class="menu-foldout mode-foldout">
+              <summary>Modes</summary>
+              <div class="menu-section">
+                <span class="menu-label">Mode</span>
+                <div class="segmented-control" role="group" aria-label="Difficulty">
+                  <button class="segment-btn" data-difficulty="classic" type="button">Classic</button>
+                  <button class="segment-btn" data-difficulty="haunted" type="button">Haunted</button>
+                  <button class="segment-btn" data-difficulty="nightmare" type="button">Nightmare</button>
+                </div>
+                <div id="difficultyDescription" class="difficulty-description"></div>
+              </div>
+            </details>
+
+            <details class="menu-foldout">
+              <summary>Instructions</summary>
+              <div class="menu-foldout-body">
+                <p><strong>Move:</strong> arrows, WASD, Q/E turns, swipe, or D-pad.</p>
+                <p><strong>Eat:</strong> collect brains to grow and build streaks.</p>
+                <p><strong>Avoid:</strong> walls, hazards, and your own body.</p>
+                <p><strong>Modes:</strong> Classic is pure snake. Haunted and Nightmare add omens, rituals, and mutations.</p>
+              </div>
+            </details>
+
+            <div class="option-row">
+              <button id="menuSoundBtn" class="option-btn" type="button">Sound: On</button>
+              <button id="motionBtn" class="option-btn" type="button">Motion: Full</button>
+              <button id="trophiesBtn" class="option-btn" type="button" aria-expanded="false" aria-controls="trophyPanel">Trophies <span id="trophyCount">0/50</span></button>
+              <button id="resetBestBtn" class="option-btn" type="button">Reset Best</button>
+            </div>
+          </div>
+
+          <div id="trophyPanel" class="trophy-panel" hidden>
+            <div id="trophyProgress" class="difficulty-description">0/50 earned</div>
+            <div id="trophyList" class="trophy-list"></div>
+          </div>
+
+          <div id="pactPanel" class="pact-panel" hidden aria-label="Choose a body horror mutation">
+            <span class="menu-label">Choose A Mutation For This Run</span>
+            <div id="pactChoices" class="pact-choices"></div>
+          </div>
+
+          <button id="startBtn" class="main-btn" type="button">Start Run</button>
+          <button id="restartPaused" class="aoh-pause-restart" type="button" hidden>Restart run</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="key-strip" aria-label="Keyboard controls">
+        <span>WASD</span>
+        <span>Arrows</span>
+        <span>Q / E Turn</span>
+        <span>Space / P</span>
+        <span>Esc</span>
+        <span>R Retry</span>
+        <span>Enter</span>
+        <span>Swipe</span>
+        <span>M</span>
+      </div>
+
+      <div class="mobile-controls" aria-label="Mobile controls">
+        <button class="dir-btn up" data-dir="up" type="button" aria-label="Up">&uarr;</button>
+        <button class="dir-btn left" data-dir="left" type="button" aria-label="Left">&larr;</button>
+        <button id="mobilePauseBtn" class="dir-btn pause-mobile" type="button" aria-label="Pause or resume">Pause</button>
+        <button class="dir-btn down" data-dir="down" type="button" aria-label="Down">&darr;</button>
+        <button class="dir-btn right" data-dir="right" type="button" aria-label="Right">&rarr;</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../app-assets/developer-mode.js?v=1"></script>
+  <script src="../app-assets/leaderboard-config.js"></script>
+  <script src="../app-assets/leaderboard.js?v=2"></script>
+  <script src="../app-assets/daily-rewards.js?v=2"></script>
+  <script src="../app-assets/mobile-runtime.js?v=2"></script>
+  <script src="../app-assets/save-data.js?v=2"></script>
+  <script src="../app-assets/arcade-ux.js?v=4"></script>
+  <script src="game.js?v=36"></script>
+</body>
+</html>
